@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class BrewPiSpark(models.Model):
     device_id = models.CharField(verbose_name='Device Id', max_length=30, primary_key=True)
-    name = models.CharField(verbose_name='Name', max_length=100)
+    name = models.CharField(verbose_name='Name', max_length=100, unique=True)
     device_mode = models.CharField(verbose_name='Device Mode', max_length=20)
     device_config = models.CharField(verbose_name='Device Config', max_length=100, null=True)
     firmware_version = models.FloatField(verbose_name='Firmware Version')
@@ -46,9 +46,7 @@ class BrewPiSpark(models.Model):
             spark.firmware_version = status.get("firmware_version")
             spark.board_revision = status.get("board_revision")
             spark.ip_address = status.get("ip_address")
-
-            utc = pytz.timezone('UTC')
-            spark.last_update = utc.localize(datetime.utcnow())
+            spark.last_update = timezone.now()
 
             logger.debug(spark.__str__())
 
@@ -67,7 +65,7 @@ class BrewPiSpark(models.Model):
     @classmethod
     def create(cls, device_id, device_mode, device_config, firmware_version, board_revision, ip_address):
         spark = cls(device_id, '', device_mode, device_config, firmware_version, board_revision, ip_address)
-        spark.last_update = datetime.utcnow()
+        spark.last_update = timezone.now()
 
         return spark
 
