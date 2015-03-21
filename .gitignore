@@ -53,5 +53,6 @@ docs/_build/
 # PyBuilder
 target/
 
-/db.oinkbrew
+# project specific files
+db.oinkbrew
 /.idea/
