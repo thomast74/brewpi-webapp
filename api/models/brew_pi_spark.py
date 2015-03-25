@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 class BrewPiSpark(models.Model):
     device_id = models.CharField(verbose_name='Device Id', max_length=30, primary_key=True)
-    name = models.CharField(verbose_name='Name', max_length=100, unique=True)
-    device_mode = models.CharField(verbose_name='Device Mode', max_length=20)
-    device_config = models.CharField(verbose_name='Device Config', max_length=100, null=True)
-    firmware_version = models.FloatField(verbose_name='Firmware Version')
+    name = models.CharField(verbose_name='Name', max_length=100, unique=True, null=True)
+    device_mode = models.CharField(verbose_name='Device Mode', max_length=20,default="MANUAL")
+    device_config = models.FloatField(verbose_name='Device Config', default=0.0)
+    firmware_version = models.FloatField(verbose_name='Firmware Version', default=0.0)
     board_revision = models.CharField(verbose_name='Board Revision', max_length=10)
     ip_address = models.GenericIPAddressField(verbose_name='Ip Address')
     last_update = models.DateTimeField(verbose_name='Last Update')
@@ -64,7 +64,7 @@ class BrewPiSpark(models.Model):
 
     @classmethod
     def create(cls, device_id, device_mode, device_config, firmware_version, board_revision, ip_address):
-        spark = cls(device_id, '', device_mode, device_config, firmware_version, board_revision, ip_address)
+        spark = cls(device_id, device_id, device_mode, device_config, firmware_version, board_revision, ip_address)
         spark.last_update = timezone.now()
 
         return spark
