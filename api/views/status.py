@@ -2,6 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from api.models import BrewPiSpark
+from api.tasks import status_message
 
 
 @require_http_methods(["POST"])
@@ -12,6 +13,7 @@ def save_or_update_status(request):
 
     if spark is not None:
         spark.save()
+        status_message.check_if_status_update_required.delay(spark.device_id)
         return HttpResponse("OK")
     else:
         return HttpResponse("ERROR")

@@ -7,6 +7,10 @@ SECRET_KEY = '!f+8y8k8$djmc6!o9-h=^7=%uqyltzh!3@4iy)eq2h!y8nh@l='
 DEBUG = True
 TEMPLATE_DEBUG = True
 
+
+SPARK_PORT = 7873
+
+
 ALLOWED_HOSTS = []
 ROOT_URLCONF = 'oinkbrew_webapp.urls'
 WSGI_APPLICATION = 'oinkbrew_webapp.wsgi.application'
@@ -25,6 +29,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'djcelery',
     'api'
 )
 
