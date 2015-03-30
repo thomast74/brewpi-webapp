@@ -4,11 +4,16 @@ from django.views.decorators.http import require_http_methods
 from api.models import BrewPiSpark
 from api.tasks import status_message
 
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 @require_http_methods(["POST"])
 @csrf_exempt
-def save_or_update_status(request):
-
+def checkin(request):
+    logger.info("Check in request received")
     spark = BrewPiSpark.from_json(request.body)
 
     if spark is not None:

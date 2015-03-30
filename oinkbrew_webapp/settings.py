@@ -1,21 +1,24 @@
 import os
 
-
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-SECRET_KEY = '!f+8y8k8$djmc6!o9-h=^7=%uqyltzh!3@4iy)eq2h!y8nh@l='
-
+#
+# Application Settings
+#
 DEBUG = True
 TEMPLATE_DEBUG = True
-
+TIME_ZONE = 'UTC'
+TEMP_TYPE = 'C'
 
 SPARK_PORT = 7873
 
-
+#
+# Framework Settings
+#
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+SECRET_KEY = '!f+8y8k8$djmc6!o9-h=^7=%uqyltzh!3@4iy)eq2h!y8nh@l='
 ALLOWED_HOSTS = []
 ROOT_URLCONF = 'oinkbrew_webapp.urls'
 WSGI_APPLICATION = 'oinkbrew_webapp.wsgi.application'
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True

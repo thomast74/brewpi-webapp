@@ -1,10 +1,5 @@
-* when status message is received create task StatusMessageVerification
-* create a TCPClient to talk to Oink Firmware
+* Implement spark set mode 
 * StatusMessageVerification check if configuration version is different to configured one, and if remote ip address id different or empty
-
-* how to store temp type settings???
-
-
 * create a web page that shows all Spark's and their current configuration 
 
 
