@@ -5,5 +5,6 @@ from api.views import spark_status
 
 urlpatterns = patterns('',
     url(r'^spark/status/', spark_status.checkin),
+    url(r'^spark/(?P<device_id>\w+)/mode/', spark.set_mode),
     url(r'^spark/(?P<device_id>\w+)/reset/', spark.reset),
 )

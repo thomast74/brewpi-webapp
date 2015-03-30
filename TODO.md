@@ -1,4 +1,5 @@
-* Implement spark set mode 
+* retrieve sensor/actuator list from specific Spark
+
 * StatusMessageVerification check if configuration version is different to configured one, and if remote ip address id different or empty
 * create a web page that shows all Spark's and their current configuration 
 

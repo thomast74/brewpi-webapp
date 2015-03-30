@@ -13,6 +13,23 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(["POST"])
 @csrf_exempt
+def set_mode(request, device_id):
+    logger.info("Received spark set mode request for {}".format(device_id))
+    spark = BrewPiSpark.objects.get(device_id=device_id)
+    device_mode = request.POST.get("device_mode", "MANUAL")
+
+    if spark is not None and device_mode in ('MANUAL','LOGGING','AUTOMATIC'):
+        spark_connector.set_mode(spark, device_mode)
+        spark.device_mode = device_mode
+        spark.save()
+
+        return HttpResponse("OK")
+    else:
+        return HttpResponse("ERROR")
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
 def reset(request, device_id):
     logger.info("Received spark reset request for {}".format(device_id))
     spark = BrewPiSpark.objects.get(device_id=device_id)

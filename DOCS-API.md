@@ -18,5 +18,5 @@ Impl | Entry Point | METHOD | Description
 -----|-------------|--------|------------
 Y | /api/spark/status                   | POST   | Receive Spark status updates and check in Spark
 Y | /api/spark/{device_id}/reset        | POST   | Force Spark to reset/clear all settings
-N | /api/spark/{device_id}/mode         | POST   | Change mode to either [MANUAL,LOGGING,AUTOMATIC]
+Y | /api/spark/{device_id}/mode         | POST   | Change mode to either [MANUAL,LOGGING,AUTOMATIC]
 N | /api/spark/{device_id}/devices/{id} | POST   | In case device is an actuator change the state
