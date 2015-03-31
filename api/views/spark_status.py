@@ -19,6 +19,7 @@ def checkin(request):
     if spark is not None:
         spark.save()
         status_message.check_if_status_update_required.delay(spark.device_id)
-        return HttpResponse("OK")
+
+        return HttpResponse('{"Status":"OK"}\n')
     else:
-        return HttpResponse("ERROR")
+        return HttpResponse('{"Status":"ERROR"}\n')

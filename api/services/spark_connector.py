@@ -36,6 +36,21 @@ def reset_device(spark):
     return
 
 
+def set_name(spark, name):
+    logger.info("Change name for {} to {}".format(spark, name))
+    sock = start_connection(spark.ip_address)
+
+    try:
+        message = "d{{name:{}}}".format(spark.name)
+        logger.debug("Send data: {}".format(message))
+        sock.sendall(message)
+        data = sock.recv(1024)
+        logger.info("Response: {}".format(data))
+    finally:
+        sock.close()
+    return
+
+
 def set_mode(spark, device_mode):
     logger.info("Change mode for {} to {}".format(spark, device_mode))
     sock = start_connection(spark.ip_address)

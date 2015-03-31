@@ -20,12 +20,31 @@ def set_mode(request, device_id):
 
     if spark is not None and device_mode in ('MANUAL','LOGGING','AUTOMATIC'):
         spark_connector.set_mode(spark, device_mode)
+
         spark.device_mode = device_mode
         spark.save()
 
-        return HttpResponse("OK")
+        return HttpResponse('{"Status":"OK"}\n')
     else:
-        return HttpResponse("ERROR")
+        return HttpResponse('{"Status":"ERROR"}\n')
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def set_name(request, device_id):
+    logger.info("Received spark set name request for {}".format(device_id))
+    spark = BrewPiSpark.objects.get(device_id=device_id)
+    name = request.POST.get("name", None)
+
+    if spark is not None:
+        spark_connector.set_name(spark, name)
+
+        spark.name = name
+        spark.save()
+
+        return HttpResponse('{"Status":"OK"}\n')
+    else:
+        return HttpResponse('{"Status":"ERROR"}\n')
 
 
 @require_http_methods(["POST"])
@@ -47,6 +66,6 @@ def reset(request, device_id):
         spark.last_update = timezone.now()
         spark.save()
 
-        return HttpResponse("OK")
+        return HttpResponse('{"Status":"OK"}\n')
     else:
-        return HttpResponse("ERROR")
+        return HttpResponse('{"Status":"ERROR"}\n')
