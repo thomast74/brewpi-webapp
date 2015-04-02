@@ -1,3 +1,4 @@
+from django.core import serializers
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -5,10 +6,30 @@ from django.utils import timezone
 from api.models import BrewPiSpark
 from api.services.spark_connector import Connector
 
+import json
 import logging
 
 
 logger = logging.getLogger(__name__)
+
+
+@require_http_methods(["GET"])
+def list(request):
+    logger.info("Request list of all registered sparks")
+    format = request.GET.get("format", "json")
+    pretty = request.GET.get("pretty", "True")
+
+    if format not in ('json'):
+        return HttpResponse('{"Status":"ERROR","Message":"Only Json supported"}\n', content_type="application/json", status=400)
+
+    sparks = serializers.serialize(format, BrewPiSpark.objects.all())
+
+    logger.debug("Sparks: " + sparks)
+
+    if pretty == "True":
+        sparks = json.dumps(json.loads(sparks), indent=2)
+
+    return HttpResponse(sparks, content_type="application/json")
 
 
 @require_http_methods(["POST"])
@@ -24,9 +45,9 @@ def set_mode(request, device_id):
         spark.device_mode = device_mode
         spark.save()
 
-        return HttpResponse('{"Status":"OK"}\n')
+        return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
     else:
-        return HttpResponse('{"Status":"ERROR"}\n')
+        return HttpResponse('{"Status":"ERROR"}\n', content_type="application/json", status=400)
 
 
 @require_http_methods(["POST"])
@@ -42,9 +63,9 @@ def set_name(request, device_id):
         spark.name = name
         spark.save()
 
-        return HttpResponse('{"Status":"OK"}\n')
+        return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
     else:
-        return HttpResponse('{"Status":"ERROR"}\n')
+        return HttpResponse('{"Status":"ERROR"}\n', content_type="application/json", status=400)
 
 
 @require_http_methods(["POST"])
@@ -66,9 +87,9 @@ def reset(request, device_id):
         spark.last_update = timezone.now()
         spark.save()
 
-        return HttpResponse('{"Status":"OK"}\n')
+        return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
     else:
-        return HttpResponse('{"Status":"ERROR"}\n')
+        return HttpResponse('{"Status":"ERROR"}\n', content_type="application/json", status=400)
 
 @require_http_methods(["POST"])
 @csrf_exempt
@@ -84,6 +105,6 @@ def update_firmware(request, device_id):
 
         Connector().update_firmware(spark)
 
-        return HttpResponse('{"Status":"OK"}\n')
+        return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
     else:
-        return HttpResponse('{"Status":"ERROR"}\n')
+        return HttpResponse('{"Status":"ERROR"}\n', content_type="application/json", status=400)
