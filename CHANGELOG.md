@@ -9,3 +9,4 @@ v0.1
 - receive POST spark set_mode and send new mode over to specific Spark provided in Url
 - receive POST spark set_name and send new name over to specific Spark provided in Url
 - Request a list of all Sparks with result in Json format
+- Delete an existing Spark with resetting the Spark first
