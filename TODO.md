@@ -1,12 +1,19 @@
+# To do list
+
+## Tasks
+
+* Firmware upload:
+   - use a special folder within web app for storing firmware binaries
+   - part of the web app allows download of new firmware from github
+   - user selects which firmware to upload
+   
 * retrieve sensor/actuator list from specific Spark
 
 * StatusMessageVerification check if configuration version is different to configured one, and if remote ip address id different or empty
 * create a web page that shows all Spark's and their current configuration 
 
 
-Ideas
------
-
+## Ideas
 
 * create webapp with basic design (header)
 * shows a portlet all registered Sparks with link to Spark main page

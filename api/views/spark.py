@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from api.models import BrewPiSpark
-from api.services import spark_connector
+from api.services.spark_connector import Connector
 
 import logging
 
@@ -19,7 +19,7 @@ def set_mode(request, device_id):
     device_mode = request.POST.get("device_mode", "MANUAL")
 
     if spark is not None and device_mode in ('MANUAL','LOGGING','AUTOMATIC'):
-        spark_connector.set_mode(spark, device_mode)
+        Connector().set_mode(spark, device_mode)
 
         spark.device_mode = device_mode
         spark.save()
@@ -37,7 +37,7 @@ def set_name(request, device_id):
     name = request.POST.get("name", None)
 
     if spark is not None:
-        spark_connector.set_name(spark, name)
+        Connector().set_name(spark, name)
 
         spark.name = name
         spark.save()
@@ -54,7 +54,7 @@ def reset(request, device_id):
     spark = BrewPiSpark.objects.get(device_id=device_id)
 
     if spark is not None:
-        spark_connector.reset_device(spark)
+        Connector().reset_device(spark)
 
         spark.name = None
         spark.device_mode = "MANUAL"
@@ -65,6 +65,24 @@ def reset(request, device_id):
         spark.web_address = "0.0.0.0"
         spark.last_update = timezone.now()
         spark.save()
+
+        return HttpResponse('{"Status":"OK"}\n')
+    else:
+        return HttpResponse('{"Status":"ERROR"}\n')
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def update_firmware(request, device_id):
+    logger.info("Update firmware on {}".format(device_id))
+    spark = BrewPiSpark.objects.get(device_id=device_id)
+
+    if spark is not None:
+
+        # get latest firmware => from where???
+        # check version with version of Spark
+        # if different send new firmware
+
+        Connector().update_firmware(spark)
 
         return HttpResponse('{"Status":"OK"}\n')
     else:

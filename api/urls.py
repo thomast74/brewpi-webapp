@@ -8,4 +8,5 @@ urlpatterns = patterns('',
     url(r'^spark/(?P<device_id>\w+)/mode/', spark.set_mode),
     url(r'^spark/(?P<device_id>\w+)/name/', spark.set_name),
     url(r'^spark/(?P<device_id>\w+)/reset/', spark.reset),
+    url(r'^spark/(?P<device_id>\w+)/firmware/', spark.update_firmware),
 )

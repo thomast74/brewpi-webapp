@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from api.celery import app
 from celery import shared_task
 from api.models.brew_pi_spark import BrewPiSpark
-from api.services.spark_connector import send_device_info
+from api.services.spark_connector import Connector
 from netifaces import interfaces, ifaddresses, AF_INET
 
 
@@ -20,7 +20,7 @@ def check_if_status_update_required(device_id):
     spark = BrewPiSpark.objects.get(device_id=device_id)
     local_ip = get_local_ip()
     if spark.web_address != local_ip:
-        send_device_info(spark, local_ip)
+        Connector().send_device_info(spark, local_ip)
 
     return "Ok"
 
