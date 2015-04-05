@@ -171,3 +171,33 @@ def delete(request, device_id):
     spark.delete()
 
     return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
+
+
+@require_http_methods(["POST"])
+def device_toggle(request, device_id, actuator_id):
+    logger.info("Toggle actuator on {} and actuator {}".format(device_id, actuator_id))
+
+    try:
+        device = Device.objects.get(pk=actuator_id)
+    except ObjectDoesNotExist:
+        return HttpResponse('{"Status":"ERROR",Message="Device does not exists"}\n',
+                            content_type="application/json",
+                            status=400)
+
+    if device.spark.device_id != device_id:
+        return HttpResponse('{"Status":"ERROR",Message="Device not assigned to given Spark"}\n',
+                            content_type="application/json",
+                            status=400)
+
+    if device.type != Device.DEVICE_HARDWARE_PIN:
+        return HttpResponse('{"Status":"ERROR",Message="Device is not a Actuator"}\n',
+                            content_type="application/json",
+                            status=400)
+
+    actuator_state = Connector().device_toggle(device)
+
+    device.value = actuator_state
+    device.save()
+
+    return HttpResponse('{{"Status":"OK","ActuatorState":"{}"}}\n'.format(actuator_state),
+                        content_type="application/json")

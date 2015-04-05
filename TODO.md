@@ -2,7 +2,6 @@
 
 ## Tasks
 
-* toggle Actuator
 * get temp sensor reading
 
 

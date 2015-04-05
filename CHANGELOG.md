@@ -13,3 +13,4 @@ v0.1
 - receive device(actuator/sensor) list from Spark specified in URL and store in database
 - Receive the Spark date time setting and store in the database
 - Send the web server date time as part of the Spark Info message
+- Toggle Device Actuator on a specific Spark provided in URL and return new state

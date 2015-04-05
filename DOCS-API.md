@@ -31,7 +31,7 @@ Y | /api/spark/{device_id}/name                | POST   | Change name of spark, 
 Y | /api/spark/{device_id}/mode                | POST   | Change mode to either [MANUAL,LOGGING,AUTOMATIC]
 ? | /api/spark/{device_id}/firmware            | POST   | Updates Spark with latest firmware
 Y | /api/spark/{device_id}/reset               | POST   | Force Spark to reset/clear all settings
-N | /api/spark/{device_id}/devices/{id}/toggle | POST   | In case device is an Actuator or PWM device change the state
+Y | /api/spark/{device_id}/devices/{id}/toggle | POST   | In case device is an Actuator or PWM device change the state
 
 Deletes
 -------

@@ -12,14 +12,19 @@ from brew_pi_spark import BrewPiSpark
 
 logger = logging.getLogger(__name__)
 
-HARDWARE_TYPE = (
-    (0, 'None'),
-    (1, 'Pin'),
-    (2, 'OneWire Temp'),
-)
-
 
 class Device(models.Model):
+
+    DEVICE_HARDWARE_NONE = 0
+    DEVICE_HARDWARE_PIN = 1
+    DEVICE_HARDWARE_ONEWIRE_TEMP = 2
+
+    HARDWARE_TYPE = (
+        (DEVICE_HARDWARE_NONE, 'None'),
+        (DEVICE_HARDWARE_PIN, 'Pin'),
+        (DEVICE_HARDWARE_ONEWIRE_TEMP, 'OneWire Temp'),
+    )
+
     spark = models.ForeignKey(BrewPiSpark, null=True)
     type = models.IntegerField(verbose_name='Hardware Type', choices=HARDWARE_TYPE, default=0)
     value = models.CharField(verbose_name="Value", max_length=10, default="")

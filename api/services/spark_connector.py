@@ -136,6 +136,41 @@ class Connector:
             sock.close()
         return
 
+    def device_toggle(self, device):
+        logger.info("Toggle actuator on spark {} at pin {}".format(device.spark, device.pin_nr))
+
+        response = "Error"
+
+        try:
+            sock = self.__start_connection(device.spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise
+
+        try:
+            message = "t{{pin_nr:{},is_invert:{}}}".format(device.pin_nr, device.is_invert)
+            logger.debug("Send Message: " + message)
+            sock.send(message)
+
+            i = 0
+            expected_result = False
+
+            while not expected_result and i < 10:
+                time.sleep(0.05)
+                response = sock.recv(128)
+
+                if response != "":
+                    expected_result = True
+
+                i += 1
+
+        finally:
+            sock.close()
+
+        logger.info("Response: {}".format(response))
+
+        return response
+
     @staticmethod
     def __start_connection(ip_address):
         logger.debug("Start connection to spark")
