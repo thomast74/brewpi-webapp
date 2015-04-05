@@ -11,3 +11,5 @@ v0.1
 - Request a list of all Sparks with result in Json format
 - Delete an existing Spark with resetting the Spark first
 - receive device(actuator/sensor) list from Spark specified in URL and store in database
+- Receive the Spark date time setting and store in the database
+- Send the web server date time as part of the Spark Info message

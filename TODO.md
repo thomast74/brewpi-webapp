@@ -2,7 +2,6 @@
 
 ## Tasks
 
-* retrieve TimeDate from Spark compare with local server time and send local time (UTC) as part of StatusMessage
 * toggle Actuator
 * get temp sensor reading
 

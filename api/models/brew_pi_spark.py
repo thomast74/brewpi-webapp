@@ -18,6 +18,7 @@ class BrewPiSpark(models.Model):
     board_revision = models.CharField(verbose_name='Board Revision', max_length=10)
     ip_address = models.GenericIPAddressField(verbose_name='Ip Address')
     web_address = models.GenericIPAddressField(verbose_name='Web Address', null=True)
+    spark_time = models.BigIntegerField(verbose_name='Spark Time', default=0)
     last_update = models.DateTimeField(verbose_name='Last Update')
 
     class Meta:
@@ -46,6 +47,7 @@ class BrewPiSpark(models.Model):
             spark.board_revision = status.get("board_revision")
             spark.ip_address = status.get("ip_address")
             spark.web_address = status.get("web_address")
+            spark.spark_time = status.get("datetime")
             spark.last_update = timezone.now()
             spark.save()
 
@@ -56,7 +58,7 @@ class BrewPiSpark(models.Model):
 
             spark = BrewPiSpark.create(status.get("device_id"), status.get("device_mode"), status.get("device_config"),
                                        status.get("firmware_version"), status.get("board_revision"),
-                                       status.get("ip_address"), status.get("web_address"))
+                                       status.get("ip_address"), status.get("web_address"), status.get("datetime"))
             spark.save()
 
             logger.debug(spark.__str__())
@@ -64,9 +66,10 @@ class BrewPiSpark(models.Model):
         return spark
 
     @classmethod
-    def create(cls, device_id, device_mode, device_config, firmware_version, board_revision, ip_address, web_address):
+    def create(cls, device_id, device_mode, device_config, firmware_version, board_revision, ip_address, web_address,
+               datetime):
         spark = cls(device_id, device_id, device_mode, device_config, firmware_version, board_revision, ip_address,
-                    web_address)
+                    web_address, datetime)
         spark.last_update = timezone.now()
 
         return spark

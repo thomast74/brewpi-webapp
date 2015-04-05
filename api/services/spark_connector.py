@@ -3,6 +3,7 @@ import socket
 import time
 
 from django.conf import settings
+from django.utils import timezone
 
 
 logger = logging.getLogger(__name__)
@@ -19,8 +20,11 @@ class Connector:
         sock = self.__start_connection(spark.ip_address)
 
         try:
-            message = "s{{name:{},config:{},tempType:{},oinkweb:{}}}".format(spark.name, spark.device_config,
-                                                                             settings.TEMP_TYPE, local_ip)
+            datetime = int(time.mktime(timezone.now().timetuple()))
+            message = "s{{name:{},config:{},tempType:{},oinkweb:{},datetime:{}}}".format(spark.name,
+                                                                                         spark.device_config,
+                                                                                         settings.TEMP_TYPE, local_ip,
+                                                                                         datetime)
             logger.debug("Send data: {}".format(message))
             sock.sendall(message)
             data = sock.recv(1024)
