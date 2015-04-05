@@ -9,7 +9,7 @@ Impl | Entry Point | METHOD | Description
 Y | /api/spark                          | GET    | Request a list of all registered Sparks
 N | /api/spark/{device_id}              | GET    | Request details of one Spark
 N | /api/spark/{device_id}/events       | GET    | Lists activities of a specific Spark
-N | /api/spark/{device_id}/devices      | GET    | Request sensor/actuator list from Spark
+Y | /api/spark/{device_id}/devices      | GET    | Request sensor/actuator list from Spark
 N | /api/spark/{device_id}/devices/{id} | GET    | Request sensor/actuator details with current value/status
 N | /api/spark/{device_id}/logs/{id}    | GET    | Lists logged data for a specific sensor/actuator
 

@@ -1,14 +1,15 @@
+import json
+import logging
+
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
-from api.models import BrewPiSpark
-from api.services.spark_connector import Connector
 
-import json
-import logging
+from api.models import BrewPiSpark
+from api.models import Device
+from api.services.spark_connector import Connector
 
 
 logger = logging.getLogger(__name__)
@@ -17,14 +18,14 @@ logger = logging.getLogger(__name__)
 @require_http_methods(["GET"])
 def list_sparks(request):
     logger.info("Request list of all registered sparks")
-    format = request.GET.get("format", "json")
+    output_format = request.GET.get("format", "json")
     pretty = request.GET.get("pretty", "True")
 
-    if format not in ('json'):
+    if output_format not in 'json':
         return HttpResponse('{"Status":"ERROR","Message":"Only Json supported"}\n', content_type="application/json",
                             status=400)
 
-    sparks = serializers.serialize(format, BrewPiSpark.objects.all())
+    sparks = serializers.serialize(output_format, BrewPiSpark.objects.all())
 
     logger.debug("Sparks: " + sparks)
 
@@ -32,6 +33,36 @@ def list_sparks(request):
         sparks = json.dumps(json.loads(sparks), indent=2)
 
     return HttpResponse(sparks, content_type="application/json")
+
+
+@require_http_methods(["GET"])
+def list_devices(request, device_id):
+    logger.info("Request list of devices connected to Spark {}".format(device_id))
+
+    output_format = request.GET.get("format", "json")
+    pretty = request.GET.get("pretty", "True")
+
+    if output_format not in 'json':
+        return HttpResponse('{"Status":"ERROR","Message":"Only Json supported"}\n', content_type="application/json",
+                            status=400)
+
+    try:
+        spark = BrewPiSpark.objects.get(device_id=device_id)
+    except ObjectDoesNotExist:
+        return HttpResponse('{"Status":"ERROR",Message="Spark does not exists"}\n', content_type="application/json",
+                            status=400)
+
+    devices_json = Connector().request_device_list(spark)
+    devices = Device.from_json(spark, devices_json)
+
+    devices_ser = serializers.serialize(output_format, devices)
+
+    logger.debug("Sparks: " + devices_ser)
+
+    if pretty == "True":
+        devices_ser = json.dumps(json.loads(devices_ser), indent=2)
+
+    return HttpResponse(devices_ser, content_type="application/json")
 
 
 @require_http_methods(["POST"])
@@ -47,7 +78,7 @@ def set_mode(request, device_id):
     device_mode = request.POST.get("device_mode", "MANUAL")
 
     if device_mode in ('MANUAL', 'LOGGING', 'AUTOMATIC'):
-        Connector().set_mode(spark, device_mode)
+        Connector().set_spark_mode(spark, device_mode)
 
         spark.device_mode = device_mode
         spark.save()
@@ -70,7 +101,7 @@ def set_name(request, device_id):
 
     name = request.POST.get("name", None)
 
-    Connector().set_name(spark, name)
+    Connector().set_spark_name(spark, name)
 
     spark.name = name
     spark.save()
@@ -88,7 +119,7 @@ def reset(request, device_id):
         return HttpResponse('{"Status":"ERROR",Message="Spark does not exists"}\n', content_type="application/json",
                             status=400)
 
-    Connector().reset_device(spark)
+    Connector().reset_spark(spark)
 
     spark.name = None
     spark.device_mode = "MANUAL"
@@ -117,7 +148,7 @@ def update_firmware(request, device_id):
     # check version with version of Spark
     # if different send new firmware
 
-    Connector().update_firmware(spark)
+    Connector().update_spark_firmware(spark)
 
     return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
 
@@ -133,7 +164,7 @@ def delete(request, device_id):
                             status=400)
 
     try:
-        Connector().reset_device(spark)
+        Connector().reset_spark(spark)
     except:
         logger.error("Spark {} can't be reset".format(device_id))
 

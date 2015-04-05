@@ -2,12 +2,15 @@
 
 ## Tasks
 
+* retrieve TimeDate from Spark compare with local server time and send local time (UTC) as part of StatusMessage
+* toggle Actuator
+* get temp sensor reading
+
+
 * Firmware upload:
    - use a special folder within web app for storing firmware binaries
    - part of the web app allows download of new firmware from github
    - user selects which firmware to upload
-   
-* retrieve sensor/actuator list from specific Spark
 
 * StatusMessageVerification check if configuration version is different to configured one, and if remote ip address id different or empty
 * create a web page that shows all Spark's and their current configuration 

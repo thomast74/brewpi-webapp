@@ -1,23 +1,25 @@
-from django.conf import settings
-
 import logging
-import os
 import socket
 import time
+
+from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
 
 
 class Connector:
-    def send_device_info(self, spark, local_ip):
+    def __init__(self):
+        return
+
+    def send_spark_info(self, spark, local_ip):
 
         logger.info("Send device info [name:{},config:{},tempType:{}] to {}".format(spark.name, spark.device_config,
                                                                                     settings.TEMP_TYPE, spark))
         sock = self.__start_connection(spark.ip_address)
 
         try:
-            message = "d{{name:{},config:{},tempType:{},oinkweb:{}}}".format(spark.name, spark.device_config,
+            message = "s{{name:{},config:{},tempType:{},oinkweb:{}}}".format(spark.name, spark.device_config,
                                                                              settings.TEMP_TYPE, local_ip)
             logger.debug("Send data: {}".format(message))
             sock.sendall(message)
@@ -27,8 +29,7 @@ class Connector:
             sock.close()
         return
 
-
-    def reset_device(self, spark):
+    def reset_spark(self, spark):
         logger.info("Reset spark {}".format(spark))
         sock = self.__start_connection(spark.ip_address)
 
@@ -41,13 +42,12 @@ class Connector:
             sock.close()
         return
 
-
-    def set_name(self, spark, name):
+    def set_spark_name(self, spark, name):
         logger.info("Change name for {} to {}".format(spark, name))
         sock = self.__start_connection(spark.ip_address)
 
         try:
-            message = "d{{name:{}}}".format(name)
+            message = "s{{name:{}}}".format(name)
             logger.debug("Send data: {}".format(message))
             sock.sendall(message)
             data = sock.recv(1024)
@@ -56,13 +56,12 @@ class Connector:
             sock.close()
         return
 
-
-    def set_mode(self, spark, device_mode):
+    def set_spark_mode(self, spark, device_mode):
         logger.info("Change mode for {} to {}".format(spark, device_mode))
         sock = self.__start_connection(spark.ip_address)
 
         try:
-            message = "m{{mode:{}}}".format(device_mode);
+            message = "m{{mode:{}}}".format(device_mode)
 
             logger.debug("{} Message: {}".format(spark.name, message))
             sock.sendall(message)
@@ -72,13 +71,40 @@ class Connector:
             sock.close()
         return
 
+    def request_device_list(self, spark):
+        logger.info("Request a list of all devices available on {}".format(spark))
+        try:
+            sock = self.__start_connection(spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise
 
-    def update_firmware(self, spark):
+        logger.debug("{} Message: d".format(spark.name))
+        sock.sendall("d")
+        i = 0
+        devices_json = ""
+        expected_result = False
+
+        while not expected_result and i < 40:
+            time.sleep(0.05)
+            c = sock.recv(128)
+            devices_json += c
+
+            if c == "":
+                expected_result = True
+
+            i += 1
+
+        logger.info("Response: \n{}".format(devices_json))
+
+        return devices_json
+
+    def update_spark_firmware(self, spark):
         logger.info("Update firmware on {}".format(spark))
         sock = self.__start_connection(spark.ip_address)
 
         try:
-            with open('/home/thomast74/Projects/oinkbrew_firmware/target/oinkbrew.bin', 'rb') as file:
+            with open('/home/thomast74/Projects/oinkbrew_firmware/target/oinkbrew.bin', 'rb') as firmware_file:
                 logger.debug("Send Message")
                 sock.send("f{}")
 
@@ -87,29 +113,27 @@ class Connector:
 
                 if response == "!":
                     logger.debug("Now lets send the file")
-                    response = ""
-                    totalsent = 0
-                    data = file.read(4096)
+                    total_sent = 0
+                    data = firmware_file.read(4096)
                     while len(data):
                         i = sock.send(data)
-                        totalsent = totalsent + i
+                        total_sent += i
                         response = sock.recv(1)
-                        logger.debug("Response: {} -> {}".format(response, totalsent))
+                        logger.debug("Response: {} -> {}".format(response, total_sent))
 
                         if response == "!":
-                            data = file.read(4096)
+                            data = firmware_file.read(4096)
                             time.sleep(0.2)
                         else:
                             data = ""
 
-                    file.close()
-
+                    firmware_file.close()
         finally:
             sock.close()
         return
 
-
-    def __start_connection(self, ip_address):
+    @staticmethod
+    def __start_connection(ip_address):
         logger.debug("Start connection to spark")
         logger.debug("Create socket for: {}:{}".format(str(ip_address), int(settings.SPARK_PORT)))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
