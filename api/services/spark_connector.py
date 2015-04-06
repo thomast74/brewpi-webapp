@@ -33,6 +33,8 @@ class Connector:
             sock.sendall(message)
             data = sock.recv(1024)
             logger.info("Response: {}".format(data))
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
         finally:
             sock.close()
         return
@@ -51,6 +53,8 @@ class Connector:
             sock.sendall("r")
             data = sock.recv(1024)
             logger.info("Response: {}".format(data))
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
         finally:
             sock.close()
         return
@@ -70,6 +74,8 @@ class Connector:
             sock.sendall(message)
             data = sock.recv(1024)
             logger.info("Response: {}".format(data))
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
         finally:
             sock.close()
         return
@@ -90,6 +96,8 @@ class Connector:
             sock.sendall(message)
             data = sock.recv(1024)
             logger.info("Response: {}".format(data))
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
         finally:
             sock.close()
         return
@@ -103,25 +111,38 @@ class Connector:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
 
-        logger.debug("{} Message: d".format(spark.name))
-        sock.sendall("d")
-        i = 0
-        devices_json = ""
-        expected_result = False
+        try:
+            logger.debug("{} Message: d".format(spark.name))
+            sock.sendall("d")
 
-        while not expected_result and i < 50:
-            time.sleep(0.075)
-            c = sock.recv(128)
-            devices_json += c
+            response = self.receive_json(sock)
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
+        finally:
+            sock.close
 
-            if c == "":
-                expected_result = True
+        return response
 
-            i += 1
+    def request_device(self, device):
+        logger.info("Request device {} from {}".format(device.pk, device.spark))
 
-        logger.info("Response: \n{}".format(devices_json))
+        try:
+            sock = self.__start_connection(device.spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
 
-        return devices_json
+        try:
+            message = "a{{pin_nr:{},hw_address:{},is_invert:{}}}".format(device.pin_nr, device.hw_address,
+                                                                         "1" if device.is_invert else "0")
+            logger.debug("Send Message: " + message)
+            sock.sendall(message)
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
+        finally:
+            sock.close
+
+        return self.receive_json(sock)
 
     def update_spark_firmware(self, spark):
         logger.info("Update firmware on {}".format(spark))
@@ -157,6 +178,8 @@ class Connector:
                             data = ""
 
                     firmware_file.close()
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
         finally:
             sock.close()
         return
@@ -173,7 +196,7 @@ class Connector:
             raise SparkException("Connection to Spark not possible")
 
         try:
-            message = "t{{pin_nr:{},is_invert:{}}}".format(device.pin_nr, device.is_invert)
+            message = "t{{pin_nr:{},is_invert:{}}}".format(device.pin_nr, "1" if device.is_invert else "0")
             logger.debug("Send Message: " + message)
             sock.send(message)
 
@@ -181,14 +204,15 @@ class Connector:
             expected_result = False
 
             while not expected_result and i < 10:
-                time.sleep(0.05)
+                time.sleep(0.1)
                 response = sock.recv(128)
 
                 if response != "":
                     expected_result = True
 
                 i += 1
-
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
         finally:
             sock.close()
 
@@ -208,6 +232,26 @@ class Connector:
         sock.connect(server_address)
 
         return sock
+
+    @staticmethod
+    def receive_json(sock):
+        i = 0
+        json = ""
+        expected_result = False
+
+        while not expected_result and i < 50:
+            time.sleep(0.1)
+            c = sock.recv(128)
+            json += c
+
+            if c == "":
+                expected_result = True
+
+            i += 1
+
+        logger.info("Response: \n{}".format(json))
+
+        return json
 
 
 class SparkException(Exception):

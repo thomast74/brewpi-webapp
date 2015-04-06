@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -60,7 +59,7 @@ def list_devices(request, device_id):
                             status=500,
                             content_type="application/json")
 
-    devices = Device.from_json(spark, devices_json)
+    devices = Device.from_json_list(spark, devices_json)
 
     devices_ser = serializers.serialize(output_format, devices)
 
@@ -71,6 +70,42 @@ def list_devices(request, device_id):
 
     return HttpResponse(devices_ser, content_type="application/json")
 
+@require_http_methods(["GET"])
+def list_device(request, device_id, actuator_id):
+    logger.info("Request device {} from {}".format(actuator_id, device_id))
+
+    output_format = request.GET.get("format", "json")
+    pretty = request.GET.get("pretty", "True")
+
+    try:
+        device = Device.objects.get(pk=actuator_id)
+    except ObjectDoesNotExist:
+        return HttpResponse('{"Status":"ERROR",Message="Device does not exists"}\n',
+                            content_type="application/json",
+                            status=400)
+
+    if device.spark.device_id != device_id:
+        return HttpResponse('{"Status":"ERROR",Message="Device not assigned to given Spark"}\n',
+                            content_type="application/json",
+                            status=400)
+
+    try:
+        device_json = Connector().request_device(device)
+    except SparkException as e:
+        return HttpResponse('{{"Status":"ERROR","Message":"{}"}}\n'.format(e.value),
+                            status=500,
+                            content_type="application/json")
+
+    Device.from_json(device, device_json)
+
+    device_ser = serializers.serialize(output_format, [device])
+
+    logger.debug("Spark device: " + device_ser)
+
+    if pretty == "True":
+        device_ser = json.dumps(json.loads(device_ser), indent=2)
+
+    return HttpResponse(device_ser, content_type="application/json")
 
 @require_http_methods(["POST"])
 def set_mode(request, device_id):

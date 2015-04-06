@@ -2,9 +2,6 @@
 
 ## Tasks
 
-* get temp sensor reading
-
-
 * Firmware upload:
    - use a special folder within web app for storing firmware binaries
    - part of the web app allows download of new firmware from github
