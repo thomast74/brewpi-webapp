@@ -2,6 +2,13 @@
 
 ## Tasks
 
+
+* delete a sensor or actuator from database must remove it also from a assigned configuration
+* delete a sensor or actuator from database must send spark the information to deactivate the sensor/actuator 
+  and remove from logging and actions
+  
+
+
 * Firmware upload:
    - use a special folder within web app for storing firmware binaries
    - part of the web app allows download of new firmware from github

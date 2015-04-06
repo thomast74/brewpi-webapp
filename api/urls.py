@@ -6,6 +6,7 @@ from api.views import spark_status
 
 urlpatterns = patterns('',
                        url(r'^spark/(?P<device_id>\w+)/delete/', spark.delete),
+                       url(r'^spark/(?P<device_id>\w+)/devices/(?P<actuator_id>[0-9]+)/delete/', spark.device_delete),
                        url(r'^spark/(?P<device_id>\w+)/devices/(?P<actuator_id>[0-9]+)/toggle/', spark.device_toggle),
                        url(r'^spark/(?P<device_id>\w+)/devices/(?P<actuator_id>[0-9]+)/', spark.list_device),
                        url(r'^spark/(?P<device_id>\w+)/devices/', spark.list_devices),

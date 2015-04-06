@@ -31,6 +31,6 @@ Deletes
 
 Impl | Entry Point | METHOD | Description
 -----|-------------|--------|------------
-Y | /api/spark/{device_id}/delete              | DELETE | Deletes a Spark and all its data from database
-N | /api/spark/{device_id}/devices/{id}/delete | DELETE | Deletes the Sensor/Actuator from this Sparks configuration
-N | /api/spark/{device_id}/logs/{id}/delete    | DELETE | Deletes the Sensors/Actuators log data
+Y | /api/spark/{device_id}/delete/              | DELETE | Deletes a Spark and all its data from database
+Y | /api/spark/{device_id}/devices/{id}/delete/ | DELETE | Deletes the Sensor/Actuator from this Sparks configuration
+N | /api/spark/{device_id}/logs/{id}/delete/    | DELETE | Deletes the Sensors/Actuators log data

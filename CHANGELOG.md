@@ -15,3 +15,4 @@ v0.1
 - Send the web server date time as part of the Spark Info message
 - Toggle Device Actuator on a specific Spark provided in URL and return new state
 - Request Sensor/Actuator status from a specific Spark provided URL
+- Delete a Sensor/Actuator from local database
