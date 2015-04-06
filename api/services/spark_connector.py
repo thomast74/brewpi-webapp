@@ -17,7 +17,11 @@ class Connector:
 
         logger.info("Send device info [name:{},config:{},tempType:{}] to {}".format(spark.name, spark.device_config,
                                                                                     settings.TEMP_TYPE, spark))
-        sock = self.__start_connection(spark.ip_address)
+        try:
+            sock = self.__start_connection(spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
 
         try:
             datetime = int(time.mktime(timezone.now().timetuple()))
@@ -35,7 +39,12 @@ class Connector:
 
     def reset_spark(self, spark):
         logger.info("Reset spark {}".format(spark))
-        sock = self.__start_connection(spark.ip_address)
+
+        try:
+            sock = self.__start_connection(spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
 
         try:
             logger.debug("{} Message: r".format(spark.name))
@@ -48,7 +57,12 @@ class Connector:
 
     def set_spark_name(self, spark, name):
         logger.info("Change name for {} to {}".format(spark, name))
-        sock = self.__start_connection(spark.ip_address)
+
+        try:
+            sock = self.__start_connection(spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
 
         try:
             message = "s{{name:{}}}".format(name)
@@ -62,7 +76,12 @@ class Connector:
 
     def set_spark_mode(self, spark, device_mode):
         logger.info("Change mode for {} to {}".format(spark, device_mode))
-        sock = self.__start_connection(spark.ip_address)
+
+        try:
+            sock = self.__start_connection(spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
 
         try:
             message = "m{{mode:{}}}".format(device_mode)
@@ -77,11 +96,12 @@ class Connector:
 
     def request_device_list(self, spark):
         logger.info("Request a list of all devices available on {}".format(spark))
+
         try:
             sock = self.__start_connection(spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
-            raise
+            raise SparkException("Connection to Spark not possible")
 
         logger.debug("{} Message: d".format(spark.name))
         sock.sendall("d")
@@ -89,8 +109,8 @@ class Connector:
         devices_json = ""
         expected_result = False
 
-        while not expected_result and i < 40:
-            time.sleep(0.05)
+        while not expected_result and i < 50:
+            time.sleep(0.075)
             c = sock.recv(128)
             devices_json += c
 
@@ -105,7 +125,12 @@ class Connector:
 
     def update_spark_firmware(self, spark):
         logger.info("Update firmware on {}".format(spark))
-        sock = self.__start_connection(spark.ip_address)
+
+        try:
+            sock = self.__start_connection(spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
 
         try:
             with open('/home/thomast74/Projects/oinkbrew_firmware/target/oinkbrew.bin', 'rb') as firmware_file:
@@ -145,7 +170,7 @@ class Connector:
             sock = self.__start_connection(device.spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
-            raise
+            raise SparkException("Connection to Spark not possible")
 
         try:
             message = "t{{pin_nr:{},is_invert:{}}}".format(device.pin_nr, device.is_invert)
@@ -183,3 +208,11 @@ class Connector:
         sock.connect(server_address)
 
         return sock
+
+
+class SparkException(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)

@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,7 +10,7 @@ from django.utils import timezone
 
 from api.models import BrewPiSpark
 from api.models import Device
-from api.services.spark_connector import Connector
+from api.services.spark_connector import Connector, SparkException
 
 
 logger = logging.getLogger(__name__)
@@ -52,7 +53,13 @@ def list_devices(request, device_id):
         return HttpResponse('{"Status":"ERROR",Message="Spark does not exists"}\n', content_type="application/json",
                             status=400)
 
-    devices_json = Connector().request_device_list(spark)
+    try:
+        devices_json = Connector().request_device_list(spark)
+    except SparkException as e:
+        return HttpResponse('{{"Status":"ERROR","Message":"{}"}}\n'.format(e.value),
+                            status=500,
+                            content_type="application/json")
+
     devices = Device.from_json(spark, devices_json)
 
     devices_ser = serializers.serialize(output_format, devices)
@@ -78,7 +85,12 @@ def set_mode(request, device_id):
     device_mode = request.POST.get("device_mode", "MANUAL")
 
     if device_mode in ('MANUAL', 'LOGGING', 'AUTOMATIC'):
-        Connector().set_spark_mode(spark, device_mode)
+        try:
+            Connector().set_spark_mode(spark, device_mode)
+        except SparkException as e:
+            return HttpResponse('{{"Status":"ERROR","Message":"{}"}}\n'.format(e.value),
+                                status=500,
+                                content_type="application/json")
 
         spark.device_mode = device_mode
         spark.save()
@@ -101,8 +113,12 @@ def set_name(request, device_id):
 
     name = request.POST.get("name", None)
 
-    Connector().set_spark_name(spark, name)
-
+    try:
+        Connector().set_spark_name(spark, name)
+    except SparkException as e:
+        return HttpResponse('{{"Status":"ERROR","Message":"{}"}}\n'.format(e.value),
+                            status=500,
+                            content_type="application/json")
     spark.name = name
     spark.save()
 
@@ -118,8 +134,12 @@ def reset(request, device_id):
     except ObjectDoesNotExist:
         return HttpResponse('{"Status":"ERROR",Message="Spark does not exists"}\n', content_type="application/json",
                             status=400)
-
-    Connector().reset_spark(spark)
+    try:
+        Connector().reset_spark(spark)
+    except SparkException as e:
+        return HttpResponse('{{"Status":"ERROR","Message":"{}"}}\n'.format(e.value),
+                            status=500,
+                            content_type="application/json")
 
     spark.name = None
     spark.device_mode = "MANUAL"
@@ -148,7 +168,12 @@ def update_firmware(request, device_id):
     # check version with version of Spark
     # if different send new firmware
 
-    Connector().update_spark_firmware(spark)
+    try:
+        Connector().update_spark_firmware(spark)
+    except SparkException as e:
+        return HttpResponse('{{"Status":"ERROR","Message":"{}"}}\n'.format(e.value),
+                            status=500,
+                            content_type="application/json")
 
     return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
 
@@ -165,8 +190,10 @@ def delete(request, device_id):
 
     try:
         Connector().reset_spark(spark)
-    except:
-        logger.error("Spark {} can't be reset".format(device_id))
+    except SparkException as e:
+        return HttpResponse('{{"Status":"ERROR","Message":"{}"}}\n'.format(e.value),
+                            status=500,
+                            content_type="application/json")
 
     spark.delete()
 
@@ -194,10 +221,15 @@ def device_toggle(request, device_id, actuator_id):
                             content_type="application/json",
                             status=400)
 
-    actuator_state = Connector().device_toggle(device)
+    try:
+        actuator_state = Connector().device_toggle(device)
 
-    device.value = actuator_state
-    device.save()
+        device.value = actuator_state
+        device.save()
 
-    return HttpResponse('{{"Status":"OK","ActuatorState":"{}"}}\n'.format(actuator_state),
-                        content_type="application/json")
+        return HttpResponse('{{"Status":"OK","ActuatorState":"{}"}}\n'.format(actuator_state),
+                            content_type="application/json")
+    except SparkException as e:
+        return HttpResponse('{{"Status":"ERROR","Message":"{}"}}\n'.format(e.value),
+                            status=500,
+                            content_type="application/json")

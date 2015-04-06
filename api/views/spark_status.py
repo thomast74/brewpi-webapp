@@ -23,4 +23,6 @@ def check_in(request):
 
         return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
     else:
-        return HttpResponse('{"Status":"ERROR"}\n', content_type="application/json", status=400)
+        return HttpResponse('{"Status":"ERROR","Message":"Spark could not be found or created"}\n',
+                            content_type="application/json",
+                            status=400)
