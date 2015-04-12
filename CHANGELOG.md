@@ -13,6 +13,6 @@ v0.1
 - receive device(actuator/sensor) list from Spark specified in URL and store in database
 - Receive the Spark date time setting and store in the database
 - Send the web server date time as part of the Spark Info message
-- Toggle Device Actuator on a specific Spark provided in URL and return new state
+- Toggle Device Actuator on a specific Spark provided in URL and return new state, for PWM you need to provide a value
 - Request Sensor/Actuator status from a specific Spark provided URL
-- Delete a Sensor/Actuator from local database
+- Delete a Sensor/Actuator from local database and remotely from spark

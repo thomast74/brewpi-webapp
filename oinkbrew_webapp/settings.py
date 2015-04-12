@@ -3,8 +3,8 @@ import os
 #
 # Application Settings
 #
-DEBUG = True
-TEMPLATE_DEBUG = True
+DEBUG = False
+TEMPLATE_DEBUG = False
 TIME_ZONE = 'UTC'
 TEMP_TYPE = 'C'
 
@@ -15,7 +15,7 @@ SPARK_PORT = 7873
 #
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = '!f+8y8k8$djmc6!o9-h=^7=%uqyltzh!3@4iy)eq2h!y8nh@l='
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 ROOT_URLCONF = 'oinkbrew_webapp.urls'
 WSGI_APPLICATION = 'oinkbrew_webapp.wsgi.application'
 LANGUAGE_CODE = 'en-us'
@@ -44,6 +44,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.views.errors.ProcessExceptionMiddleware'
 )
 
 
@@ -59,8 +60,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -82,9 +83,9 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers':['application-file'],
+            'handlers': ['application-file'],
             'propagate': True,
-            'level':'DEBUG',
+            'level': 'DEBUG',
         },
         'api': {
             'handlers': ['api-file'],

@@ -14,19 +14,67 @@ logger = logging.getLogger(__name__)
 
 
 class Device(models.Model):
+    DEVICE_TYPE_NONE = 0
+    DEVICE_TYPE_PIN = 1
+    DEVICE_TYPE_ONEWIRE_TEMP = 2
 
-    DEVICE_HARDWARE_NONE = 0
-    DEVICE_HARDWARE_PIN = 1
-    DEVICE_HARDWARE_ONEWIRE_TEMP = 2
+    DEVICE_TYPE = (
+        (DEVICE_TYPE_NONE, 'None'),
+        (DEVICE_TYPE_PIN, 'Pin'),
+        (DEVICE_TYPE_ONEWIRE_TEMP, 'OneWire Temp'),
+    )
 
-    HARDWARE_TYPE = (
-        (DEVICE_HARDWARE_NONE, 'None'),
-        (DEVICE_HARDWARE_PIN, 'Pin'),
-        (DEVICE_HARDWARE_ONEWIRE_TEMP, 'OneWire Temp'),
+    DEVICE_FUNCTION_NONE = 0
+    DEVICE_FUNCTION_FRIDGE_COOLING_ACTUATOR = 1
+    DEVICE_FUNCTION_FRIDGE_HEATING_ACTUATOR = 2
+    DEVICE_FUNCTION_FRIDGE_FAN_ACTUATOR = 3
+
+    DEVICE_FUNCTION_HLT_HEATING_ACTUATOR = 4
+    DEVICE_FUNCTION_BOIL_HEATING_ACTUATOR = 5
+    DEVICE_FUNCTION_PUMP_1_ACTUATOR = 6
+    DEVICE_FUNCTION_PUMP_2_ACTUATOR = 7
+
+    DEVICE_FUNCTION_FRIDGE_BEER_TEMP_SENSOR = 8
+    DEVICE_FUNCTION_FRIDGE_INSIDE_TEMP_SENSOR = 9
+    DEVICE_FUNCTION_FRIDGE_OUTSIDE_TEMP_SENSOR = 10
+
+    DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR = 11
+    DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR = 12
+    DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR = 13
+    DEVICE_FUNCTION_MACH_OUT_TEMP_SENSOR = 14
+    DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR = 15
+    DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR = 16
+    DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR = 17
+
+    DEVICE_FUNCTION = (
+        (DEVICE_FUNCTION_NONE, 'None'),
+
+        (DEVICE_FUNCTION_FRIDGE_COOLING_ACTUATOR, 'Fridge Cooling Actuator'),
+        (DEVICE_FUNCTION_FRIDGE_HEATING_ACTUATOR, 'Fridge Heating Actuator'),
+        (DEVICE_FUNCTION_FRIDGE_FAN_ACTUATOR, 'Fridge Fan Actuator'),
+
+        (DEVICE_FUNCTION_HLT_HEATING_ACTUATOR, 'HLT Heating Actuator'),
+        (DEVICE_FUNCTION_BOIL_HEATING_ACTUATOR, 'Boil Heating Actuator'),
+        (DEVICE_FUNCTION_PUMP_1_ACTUATOR, 'Pump 1 Actuator'),
+        (DEVICE_FUNCTION_PUMP_2_ACTUATOR, 'Pump 2 Actuator'),
+
+        (DEVICE_FUNCTION_FRIDGE_BEER_TEMP_SENSOR, 'Fridge Beer Temp Sensor'),
+        (DEVICE_FUNCTION_FRIDGE_INSIDE_TEMP_SENSOR, 'Fridge Inside Temp Sensor'),
+        (DEVICE_FUNCTION_FRIDGE_OUTSIDE_TEMP_SENSOR, 'Outside Fridge Temp Sensor'),
+
+        (DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR, 'HLT In Temp Sensor'),
+        (DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR, 'HLT Out Temp Sensor'),
+        (DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR, 'Mash In Temp Sensor'),
+        (DEVICE_FUNCTION_MACH_OUT_TEMP_SENSOR, 'Mash Out Temp Sensor'),
+        (DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR, 'Boil In Temp Sensor'),
+        (DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR, 'Boil Inside Temp Sensor'),
+        (DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR, 'Boil Out Temp Sensor')
+
     )
 
     spark = models.ForeignKey(BrewPiSpark, null=True)
-    type = models.IntegerField(verbose_name='Hardware Type', choices=HARDWARE_TYPE, default=0)
+    type = models.IntegerField(verbose_name='Hardware Type', choices=DEVICE_TYPE, default=0)
+    function = models.IntegerField(verbose_name='Device Function', choices=DEVICE_FUNCTION, default=0)
     value = models.CharField(verbose_name="Value", max_length=10, default="")
     pin_nr = models.IntegerField(verbose_name='Pin Nr', default=0)
     hw_address = models.CharField(verbose_name='Hardware Address', max_length=16)

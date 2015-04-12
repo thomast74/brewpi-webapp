@@ -5,6 +5,8 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 
+from api.services.spark_connector import SparkException
+
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +15,7 @@ class BrewPiSpark(models.Model):
     device_id = models.CharField(verbose_name='Device Id', max_length=30, primary_key=True)
     name = models.CharField(verbose_name='Name', max_length=30, unique=True, null=True)
     device_mode = models.CharField(verbose_name='Device Mode', max_length=20, default="MANUAL")
-    device_config = models.CharField(verbose_name='Device Config', max_length=8, default="")
     firmware_version = models.FloatField(verbose_name='Firmware Version', default=0.0)
-    board_revision = models.CharField(verbose_name='Board Revision', max_length=10)
     ip_address = models.GenericIPAddressField(verbose_name='Ip Address')
     web_address = models.GenericIPAddressField(verbose_name='Web Address', null=True)
     spark_time = models.BigIntegerField(verbose_name='Spark Time', default=0)
@@ -34,7 +34,7 @@ class BrewPiSpark(models.Model):
             logger.debug("Received: " + json_string)
             status = json.loads(json_string)
         except ValueError:
-            return None
+            return SparkException("Request body contains no valid status message")
 
         try:
             spark = BrewPiSpark.objects.get(device_id=status.get('device_id'))
@@ -42,9 +42,7 @@ class BrewPiSpark(models.Model):
             logger.debug("Found existing spark, update fields")
 
             spark.device_mode = status.get("device_mode")
-            spark.device_config = status.get("device_config")
             spark.firmware_version = status.get("firmware_version")
-            spark.board_revision = status.get("board_revision")
             spark.ip_address = status.get("ip_address")
             spark.web_address = status.get("web_address")
             spark.spark_time = status.get("datetime")
@@ -56,9 +54,9 @@ class BrewPiSpark(models.Model):
         except ObjectDoesNotExist:
             logger.debug("Spark does not exist, create a new one")
 
-            spark = BrewPiSpark.create(status.get("device_id"), status.get("device_mode"), status.get("device_config"),
-                                       status.get("firmware_version"), status.get("board_revision"),
-                                       status.get("ip_address"), status.get("web_address"), status.get("datetime"))
+            spark = BrewPiSpark.create(status.get("device_id"), status.get("device_mode"),
+                                       status.get("firmware_version"), status.get("ip_address"),
+                                       status.get("web_address"), status.get("datetime"))
             spark.save()
 
             logger.debug(spark.__str__())
@@ -66,13 +64,15 @@ class BrewPiSpark(models.Model):
         return spark
 
     @classmethod
-    def create(cls, device_id, device_mode, device_config, firmware_version, board_revision, ip_address, web_address,
-               datetime):
-        spark = cls(device_id, device_id, device_mode, device_config, firmware_version, board_revision, ip_address,
-                    web_address, datetime)
+    def create(cls, device_id, device_mode, firmware_version, ip_address, web_address, spark_time):
+        spark = cls(device_id, device_id, device_mode, firmware_version, ip_address, web_address, spark_time)
         spark.last_update = timezone.now()
 
         return spark
+
+    def delete(self, using=None):
+        models.device.Device.objects.filter(spark=self).delete()
+        super.delete(using=None)
 
     def __str__(self):
         return "BrewPiSpark: [{}] {} -> '{}' -> {}]".format(self.last_update.strftime('%Y-%m-%d %H:%M:%S'),

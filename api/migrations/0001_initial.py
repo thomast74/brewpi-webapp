@@ -5,7 +5,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
     ]
 
@@ -13,7 +12,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BrewPiSpark',
             fields=[
-                ('device_id', models.CharField(max_length=30, serialize=False, verbose_name=b'Device Id', primary_key=True)),
+                ('device_id',
+                 models.CharField(max_length=30, serialize=False, verbose_name=b'Device Id', primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name=b'Name')),
                 ('device_mode', models.CharField(max_length=20, verbose_name=b'Device Mode')),
                 ('device_config', models.CharField(max_length=100, null=True, verbose_name=b'Device Config')),

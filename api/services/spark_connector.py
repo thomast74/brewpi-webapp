@@ -25,10 +25,9 @@ class Connector:
 
         try:
             datetime = int(time.mktime(timezone.now().timetuple()))
-            message = "s{{name:{},config:{},tempType:{},oinkweb:{},datetime:{}}}".format(spark.name,
-                                                                                         spark.device_config,
-                                                                                         settings.TEMP_TYPE, local_ip,
-                                                                                         datetime)
+            message = "s{{name:{},tempType:{},oinkweb:{},datetime:{}}}".format(spark.name,
+                                                                               settings.TEMP_TYPE, local_ip,
+                                                                               datetime)
             logger.debug("Send data: {}".format(message))
             sock.sendall(message)
             data = sock.recv(1024)
@@ -118,8 +117,6 @@ class Connector:
             response = self.receive_json(sock)
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
-        finally:
-            sock.close
 
         return response
 
@@ -139,8 +136,6 @@ class Connector:
             sock.sendall(message)
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
-        finally:
-            sock.close
 
         return self.receive_json(sock)
 
@@ -184,7 +179,7 @@ class Connector:
             sock.close()
         return
 
-    def device_toggle(self, device):
+    def device_toggle(self, device, value):
         logger.info("Toggle actuator on spark {} at pin {}".format(device.spark, device.pin_nr))
 
         response = "Error"
@@ -196,7 +191,44 @@ class Connector:
             raise SparkException("Connection to Spark not possible")
 
         try:
-            message = "t{{pin_nr:{},is_invert:{}}}".format(device.pin_nr, "1" if device.is_invert else "0")
+            message = "t{{pin_nr:{},is_invert:{},value:{}}}".format(device.pin_nr, "1" if device.is_invert else "0",
+                                                                    value)
+            logger.debug("Send Message: " + message)
+            sock.send(message)
+
+            i = 0
+            expected_result = False
+
+            while not expected_result and i < 10:
+                time.sleep(0.1)
+                response = sock.recv(128)
+
+                if response != "":
+                    expected_result = True
+
+                i += 1
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
+        finally:
+            sock.close()
+
+        logger.info("Response: {}".format(response))
+
+        return response
+
+    def device_delete(self, device):
+        logger.info("Delete device on spark {} at pin_nr {} and hw_address".format(device.spark, device.pin_nr, device.hw_address))
+
+        response = "Error"
+
+        try:
+            sock = self.__start_connection(device.spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
+
+        try:
+            message = "e{{pin_nr:{},hw_address:{}}}".format(device.pin_nr, device.hw_address)
             logger.debug("Send Message: " + message)
             sock.send(message)
 
@@ -239,17 +271,20 @@ class Connector:
         json = ""
         expected_result = False
 
-        while not expected_result and i < 50:
-            time.sleep(0.1)
-            c = sock.recv(128)
-            json += c
+        try:
+            while not expected_result and i < 50:
+                time.sleep(0.1)
+                c = sock.recv(128)
+                json += c
 
-            if c == "":
-                expected_result = True
+                if c == "":
+                    expected_result = True
 
-            i += 1
+                i += 1
 
-        logger.info("Response: \n{}".format(json))
+            logger.info("Response: \n{}".format(json))
+        finally:
+            sock.close()
 
         return json
 

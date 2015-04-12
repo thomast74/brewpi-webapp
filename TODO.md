@@ -2,20 +2,30 @@
 
 ## Tasks
 
+* **send delete device request to Spark**  
+  return error if device is part of a configuration  
+    
 
-* delete a sensor or actuator from database must remove it also from a assigned configuration
-* delete a sensor or actuator from database must send spark the information to deactivate the sensor/actuator 
-  and remove from logging and actions
+* **Receive log messages**  
+  receive request from spark  
+  identify spark  
+  identify device  
+  identify configuration if assigned to configuration  
+  save in graph database with all information [spark,device,configuration]  
+  
+  
+* **API request fro log message should return message to be used in JavaScript charting**  
+  filter by configuration  
+  filter by device  
+  return all data including all devices  
+  
+  
+* **Firmware upload:**  
+   use a special folder within web app for storing firmware binaries  
+   part of the web app allows download of new firmware from github  
+   user selects which firmware to upload  
   
 
-
-* Firmware upload:
-   - use a special folder within web app for storing firmware binaries
-   - part of the web app allows download of new firmware from github
-   - user selects which firmware to upload
-
-* StatusMessageVerification check if configuration version is different to configured one, and if remote ip address id different or empty
-* create a web page that shows all Spark's and their current configuration 
 
 
 ## Ideas

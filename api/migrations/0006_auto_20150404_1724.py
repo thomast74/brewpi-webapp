@@ -5,7 +5,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('api', '0005_auto_20150329_2307'),
     ]
@@ -15,7 +14,8 @@ class Migration(migrations.Migration):
             name='Device',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('type', models.IntegerField(default=0, verbose_name=b'Hardware Type', choices=[(0, b'None'), (1, b'Pin'), (2, b'OneWire Temp')])),
+                ('type', models.IntegerField(default=0, verbose_name=b'Hardware Type',
+                                             choices=[(0, b'None'), (1, b'Pin'), (2, b'OneWire Temp')])),
                 ('pin_nr', models.IntegerField(default=0, verbose_name=b'Pin Nr')),
                 ('hw_address', models.CharField(max_length=16, verbose_name=b'Hardware Address')),
                 ('is_invert', models.BooleanField(default=True, verbose_name=b'Is Invert?')),
