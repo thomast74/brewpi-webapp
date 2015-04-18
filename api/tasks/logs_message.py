@@ -5,7 +5,7 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from celery import shared_task
 from django.utils import timezone
-from api.models import Device, Configuration
+from api.models import Device
 from influxdb import InfluxDBClient
 
 from api.models.brew_pi_spark import BrewPiSpark

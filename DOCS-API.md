@@ -12,7 +12,7 @@ Y | /api/spark/{device_id}/                     | GET    | List details of one S
 N | /api/spark/{device_id}/activity/            | GET    | List recent activities from a specific Spark
 Y | /api/spark/{device_id}/devices/             | GET    | List sensor/actuator list from Spark (including remote)
 Y | /api/spark/{device_id}/devices/{sensor_id}/ | GET    | List sensor/actuator details for a specific device (including remote)
-N | /api/spark/{device_id}/logs/{config_id}/    | GET    | List logged data for a specific configuration
+Y | /api/spark/{device_id}/logs/{config_id}/    | GET    | List logged data for a specific configuration
 
 Inserts
 -------

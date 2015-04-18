@@ -5,7 +5,7 @@ import os
 #
 DEBUG = False
 TEMPLATE_DEBUG = False
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/London'
 TEMP_TYPE = 'C'
 
 SPARK_PORT = 7873

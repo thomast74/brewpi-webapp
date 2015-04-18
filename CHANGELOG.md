@@ -17,3 +17,4 @@ v0.1
 - Request Sensor/Actuator status from a specific Spark provided URL
 - Delete a Sensor/Actuator from local database and remotely from spark
 - Receive Sensor/Actuator log data from Spark and save in InfluxDB
+- List all log data entries for a specific Spark and configuration, allows to filter data with limit=m result by minutes or limit=ALL for everything
