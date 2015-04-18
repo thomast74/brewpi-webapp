@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 from brew_pi_spark import BrewPiSpark
+from configuration import Configuration
 
 
 logger = logging.getLogger(__name__)
@@ -34,17 +35,19 @@ class Device(models.Model):
     DEVICE_FUNCTION_PUMP_1_ACTUATOR = 6
     DEVICE_FUNCTION_PUMP_2_ACTUATOR = 7
 
-    DEVICE_FUNCTION_FRIDGE_BEER_TEMP_SENSOR = 8
-    DEVICE_FUNCTION_FRIDGE_INSIDE_TEMP_SENSOR = 9
-    DEVICE_FUNCTION_FRIDGE_OUTSIDE_TEMP_SENSOR = 10
+    DEVICE_FUNCTION_FRIDGE_BEER_1_TEMP_SENSOR = 8
+    DEVICE_FUNCTION_FRIDGE_BEER_2_TEMP_SENSOR = 9
+    DEVICE_FUNCTION_FRIDGE_BEER_3_TEMP_SENSOR = 10
+    DEVICE_FUNCTION_FRIDGE_INSIDE_TEMP_SENSOR = 11
+    DEVICE_FUNCTION_FRIDGE_OUTSIDE_TEMP_SENSOR = 12
 
-    DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR = 11
-    DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR = 12
-    DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR = 13
-    DEVICE_FUNCTION_MACH_OUT_TEMP_SENSOR = 14
-    DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR = 15
-    DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR = 16
-    DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR = 17
+    DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR = 13
+    DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR = 14
+    DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR = 15
+    DEVICE_FUNCTION_MACH_OUT_TEMP_SENSOR = 16
+    DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR = 17
+    DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR = 18
+    DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR = 19
 
     DEVICE_FUNCTION = (
         (DEVICE_FUNCTION_NONE, 'None'),
@@ -58,7 +61,9 @@ class Device(models.Model):
         (DEVICE_FUNCTION_PUMP_1_ACTUATOR, 'Pump 1 Actuator'),
         (DEVICE_FUNCTION_PUMP_2_ACTUATOR, 'Pump 2 Actuator'),
 
-        (DEVICE_FUNCTION_FRIDGE_BEER_TEMP_SENSOR, 'Fridge Beer Temp Sensor'),
+        (DEVICE_FUNCTION_FRIDGE_BEER_1_TEMP_SENSOR, 'Fridge Beer 1 Temp Sensor'),
+        (DEVICE_FUNCTION_FRIDGE_BEER_2_TEMP_SENSOR, 'Fridge Beer 2 Temp Sensor'),
+        (DEVICE_FUNCTION_FRIDGE_BEER_3_TEMP_SENSOR, 'Fridge Beer 3 Temp Sensor'),
         (DEVICE_FUNCTION_FRIDGE_INSIDE_TEMP_SENSOR, 'Fridge Inside Temp Sensor'),
         (DEVICE_FUNCTION_FRIDGE_OUTSIDE_TEMP_SENSOR, 'Outside Fridge Temp Sensor'),
 
@@ -73,6 +78,7 @@ class Device(models.Model):
     )
 
     spark = models.ForeignKey(BrewPiSpark, null=True)
+    configuration = models.ForeignKey(Configuration, null=True)
     type = models.IntegerField(verbose_name='Hardware Type', choices=DEVICE_TYPE, default=0)
     function = models.IntegerField(verbose_name='Device Function', choices=DEVICE_FUNCTION, default=0)
     value = models.CharField(verbose_name="Value", max_length=10, default="")
@@ -85,7 +91,7 @@ class Device(models.Model):
 
     class Meta:
         verbose_name = 'Device'
-        verbose_name_plural = "Devices"
+        verbose_name_plural = 'Devices'
         unique_together = ('pin_nr', 'hw_address',)
         ordering = ['spark', 'type']
         get_latest_by = '-last_update'
@@ -171,5 +177,5 @@ class Device(models.Model):
         return device
 
     def __str__(self):
-        return "Device: [{}] {} -> '{}' -> {}]".format(self.last_update.strftime('%Y-%m-%d %H:%M:%S'), self.spark,
-                                                       self.pin_nr, self.hw_address)
+        return "Device: [{}] {} -> ['{}' -> {}]".format(self.last_update.strftime('%Y-%m-%d %H:%M:%S'), self.spark,
+                                                        self.pin_nr, self.hw_address)

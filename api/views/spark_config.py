@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 @require_http_methods(["PUT"])
-def create():
+def create(request):
     config_id = 0
 
     return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(config_id),
@@ -16,6 +16,6 @@ def create():
 
 
 @require_http_methods(["PUT"])
-def update(config_id):
+def update(request, config_id):
     return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(config_id),
                         content_type="application/json")

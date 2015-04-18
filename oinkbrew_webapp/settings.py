@@ -10,6 +10,14 @@ TEMP_TYPE = 'C'
 
 SPARK_PORT = 7873
 
+INFLUXDB_HOST = 'localhost'
+INFLUXDB_PORT = 8086
+INFLUXDB_USER = 'root'
+INFLUXDB_PWD  = 'root'
+INFLUXDB_DB   = 'oinkbrew'
+
+
+
 #
 # Framework Settings
 #

@@ -18,6 +18,7 @@ class BrewPiSpark(models.Model):
     firmware_version = models.FloatField(verbose_name='Firmware Version', default=0.0)
     ip_address = models.GenericIPAddressField(verbose_name='Ip Address')
     web_address = models.GenericIPAddressField(verbose_name='Web Address', null=True)
+    web_port = models.IntegerField("Web Port", null=True)
     spark_time = models.BigIntegerField(verbose_name='Spark Time', default=0)
     last_update = models.DateTimeField(verbose_name='Last Update')
 
@@ -45,6 +46,7 @@ class BrewPiSpark(models.Model):
             spark.firmware_version = status.get("firmware_version")
             spark.ip_address = status.get("ip_address")
             spark.web_address = status.get("web_address")
+            spark.web_port = status.get("web_port")
             spark.spark_time = status.get("datetime")
             spark.last_update = timezone.now()
             spark.save()
@@ -56,7 +58,7 @@ class BrewPiSpark(models.Model):
 
             spark = BrewPiSpark.create(status.get("device_id"), status.get("device_mode"),
                                        status.get("firmware_version"), status.get("ip_address"),
-                                       status.get("web_address"), status.get("datetime"))
+                                       status.get("web_address"), status.get("web_port"), status.get("datetime"))
             spark.save()
 
             logger.debug(spark.__str__())
@@ -64,8 +66,8 @@ class BrewPiSpark(models.Model):
         return spark
 
     @classmethod
-    def create(cls, device_id, device_mode, firmware_version, ip_address, web_address, spark_time):
-        spark = cls(device_id, device_id, device_mode, firmware_version, ip_address, web_address, spark_time)
+    def create(cls, device_id, device_mode, firmware_version, ip_address, web_address, web_port, spark_time):
+        spark = cls(device_id, device_id, device_mode, firmware_version, ip_address, web_address, web_port, spark_time)
         spark.last_update = timezone.now()
 
         return spark

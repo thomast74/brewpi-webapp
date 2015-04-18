@@ -1,3 +1,4 @@
+from _socket import SHUT_RDWR
 import logging
 import socket
 import time
@@ -13,10 +14,15 @@ class Connector:
     def __init__(self):
         return
 
-    def send_spark_info(self, spark, local_ip):
-
-        logger.info("Send device info [name:{},config:{},tempType:{}] to {}".format(spark.name, spark.device_config,
-                                                                                    settings.TEMP_TYPE, spark))
+    def send_spark_info(self, spark, local_ip, local_port):
+        datetime = int(time.mktime(timezone.now().timetuple()))
+        logger.info(
+            "Send device info [name:{},tempType:{},oinkweb:{},oinkwebport:{},datetime:{}] to {}".format(spark.name,
+                                                                                                        settings.TEMP_TYPE,
+                                                                                                        local_ip,
+                                                                                                        local_port,
+                                                                                                        datetime,
+                                                                                                        spark))
         try:
             sock = self.__start_connection(spark.ip_address)
         except:
@@ -24,10 +30,10 @@ class Connector:
             raise SparkException("Connection to Spark not possible")
 
         try:
-            datetime = int(time.mktime(timezone.now().timetuple()))
-            message = "s{{name:{},tempType:{},oinkweb:{},datetime:{}}}".format(spark.name,
-                                                                               settings.TEMP_TYPE, local_ip,
-                                                                               datetime)
+            message = "s{{name:{},tempType:{},oinkweb:{},oinkwebport:{},datetime:{}}}".format(spark.name,
+                                                                                              settings.TEMP_TYPE,
+                                                                                              local_ip, local_port,
+                                                                                              datetime)
             logger.debug("Send data: {}".format(message))
             sock.sendall(message)
             data = sock.recv(1024)
@@ -35,6 +41,7 @@ class Connector:
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
         finally:
+            sock.shutdown(SHUT_RDWR)
             sock.close()
         return
 
@@ -114,7 +121,7 @@ class Connector:
             logger.debug("{} Message: d".format(spark.name))
             sock.sendall("d")
 
-            response = self.receive_json(sock)
+            response = self.receive_devices_json(sock)
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
 
@@ -137,7 +144,7 @@ class Connector:
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
 
-        return self.receive_json(sock)
+        return self.receive_devices_json(sock)
 
     def update_spark_firmware(self, spark):
         logger.info("Update firmware on {}".format(spark))
@@ -217,7 +224,8 @@ class Connector:
         return response
 
     def device_delete(self, device):
-        logger.info("Delete device on spark {} at pin_nr {} and hw_address".format(device.spark, device.pin_nr, device.hw_address))
+        logger.info("Delete device on spark {} at pin_nr {} and hw_address".format(device.spark, device.pin_nr,
+                                                                                   device.hw_address))
 
         response = "Error"
 
@@ -266,19 +274,23 @@ class Connector:
         return sock
 
     @staticmethod
-    def receive_json(sock):
+    def receive_devices_json(sock):
         i = 0
         json = ""
         expected_result = False
 
         try:
             while not expected_result and i < 50:
-                time.sleep(0.1)
+                time.sleep(0.05)
                 c = sock.recv(128)
-                json += c
+                logger.debug(c)
 
-                if c == "":
+                if len(c) == 0 or c[len(c)-1] == '\x06':
+                    if len(c) > 1:
+                        json += c[0:-1]
                     expected_result = True
+                else:
+                    json += c
 
                 i += 1
 

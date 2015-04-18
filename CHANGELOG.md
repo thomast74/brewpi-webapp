@@ -16,3 +16,4 @@ v0.1
 - Toggle Device Actuator on a specific Spark provided in URL and return new state, for PWM you need to provide a value
 - Request Sensor/Actuator status from a specific Spark provided URL
 - Delete a Sensor/Actuator from local database and remotely from spark
+- Receive Sensor/Actuator log data from Spark and save in InfluxDB

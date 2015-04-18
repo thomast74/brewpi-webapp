@@ -2,3 +2,4 @@ django
 Celery
 django-celery
 netifaces
+influxdb

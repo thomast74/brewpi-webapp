@@ -14,7 +14,7 @@
   save in graph database with all information [spark,device,configuration]  
   
   
-* **API request fro log message should return message to be used in JavaScript charting**  
+* **API request for log message should return message to be used in JavaScript charting**  
   filter by configuration  
   filter by device  
   return all data including all devices  
@@ -50,3 +50,5 @@
 * home page to start a new brew
 * home page to start to show if a brew is active
 
+* chart need to be able to turn on/off lines belonging to one configuration
+* configuration dashboard needs to show chart from all configuration seperatly

@@ -16,16 +16,20 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(ignore_result=True)
-def check_if_status_update_required(device_id):
+def check_if_status_update_required(device_id, local_port):
     logger.debug("Received status message check task for {}".format(device_id))
 
     spark = BrewPiSpark.objects.get(device_id=device_id)
     local_ip = get_local_ip()
     datetime = int(time.mktime(timezone.now().timetuple()))
+
+    logger.debug("Spark Web Address: {}   Local Ip: {}".format(spark.web_address, local_ip))
+    logger.debug("Spark Web Port: {}   Local Port: {}".format(spark.web_port, local_port))
     logger.debug("Spark Time: {}   localtime: {}".format(spark.spark_time, datetime))
 
-    if spark.web_address != local_ip or spark.spark_time < (datetime-10) or spark.spark_time > datetime:
-        Connector().send_spark_info(spark, local_ip)
+    if spark.web_address != local_ip or spark.web_port != int(local_port) or \
+                    spark.spark_time < (datetime - 10) or spark.spark_time > datetime:
+        Connector().send_spark_info(spark, local_ip, local_port)
 
     return "Ok"
 
