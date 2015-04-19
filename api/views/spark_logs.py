@@ -50,7 +50,7 @@ def list_logs(request, device_id, config_id):
 
     config_data['points'] = influx_data[name]
 
-    return ApiResponse.json(config_data, pretty)
+    return ApiResponse.json(config_data, pretty, False)
 
 @require_http_methods(["PUT"])
 def add(request, device_id):

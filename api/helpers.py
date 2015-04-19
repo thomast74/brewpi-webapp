@@ -1,6 +1,8 @@
 import json
 import logging
 
+from django.core import serializers
+from django.db import models
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
@@ -39,10 +41,13 @@ class ApiResponse:
         return HttpResponse('{"Status":"OK"}\n', content_type="application/json")
 
     @staticmethod
-    def json(objects, pretty):
-        objects_serialized = json.dumps(objects, indent=2) if pretty == "True" else json.dumps(objects)
-
-        # logger.debug("Response: " + objects_serialized)
+    def json(objects, pretty, models = True):
+        if models:
+            objects_serialized = serializers.serialize('json', objects)
+            if pretty == "True":
+                objects_serialized = json.dumps(json.loads(objects_serialized), indent=2)
+        else:
+            objects_serialized = json.dumps(objects, indent=2) if pretty == "True" else json.dumps(objects)
 
         return HttpResponse(objects_serialized, content_type="application/json")
 
