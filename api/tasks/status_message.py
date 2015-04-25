@@ -31,6 +31,8 @@ def check_if_status_update_required(device_id, local_port):
                     spark.spark_time < (datetime - 10) or spark.spark_time > datetime:
         Connector().send_spark_info(spark, local_ip, local_port)
 
+    logger.debug("-")
+
     return "Ok"
 
 

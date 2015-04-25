@@ -13,9 +13,30 @@ from api.helpers import ApiResponse, get_and_check_spark_to_device
 logger = logging.getLogger(__name__)
 
 
-@require_http_methods(["GET"])
+def get_add_or_delete(request, device_id):
+    if request.method == 'PUT':
+        return add(request, device_id)
+    elif request.method == 'DELETE':
+        return delete_from_spark(request, device_id)
+    else:
+        return get_list(request, device_id)
+
+
+def add(request, device_id):
+    logger.info("Add new device to Spark {}".format(device_id))
+    # check if device already in database
+    # if not; create and assign to spark
+
+    spark = get_object_or_404(BrewPiSpark, device_id=device_id)
+    Device.from_json(spark, request.body)
+
+    logger.debug("-")
+
+    return ApiResponse.ok()
+
+
 def get_list(request, device_id):
-    logger.info("Request list of devices connected to Spark {}".format(device_id))
+    logger.info("Request list of devices connected to Spark {}\n".format(device_id))
     pretty = request.GET.get("pretty", "True")
 
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
@@ -34,9 +55,16 @@ def get(request, device_id, actuator_id):
     device, spark = get_and_check_spark_to_device(device_id, actuator_id)
 
     device_json = Connector().request_device(device)
-    Device.from_json(device, device_json)
+    Device.update_from_json(device, device_json)
 
     return ApiResponse.json([device], pretty)
+
+
+def delete_from_spark(request, device_id):
+    logger.info("Receive disconnected device request from spark {}".format(device_id))
+    logger.debug(request.body)
+    logger.debug("-")
+    return ApiResponse.ok()
 
 
 @require_http_methods(["DELETE"])

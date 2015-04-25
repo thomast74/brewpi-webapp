@@ -1,3 +1,4 @@
+from __builtin__ import staticmethod
 import json
 import logging
 import sys
@@ -118,7 +119,7 @@ class Device(models.Model):
 
                     device.spark = spark
                     device.type = device_dic.get('type')
-                    device.value = device_dic.get('value').lstrip()
+                    device.value = device_dic.get('value')
                     device.is_invert = device_dic_hardware.get('is_invert')
                     device.offset = device_dic_hardware.get('offset')
                     device.is_deactivate = device_dic_hardware.get('is_deactivate')
@@ -128,7 +129,7 @@ class Device(models.Model):
                     logger.debug(device.__str__())
 
                 except ObjectDoesNotExist:
-                    device = Device.create(spark, device_dic.get('type'), device_dic.get('value').lstrip(),
+                    device = Device.create(spark, device_dic.get('type'), device_dic.get('value'),
                                            device_dic_hardware.get('pin_nr'),
                                            device_dic_hardware.get('hw_address'), device_dic_hardware.get('offset'),
                                            device_dic_hardware.get('is_invert'),
@@ -145,7 +146,44 @@ class Device(models.Model):
         return Device.objects.filter(spark=spark)
 
     @staticmethod
-    def from_json(device, device_json):
+    def from_json(spark, device_json):
+        logger.debug("Convert json devices into Device objects")
+        try:
+            logger.debug("Received: " + device_json)
+            device_dic = json.loads(device_json)
+        except ValueError:
+            return None
+
+        device_dic_hardware = device_dic.get('hardware')
+
+        try:
+            device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
+                                        hw_address=device_dic_hardware.get("hw_address"))
+
+            device.spark = spark
+            device.type = device_dic.get('type')
+            device.value = device_dic.get('value')
+            device.is_invert = device_dic_hardware.get('is_invert')
+            device.offset = device_dic_hardware.get('offset')
+            device.is_deactivate = device_dic_hardware.get('is_deactivate')
+            device.last_update = timezone.now()
+            device.save()
+
+            logger.debug(device.__str__())
+
+        except ObjectDoesNotExist:
+            device = Device.create(spark, device_dic.get('type'), device_dic.get('value'),
+                                   device_dic_hardware.get('pin_nr'),
+                                   device_dic_hardware.get('hw_address'), device_dic_hardware.get('offset'),
+                                   device_dic_hardware.get('is_invert'),
+                                   device_dic_hardware.get('is_deactivate'))
+            device.save()
+
+            logger.debug(device.__str__())
+
+
+    @staticmethod
+    def update_from_json(device, device_json):
 
         logger.debug("Convert json devices into Device objects")
         try:

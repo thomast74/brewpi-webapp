@@ -32,6 +32,8 @@ def log_device_data(device_id, json_data):
     influx_data = build_points(log_data, spark)
     save_points(influx_data)
 
+    logger.debug("-")
+
     return "Ok"
 
 
