@@ -6,7 +6,7 @@ Oink Brew API Service Layer and Web Application for configuring BrewPi Sparks wi
 
 1. InfluxDB  
    sudo mkdir /var/run/influxdb  
-   chown influxdb:influxdb /var/run/influxdb/
+   sudo chown influxdb:influxdb /var/run/influxdb/
    
 
 2. RabbitMQ
