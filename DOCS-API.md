@@ -19,6 +19,7 @@ Inserts
 Impl | Entry Point | METHOD | Description
 -----|-------------|--------|------------
 N | /api/spark/{device_id}/config               | PUT    | Creates a new configuration and sends it to the Spark
+Y | /api/spark/{device_id}/devices/             | PUT    | Receives a newly connected device from Spark
 Y | /api/spark/{device_id}/logs/                | PUT    | Receive actuator and sensor value data
 
 
@@ -41,5 +42,6 @@ Deletes
 Impl | Entry Point | METHOD | Description
 -----|-------------|--------|------------
 Y | /api/spark/{device_id}/delete/                     | DELETE | Deletes a Spark and all its data from database
+Y | /api/spark/{device_id}/devices/delete/             | DELETE | Deletes the Sensor that was disconnected from Spark
 Y | /api/spark/{device_id}/devices/{sensor_id}/delete/ | DELETE | Deletes the Sensor/Actuator from this Sparks configuration
 N | /api/spark/{device_id}/logs/{config_id}/delete/    | DELETE | Deletes the Sensors/Actuators log data

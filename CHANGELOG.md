@@ -1,6 +1,12 @@
 # Change Log for Oink Brew Web App 
 
 
+v0.2
+----
+- Receive new Device message from Spark and add device to database
+- Receive disconnect Device message from Spark and unallocated device from Spark and configuration
+
+
 v0.1
 ----
 - receive Json Status message from oinkbrew_listener and insert new BrewPi Sparks or update them in database

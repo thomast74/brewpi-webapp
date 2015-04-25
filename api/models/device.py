@@ -181,6 +181,8 @@ class Device(models.Model):
 
             logger.debug(device.__str__())
 
+        return device
+
 
     @staticmethod
     def update_from_json(device, device_json):

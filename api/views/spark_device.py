@@ -24,8 +24,6 @@ def get_add_or_delete(request, device_id):
 
 def add(request, device_id):
     logger.info("Add new device to Spark {}".format(device_id))
-    # check if device already in database
-    # if not; create and assign to spark
 
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
     Device.from_json(spark, request.body)
@@ -62,8 +60,12 @@ def get(request, device_id, actuator_id):
 
 def delete_from_spark(request, device_id):
     logger.info("Receive disconnected device request from spark {}".format(device_id))
-    logger.debug(request.body)
-    logger.debug("-")
+
+    spark = get_object_or_404(BrewPiSpark, device_id=device_id)
+    device = Device.from_json(spark, request.body)
+
+    device.delete()
+
     return ApiResponse.ok()
 
 
