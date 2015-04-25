@@ -93,7 +93,7 @@ class Device(models.Model):
     class Meta:
         verbose_name = 'Device'
         verbose_name_plural = 'Devices'
-        unique_together = ('pin_nr', 'hw_address',)
+        unique_together = ('pin_nr', 'hw_address', 'spark')
         ordering = ['spark', 'type']
         get_latest_by = '-last_update'
 
@@ -115,7 +115,8 @@ class Device(models.Model):
 
                 try:
                     device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
-                                                hw_address=device_dic_hardware.get("hw_address"))
+                                                hw_address=device_dic_hardware.get("hw_address"),
+                                                spark=spark)
 
                     device.spark = spark
                     device.type = device_dic.get('type')
@@ -158,7 +159,8 @@ class Device(models.Model):
 
         try:
             device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
-                                        hw_address=device_dic_hardware.get("hw_address"))
+                                        hw_address=device_dic_hardware.get("hw_address"),
+                                        spark=spark)
 
             device.spark = spark
             device.type = device_dic.get('type')
