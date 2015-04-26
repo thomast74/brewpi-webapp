@@ -35,14 +35,19 @@ def get(request, device_id):
 @require_http_methods(["POST"])
 def set_mode(request, device_id):
     logger.info("Received spark set mode request for {}".format(device_id))
-    device_mode = request.POST.get("device_mode", "MANUAL")
+    device_mode_string = request.POST.get("device_mode", "MANUAL")
+
+    if device_mode_string == "MANUAL":
+        device_mode = BrewPiSpark.SPARK_MODE_MANUAL
+    elif device_mode_string == "CALIBRATION":
+        device_mode = BrewPiSpark.SPARK_MODE_MANUAL
+    elif device_mode_string == "LOGGING":
+        device_mode = BrewPiSpark.SPARK_MODE_LOGGING
+    elif device_mode_string == "AUTOMATIC":
+        device_mode = BrewPiSpark.SPARK_MODE_AUTOMATIC
 
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
-    check_parameter(device_mode, ['MANUAL', 'LOGGING', 'AUTOMATIC'], "device_mode")
-
-    Connector().set_spark_mode(spark, device_mode)
-    spark.device_mode = device_mode
-    spark.save()
+    spark.set_mode(device_mode)
 
     return ApiResponse.ok()
 
@@ -79,6 +84,13 @@ def reset(request, device_id):
     spark.web_address = "0.0.0.0"
     spark.last_update = timezone.now()
     spark.save()
+
+    return ApiResponse.ok()
+
+
+@require_http_methods(["POST"])
+def calibration(request, device_id):
+    logger.info("Start a calibration session on spark {}".format(device_id))
 
     return ApiResponse.ok()
 

@@ -5,16 +5,28 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 
-from api.services.spark_connector import SparkException
+from api.services.spark_connector import SparkException, Connector
 
 
 logger = logging.getLogger(__name__)
 
 
 class BrewPiSpark(models.Model):
+    SPARK_MODE_MANUAL = 0
+    SPARK_MODE_CALIBRATION = 1
+    SPARK_MODE_LOGGING = 2
+    SPARK_MODE_AUTOMATIC = 3
+
+    SPARK_MODE = (
+        (SPARK_MODE_MANUAL, 'MANUAL'),
+        (SPARK_MODE_CALIBRATION, 'CALIBRATION'),
+        (SPARK_MODE_LOGGING, 'LOGGING'),
+        (SPARK_MODE_AUTOMATIC, 'AUTOMATIC')
+    )
+
     device_id = models.CharField(verbose_name='Device Id', max_length=30, primary_key=True)
     name = models.CharField(verbose_name='Name', max_length=30, unique=True, null=True)
-    device_mode = models.CharField(verbose_name='Device Mode', max_length=20, default="MANUAL")
+    device_mode = models.IntegerField(verbose_name='Device Mode', choices=SPARK_MODE, default=0)
     firmware_version = models.FloatField(verbose_name='Firmware Version', default=0.0)
     ip_address = models.GenericIPAddressField(verbose_name='Ip Address')
     web_address = models.GenericIPAddressField(verbose_name='Web Address', null=True)
@@ -75,6 +87,14 @@ class BrewPiSpark(models.Model):
     def delete(self, using=None):
         models.device.Device.objects.filter(spark=self).delete()
         super.delete(using=None)
+
+    def set_mode(self, device_mode):
+        if device_mode >= self.SPARK_MODE_MANUAL or device_mode <= self.SPARK_MODE_AUTOMATIC:
+            Connector().set_spark_mode(self, device_mode)
+            self.device_mode = device_mode
+            self.save()
+        else:
+            raise SparkException("Given device mode is invalid")
 
     def __str__(self):
         return "BrewPiSpark: [{}] {} -> '{}' -> {}]".format(self.last_update.strftime('%Y-%m-%d %H:%M:%S'),

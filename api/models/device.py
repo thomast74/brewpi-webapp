@@ -80,7 +80,7 @@ class Device(models.Model):
 
     spark = models.ForeignKey(BrewPiSpark, null=True)
     configuration = models.ForeignKey(Configuration, null=True)
-    type = models.IntegerField(verbose_name='Hardware Type', choices=DEVICE_TYPE, default=0)
+    config_type = models.IntegerField(verbose_name='Hardware Type', choices=DEVICE_TYPE, default=0)
     function = models.IntegerField(verbose_name='Device Function', choices=DEVICE_FUNCTION, default=0)
     value = models.CharField(verbose_name="Value", max_length=10, default="")
     pin_nr = models.IntegerField(verbose_name='Pin Nr', default=0)
@@ -94,7 +94,7 @@ class Device(models.Model):
         verbose_name = 'Device'
         verbose_name_plural = 'Devices'
         unique_together = ('pin_nr', 'hw_address', 'spark')
-        ordering = ['spark', 'type']
+        ordering = ['spark', 'config_type']
         get_latest_by = '-last_update'
 
     @staticmethod
@@ -119,7 +119,7 @@ class Device(models.Model):
                                                 spark=spark)
 
                     device.spark = spark
-                    device.type = device_dic.get('type')
+                    device.config_type = device_dic.get('type')
                     device.value = device_dic.get('value')
                     device.is_invert = device_dic_hardware.get('is_invert')
                     device.offset = device_dic_hardware.get('offset')
@@ -163,7 +163,7 @@ class Device(models.Model):
                                         spark=spark)
 
             device.spark = spark
-            device.type = device_dic.get('type')
+            device.config_type = device_dic.get('type')
             device.value = device_dic.get('value')
             device.is_invert = device_dic_hardware.get('is_invert')
             device.offset = device_dic_hardware.get('offset')
@@ -199,7 +199,7 @@ class Device(models.Model):
         device_dic_hardware = device_dic.get('hardware')
 
         device.spark = device.spark
-        device.type = device_dic.get('type')
+        device.config_type = device_dic.get('type')
         device.value = device_dic.get('value').lstrip()
         device.is_invert = device_dic_hardware.get('is_invert')
         device.offset = device_dic_hardware.get('offset')
@@ -210,10 +210,9 @@ class Device(models.Model):
         logger.debug(device.__str__())
 
     @classmethod
-    def create(cls, spark, hw_type, value, pin_nr, hw_address, offset, is_invert, is_deactivate):
-        device = cls(spark=spark, type=hw_type, value=value, pin_nr=pin_nr, hw_address=hw_address, offset=offset,
-                     is_invert=is_invert,
-                     is_deactivate=is_deactivate)
+    def create(cls, spark, config_type, value, pin_nr, hw_address, offset, is_invert, is_deactivate):
+        device = cls(spark=spark, config_type=config_type, value=value, pin_nr=pin_nr, hw_address=hw_address,
+                     offset=offset, is_invert=is_invert, is_deactivate=is_deactivate)
         device.last_update = timezone.now()
 
         return device

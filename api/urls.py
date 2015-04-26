@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 
 from api.views import spark
+from api.views import spark_calibration
 from api.views import spark_config
 from api.views import spark_device
 from api.views import spark_logs
@@ -8,6 +9,7 @@ from api.views import spark_status
 
 
 urlpatterns = patterns('',
+                       url(r'^spark/(?P<device_id>\w+)/calibration/', spark_calibration.start),
                        url(r'^spark/(?P<device_id>\w+)/config/', spark_config.create),
                        url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/', spark_config.update),
                        url(r'^spark/(?P<device_id>\w+)/delete/', spark.delete),

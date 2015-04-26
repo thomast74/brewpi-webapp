@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from api.models import BrewPiSpark
 
 
@@ -7,11 +8,13 @@ class Configuration(models.Model):
     CONFIG_TYPE_NONE = 0
     CONFIG_TYPE_BREW = 1
     CONFIG_TYPE_FERMENTATION = 2
+    CONFIG_TYPE_CALIBRATION = 3
 
     CONFIG_TYPE = (
         (CONFIG_TYPE_NONE, 'None'),
         (CONFIG_TYPE_BREW, 'Brew'),
         (CONFIG_TYPE_FERMENTATION, 'Fermentation'),
+        (CONFIG_TYPE_CALIBRATION, 'Calibration')
     )
 
     name = models.CharField(verbose_name="Name", max_length=30, unique=True)
@@ -29,6 +32,12 @@ class Configuration(models.Model):
         verbose_name_plural = 'Configurations'
         ordering = ['create_date', 'name']
         get_latest_by = '-create_date'
+
+    @classmethod
+    def create(cls, name, config_type, spark):
+        config = cls(name=name, create_date=timezone.now(), type=config_type, spark=spark)
+
+        return config
 
     def __str__(self):
         return "Configuration: [{} - {} -> {}]".format(self.name, self.create_date.strftime('%Y-%m-%d %H:%M:%S'),

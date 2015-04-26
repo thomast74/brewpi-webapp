@@ -223,6 +223,26 @@ class Connector:
 
         return response
 
+    def set_device_offset(self, device):
+        logger.info("Set device offset on spark {} for device {}".format(device.spark, device))
+
+        try:
+            sock = self.__start_connection(device.spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
+
+        try:
+            message = "o{{pin_nr:{},hw_address:{},offset:{}}}".format(device.pin_nr, device.hw_address,
+                                                                      device.offset*1000)
+            logger.debug("Send Message: " + message)
+            sock.send(message)
+            sock.recv(1)
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
+        finally:
+            sock.close()
+
     def device_delete(self, device):
         logger.info("Delete device on spark {} at pin_nr {} and hw_address".format(device.spark, device.pin_nr,
                                                                                    device.hw_address))
