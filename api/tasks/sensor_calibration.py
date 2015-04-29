@@ -1,9 +1,10 @@
 from __future__ import absolute_import
-from django.db import transaction
 import logging
 
 from celery import shared_task
+from influxdb import InfluxDBClient
 from api.models import Configuration
+from oinkbrew_webapp import settings
 
 
 logger = logging.getLogger(__name__)
@@ -53,4 +54,11 @@ def cleanup_calibration(spark, sensors):
 
     # remove configuration
     Configuration.objects.filter(spark=spark, name="Calibration").delete()
+
+    # if no other calibration exists; drop measurement Calibration
+    if Configuration.objects.filter(name="Calibration").count() == 0:
+        client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
+                                settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
+        client.query("DROP MEASUREMENT Calibration;")
+
 
