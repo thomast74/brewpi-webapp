@@ -1,12 +1,11 @@
 import json
 import logging
 
-from django.shortcuts import get_object_or_404, get_list_or_404
-from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
 from api.models import BrewPiSpark, Device, Configuration
-from api.helpers import ApiResponse, check_parameter
+from api.helpers import ApiResponse
 from api.tasks import sensor_calibration
 from api.views.errors import Http400
 from api.services.spark_connector import Connector
@@ -70,12 +69,12 @@ def set_spark_mode(spark):
 
 
 def configure_sensors_for_calibration(spark, devices):
-
     config = Configuration.create(name="Calibration", config_type=Configuration.CONFIG_TYPE_CALIBRATION, spark=spark)
     config.save()
 
     for device in devices:
         device.offset = 0
+        device.offset_result = ""
         device.configuration = config
         Connector().set_device_offset(device)
         device.save()

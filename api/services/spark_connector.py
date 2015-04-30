@@ -234,7 +234,7 @@ class Connector:
 
         try:
             message = "o{{pin_nr:{},hw_address:{},offset:{}}}".format(device.pin_nr, device.hw_address,
-                                                                      device.offset*10000)
+                                                                      device.offset * 10000)
             logger.debug("Send Message: " + message)
             sock.send(message)
             sock.recv(1)
@@ -305,7 +305,7 @@ class Connector:
                 c = sock.recv(128)
                 logger.debug(c)
 
-                if len(c) == 0 or c[len(c)-1] == '\x06':
+                if len(c) == 0 or c[len(c) - 1] == '\x06':
                     if len(c) > 1:
                         json += c[0:-1]
                     expected_result = True

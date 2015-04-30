@@ -23,9 +23,6 @@ def calculate_offset(spark, sensors):
         try:
             result = client.query('SELECT MEAN("{}") FROM Calibration WHERE time > now() - 3m;'.format(sensor.pk))
 
-            logger.debug(result)
-            logger.debug("{}".format(result["Calibration"][0]["MEAN"]))
-
             sensor.offset = 100 - float(result["Calibration"][0]["MEAN"])
 
             logger.debug("Sensor {} offset: {}".format(sensor.pk, sensor.offset))
@@ -46,9 +43,23 @@ def calculate_offset(spark, sensors):
 def validate_offset(spark, sensors):
     logger.info("Validate offset for spark {} and sensors {}".format(spark, sensors))
 
-    # for all devices
-    # load last 2 minutes of calibration temp data
-    #   log error if still off by more than 0.25 degree in average
+    client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
+                            settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
+
+    for sensor in sensors:
+        try:
+            result = client.query('SELECT MEAN("{}") FROM Calibration WHERE time > now() - 3m;'.format(sensor.pk))
+
+            offset = 100 - float(result["Calibration"][0]["MEAN"])
+
+            if -0.1 > offset or offset > 0.1:
+                logger.info("Sensor {} is still off by {}".format(sensor, offset))
+                sensor.offset_result = "Still off by: {}".format(offset)
+                sensor.save()
+
+        except:
+            tp, value, traceback = sys.exc_info()
+            logger.error("Sensor error: {}".format(value))
 
     cleanup_calibration(spark, sensors)
 

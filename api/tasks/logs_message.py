@@ -5,9 +5,9 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from celery import shared_task
 from django.utils import timezone
-from api.models import Device
 from influxdb import InfluxDBClient
 
+from api.models import Device
 from api.models.brew_pi_spark import BrewPiSpark
 from oinkbrew_webapp import settings
 
@@ -90,7 +90,6 @@ def build_points(log_data, spark):
         if value < -120:
             # wrong reading don't log
             continue
-
 
         if name in influx_data_dic:
             influx_data_dic[name].fields[function] = value

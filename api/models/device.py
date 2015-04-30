@@ -86,6 +86,7 @@ class Device(models.Model):
     pin_nr = models.IntegerField(verbose_name='Pin Nr', default=0)
     hw_address = models.CharField(verbose_name='Hardware Address', max_length=16)
     offset = models.FloatField(verbose_name='Offset', default=0)
+    offset_result = models.CharField(verbose_name="Calibration Result", max_length=30, default="")
     is_invert = models.BooleanField(verbose_name='Is Invert?', default=True)
     is_deactivate = models.BooleanField(verbose_name='Is Deactivate?', default=False)
     last_update = models.DateTimeField(verbose_name='Last Update')
