@@ -234,7 +234,7 @@ class Connector:
 
         try:
             message = "o{{pin_nr:{},hw_address:{},offset:{}}}".format(device.pin_nr, device.hw_address,
-                                                                      device.offset*1000)
+                                                                      device.offset*10000)
             logger.debug("Send Message: " + message)
             sock.send(message)
             sock.recv(1)

@@ -87,10 +87,13 @@ def build_points(log_data, spark):
             function = device.get_function_display()
 
         value = float(device_data_dic.get("value"))
+        if value < -120:
+            # wrong reading don't log
+            continue
+
 
         if name in influx_data_dic:
             influx_data_dic[name].fields[function] = value
-            logger.debug("Add field  -> {}: {} {} / {}".format(name, function, value, len(influx_data_dic[name].fields)))
         else:
             influx_data_dic[name] = InfluxData()
             influx_data_dic[name].name = name
@@ -98,9 +101,6 @@ def build_points(log_data, spark):
             influx_data_dic[name].config_type = config_type
             influx_data_dic[name].timestamp = timezone.now()
             influx_data_dic[name].fields[function] = value
-            logger.debug("Add record -> {}: {} {} / {}".format(name, function, value, len(influx_data_dic[name].fields)))
-
-        logger.debug("# Series: {}".format(len(influx_data_dic)))
 
     return influx_data_dic
 
@@ -113,11 +113,7 @@ def save_points(influx_data_dic):
 
         for point in influx_data_dic:
             influx_point = influx_data_dic[point]
-            logger.debug("data: {}; {}; {}; {}".format(influx_point.name, influx_point.device_id, influx_point.config_type,
-                                                       len(influx_point.fields)))
-
             data = convert_to_points(influx_point)
-            logger.debug("Save point: {} -> {}".format(point, data))
 
             client.write_points(data)
 
@@ -141,11 +137,11 @@ def convert_to_points(influx_data):
 
 
 class InfluxData:
-    name = None         # configuration.name_configuration.create_date
-    device_id = None    # dictionary of <string, string> typically device_id, configuration type
+    name = None  # configuration.name_configuration.create_date
+    device_id = None  # dictionary of <string, string> typically device_id, configuration type
     config_type = None
-    timestamp = None    # UTC time
-    fields = None       # dictionary of <Function (as text), Value>
+    timestamp = None  # UTC time
+    fields = None  # dictionary of <Function (as text), Value>
 
     def __init__(self):
         self.fields = {}

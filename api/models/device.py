@@ -85,7 +85,7 @@ class Device(models.Model):
     value = models.CharField(verbose_name="Value", max_length=10, default="")
     pin_nr = models.IntegerField(verbose_name='Pin Nr', default=0)
     hw_address = models.CharField(verbose_name='Hardware Address', max_length=16)
-    offset = models.BigIntegerField(verbose_name='Offset', default=0)
+    offset = models.FloatField(verbose_name='Offset', default=0)
     is_invert = models.BooleanField(verbose_name='Is Invert?', default=True)
     is_deactivate = models.BooleanField(verbose_name='Is Deactivate?', default=False)
     last_update = models.DateTimeField(verbose_name='Last Update')

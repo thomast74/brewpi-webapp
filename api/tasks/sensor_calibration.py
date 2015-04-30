@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 import logging
+import sys
 
 from celery import shared_task
 from influxdb import InfluxDBClient
 from api.models import Configuration
+from api.services.spark_connector import Connector
 from oinkbrew_webapp import settings
 
 
@@ -14,11 +16,26 @@ logger = logging.getLogger(__name__)
 def calculate_offset(spark, sensors):
     logger.info("Calculate offset for spark {} and sensors {}".format(spark, sensors))
 
-    # for all sensors
-    #    load last 3 minutes of temp calibration data as avg
-    #    calculate the offset based on boiling water is 100C
-    #    set offset in database
-    #    send new offset to spark
+    client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
+                            settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
+
+    for sensor in sensors:
+        try:
+            result = client.query('SELECT MEAN("{}") FROM Calibration WHERE time > now() - 3m;'.format(sensor.pk))
+
+            logger.debug(result)
+            logger.debug("{}".format(result["Calibration"][0]["MEAN"]))
+
+            sensor.offset = 100 - float(result["Calibration"][0]["MEAN"])
+
+            logger.debug("Sensor {} offset: {}".format(sensor.pk, sensor.offset))
+
+            Connector().set_device_offset(sensor)
+
+            sensor.save()
+        except:
+            tp, value, traceback = sys.exc_info()
+            logger.error("Sensor error: {}".format(value))
 
     validate_offset.apply_async((spark, sensors), countdown=200)
 
@@ -30,7 +47,7 @@ def validate_offset(spark, sensors):
     logger.info("Validate offset for spark {} and sensors {}".format(spark, sensors))
 
     # for all devices
-    #   load last 2 minutes of calibration temp data
+    # load last 2 minutes of calibration temp data
     #   log error if still off by more than 0.25 degree in average
 
     cleanup_calibration(spark, sensors)
@@ -59,6 +76,6 @@ def cleanup_calibration(spark, sensors):
     if Configuration.objects.filter(name="Calibration").count() == 0:
         client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
                                 settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
-        client.query("DROP MEASUREMENT Calibration;")
+        # client.query("DROP MEASUREMENT Calibration;")
 
 
