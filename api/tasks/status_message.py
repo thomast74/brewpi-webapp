@@ -7,7 +7,7 @@ import time
 from celery import shared_task
 
 from api.models.brew_pi_spark import BrewPiSpark
-from api.services.spark_connector import Connector
+from api.services.spark_connector import SparkConnector
 
 from django.utils import timezone
 
@@ -27,11 +27,8 @@ def check_if_status_update_required(device_id, local_port):
     logger.debug("Spark Web Port: {}   Local Port: {}".format(spark.web_port, local_port))
     logger.debug("Spark Time: {}   localtime: {}".format(spark.spark_time, datetime))
 
-    if spark.web_address != local_ip or spark.web_port != int(local_port) or \
-                    spark.spark_time < (datetime - 10) or spark.spark_time > datetime:
-        Connector().send_spark_info(spark, local_ip, local_port)
-
-    logger.debug("-")
+    if spark.web_address != local_ip or spark.web_port != int(local_port) or spark.spark_time < (datetime - 10) or spark.spark_time > datetime:
+        SparkConnector().send_spark_info(spark, local_ip, local_port)
 
     return "Ok"
 

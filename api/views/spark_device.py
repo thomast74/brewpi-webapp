@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 
 from api.models import BrewPiSpark
 from api.models import Device
-from api.services.spark_connector import Connector
+from api.services.spark_connector import SparkConnector
 from api.views.errors import Http400, Http500
 from api.helpers import ApiResponse, get_and_check_spark_to_device
 
@@ -19,7 +19,7 @@ def get_add_or_delete(request, device_id):
     elif request.method == 'DELETE':
         return delete_from_spark(request, device_id)
     else:
-        return get_list(request, device_id)
+        return list_devices(request, device_id)
 
 
 def add(request, device_id):
@@ -33,26 +33,38 @@ def add(request, device_id):
     return ApiResponse.ok()
 
 
-def get_list(request, device_id):
+def list_devices(request, device_id):
     logger.info("Request list of devices connected to Spark {}\n".format(device_id))
     pretty = request.GET.get("pretty", "True")
 
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
 
-    devices_json = Connector().request_device_list(spark)
+    devices = Device.objects.filter(spark=spark)
+
+    return ApiResponse.json(devices, pretty)
+
+
+@require_http_methods(["GET"])
+def request_devices(request, device_id):
+    logger.info("Request list of devices from Spark {}\n".format(device_id))
+    pretty = request.GET.get("pretty", "True")
+
+    spark = get_object_or_404(BrewPiSpark, device_id=device_id)
+
+    devices_json = SparkConnector().request_device_list(spark)
     devices = Device.from_json_list(spark, devices_json)
 
     return ApiResponse.json(devices, pretty)
 
 
 @require_http_methods(["GET"])
-def get(request, device_id, actuator_id):
+def get_device(request, device_id, actuator_id):
     logger.info("Request device {} from {}".format(actuator_id, device_id))
     pretty = request.GET.get("pretty", "True")
 
     device, spark = get_and_check_spark_to_device(device_id, actuator_id)
 
-    device_json = Connector().request_device(device)
+    device_json = SparkConnector.request_device(device)
     Device.update_from_json(device, device_json)
 
     return ApiResponse.json([device], pretty)
@@ -75,7 +87,7 @@ def delete(request, device_id, actuator_id):
 
     device, spark = get_and_check_spark_to_device(device_id, actuator_id)
 
-    response = Connector().deleteDevice(device)
+    response = SparkConnector.device_delete(device)
     if response == "OK":
         device.delete()
         return ApiResponse.ok()
@@ -94,7 +106,7 @@ def toggle(request, device_id, actuator_id):
 
     value = request.POST.get("value", 0)
 
-    actuator_state = Connector().device_toggle(device, value)
+    actuator_state = SparkConnector.device_toggle(device, value)
 
     device.value = actuator_state
     device.save()

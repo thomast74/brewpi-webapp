@@ -5,8 +5,8 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
 from api.models import BrewPiSpark
-from api.helpers import ApiResponse, check_parameter
-from api.services.spark_connector import Connector
+from api.helpers import ApiResponse
+from api.services.spark_connector import SparkConnector
 
 
 logger = logging.getLogger(__name__)
@@ -37,11 +37,9 @@ def set_mode(request, device_id):
     logger.info("Received spark set mode request for {}".format(device_id))
     device_mode_string = request.POST.get("device_mode", "MANUAL")
 
-    if device_mode_string == "MANUAL":
-        device_mode = BrewPiSpark.SPARK_MODE_MANUAL
-    elif device_mode_string == "CALIBRATION":
-        device_mode = BrewPiSpark.SPARK_MODE_MANUAL
-    elif device_mode_string == "LOGGING":
+    device_mode = BrewPiSpark.SPARK_MODE_MANUAL
+
+    if device_mode_string == "LOGGING":
         device_mode = BrewPiSpark.SPARK_MODE_LOGGING
     elif device_mode_string == "AUTOMATIC":
         device_mode = BrewPiSpark.SPARK_MODE_AUTOMATIC
@@ -59,7 +57,7 @@ def set_name(request, device_id):
 
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
 
-    Connector().set_spark_name(spark, name)
+    SparkConnector.set_spark_name(spark, name)
 
     spark.name = name
     spark.save()
@@ -73,7 +71,7 @@ def reset(request, device_id):
 
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
 
-    Connector().reset_spark(spark)
+    SparkConnector.reset_spark(spark)
 
     spark.name = None
     spark.device_mode = "MANUAL"
@@ -104,7 +102,7 @@ def update_firmware(request, device_id):
     # TODO: get latest firmware => from where???
     # TODO: check version with version of Spark; if different send new firmware
 
-    Connector().update_spark_firmware(spark)
+    SparkConnector.update_spark_firmware(spark)
 
     return ApiResponse.ok()
 
@@ -115,7 +113,7 @@ def delete(request, device_id):
 
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
 
-    Connector().reset_spark(spark)
+    SparkConnector.reset_spark(spark)
 
     spark.delete()
 

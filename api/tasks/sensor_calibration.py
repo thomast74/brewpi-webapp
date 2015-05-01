@@ -5,7 +5,7 @@ import sys
 from celery import shared_task
 from influxdb import InfluxDBClient
 from api.models import Configuration
-from api.services.spark_connector import Connector
+from api.services.spark_connector import SparkConnector
 from oinkbrew_webapp import settings
 
 
@@ -27,7 +27,7 @@ def calculate_offset(spark, sensors):
 
             logger.debug("Sensor {} offset: {}".format(sensor.pk, sensor.offset))
 
-            Connector().set_device_offset(sensor)
+            SparkConnector().set_device_offset(sensor)
 
             sensor.save()
         except:

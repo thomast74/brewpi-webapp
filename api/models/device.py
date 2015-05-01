@@ -86,6 +86,7 @@ class Device(models.Model):
     pin_nr = models.IntegerField(verbose_name='Pin Nr', default=0)
     hw_address = models.CharField(verbose_name='Hardware Address', max_length=16)
     offset = models.FloatField(verbose_name='Offset', default=0)
+    offset_from_spark = models.FloatField(verbose_name='Offset From Spark', default=0)
     offset_result = models.CharField(verbose_name="Calibration Result", max_length=30, default="")
     is_invert = models.BooleanField(verbose_name='Is Invert?', default=True)
     is_deactivate = models.BooleanField(verbose_name='Is Deactivate?', default=False)
@@ -122,8 +123,8 @@ class Device(models.Model):
                     device.spark = spark
                     device.config_type = device_dic.get('type')
                     device.value = device_dic.get('value')
+                    device.offset_from_spark = device_dic_hardware.get('offset')
                     device.is_invert = device_dic_hardware.get('is_invert')
-                    device.offset = device_dic_hardware.get('offset')
                     device.is_deactivate = device_dic_hardware.get('is_deactivate')
                     device.last_update = timezone.now()
                     device.save()
@@ -132,9 +133,8 @@ class Device(models.Model):
 
                 except ObjectDoesNotExist:
                     device = Device.create(spark, device_dic.get('type'), device_dic.get('value'),
-                                           device_dic_hardware.get('pin_nr'),
-                                           device_dic_hardware.get('hw_address'), device_dic_hardware.get('offset'),
-                                           device_dic_hardware.get('is_invert'),
+                                           device_dic_hardware.get('pin_nr'), device_dic_hardware.get('hw_address'),
+                                           device_dic_hardware.get('offset'), device_dic_hardware.get('is_invert'),
                                            device_dic_hardware.get('is_deactivate'))
                     device.save()
 
@@ -166,8 +166,8 @@ class Device(models.Model):
             device.spark = spark
             device.config_type = device_dic.get('type')
             device.value = device_dic.get('value')
+            device.offset_from_spark = device_dic_hardware.get('offset')
             device.is_invert = device_dic_hardware.get('is_invert')
-            device.offset = device_dic_hardware.get('offset')
             device.is_deactivate = device_dic_hardware.get('is_deactivate')
             device.last_update = timezone.now()
             device.save()
@@ -176,16 +176,14 @@ class Device(models.Model):
 
         except ObjectDoesNotExist:
             device = Device.create(spark, device_dic.get('type'), device_dic.get('value'),
-                                   device_dic_hardware.get('pin_nr'),
-                                   device_dic_hardware.get('hw_address'), device_dic_hardware.get('offset'),
-                                   device_dic_hardware.get('is_invert'),
+                                   device_dic_hardware.get('pin_nr'), device_dic_hardware.get('hw_address'),
+                                   device_dic_hardware.get('offset'), device_dic_hardware.get('is_invert'),
                                    device_dic_hardware.get('is_deactivate'))
             device.save()
 
             logger.debug(device.__str__())
 
         return device
-
 
     @staticmethod
     def update_from_json(device, device_json):
@@ -201,9 +199,9 @@ class Device(models.Model):
 
         device.spark = device.spark
         device.config_type = device_dic.get('type')
-        device.value = device_dic.get('value').lstrip()
+        device.value = device_dic.get('value')
+        device.offset_from_spark = device_dic_hardware.get('offset')
         device.is_invert = device_dic_hardware.get('is_invert')
-        device.offset = device_dic_hardware.get('offset')
         device.is_deactivate = device_dic_hardware.get('is_deactivate')
         device.last_update = timezone.now()
         device.save()
@@ -211,9 +209,9 @@ class Device(models.Model):
         logger.debug(device.__str__())
 
     @classmethod
-    def create(cls, spark, config_type, value, pin_nr, hw_address, offset, is_invert, is_deactivate):
+    def create(cls, spark, config_type, value, pin_nr, hw_address, offset_from_spark, is_invert, is_deactivate):
         device = cls(spark=spark, config_type=config_type, value=value, pin_nr=pin_nr, hw_address=hw_address,
-                     offset=offset, is_invert=is_invert, is_deactivate=is_deactivate)
+                     offset_from_spark=offset_from_spark, is_invert=is_invert, is_deactivate=is_deactivate)
         device.last_update = timezone.now()
 
         return device

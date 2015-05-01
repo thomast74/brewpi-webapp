@@ -1,7 +1,6 @@
-from django.utils.dateparse import parse_datetime
 import logging
-from datetime import datetime
 
+from django.utils.dateparse import parse_datetime
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -36,7 +35,8 @@ def list_logs(request, device_id, config_id):
     }
 
     name = configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime('%Y_%m_%d')
-    if limit != "ALL":
+    where = ""
+    if "ALL" != limit:
         where = "WHERE time > now() - {}m".format(limit) if int(limit) > 0 else "WHERE time > now() - 24h"
 
     client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
@@ -51,6 +51,7 @@ def list_logs(request, device_id, config_id):
     config_data['points'] = influx_data[name]
 
     return ApiResponse.json(config_data, pretty, False)
+
 
 @require_http_methods(["PUT"])
 def add(request, device_id):

@@ -10,11 +10,12 @@ from django.utils import timezone
 logger = logging.getLogger(__name__)
 
 
-class Connector:
+class SparkConnector:
     def __init__(self):
         return
 
-    def send_spark_info(self, spark, local_ip, local_port):
+    @staticmethod
+    def send_spark_info(spark, local_ip, local_port):
         datetime = int(time.mktime(timezone.now().timetuple()))
         logger.info(
             "Send device info [name:{},tempType:{},oinkweb:{},oinkwebport:{},datetime:{}] to {}".format(spark.name,
@@ -24,7 +25,7 @@ class Connector:
                                                                                                         datetime,
                                                                                                         spark))
         try:
-            sock = self.__start_connection(spark.ip_address)
+            sock = SparkConnector.__start_connection(spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -45,11 +46,12 @@ class Connector:
             sock.close()
         return
 
-    def reset_spark(self, spark):
+    @staticmethod
+    def reset_spark(spark):
         logger.info("Reset spark {}".format(spark))
 
         try:
-            sock = self.__start_connection(spark.ip_address)
+            sock = SparkConnector.__start_connection(spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -65,11 +67,12 @@ class Connector:
             sock.close()
         return
 
-    def set_spark_name(self, spark, name):
+    @staticmethod
+    def set_spark_name(spark, name):
         logger.info("Change name for {} to {}".format(spark, name))
 
         try:
-            sock = self.__start_connection(spark.ip_address)
+            sock = SparkConnector.__start_connection(spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -86,11 +89,12 @@ class Connector:
             sock.close()
         return
 
-    def set_spark_mode(self, spark, device_mode):
+    @staticmethod
+    def set_spark_mode(spark, device_mode):
         logger.info("Change mode for {} to {}".format(spark, device_mode))
 
         try:
-            sock = self.__start_connection(spark.ip_address)
+            sock = SparkConnector.__start_connection(spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -108,11 +112,12 @@ class Connector:
             sock.close()
         return
 
-    def request_device_list(self, spark):
+    @staticmethod
+    def request_device_list(spark):
         logger.info("Request a list of all devices available on {}".format(spark))
 
         try:
-            sock = self.__start_connection(spark.ip_address)
+            sock = SparkConnector.__start_connection(spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -121,17 +126,18 @@ class Connector:
             logger.debug("{} Message: d".format(spark.name))
             sock.sendall("d")
 
-            response = self.receive_devices_json(sock)
+            response = SparkConnector.receive_devices_json(sock)
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
 
         return response
 
-    def request_device(self, device):
+    @staticmethod
+    def request_device(device):
         logger.info("Request device {} from {}".format(device.pk, device.spark))
 
         try:
-            sock = self.__start_connection(device.spark.ip_address)
+            sock = SparkConnector.__start_connection(device.spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -144,13 +150,14 @@ class Connector:
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
 
-        return self.receive_devices_json(sock)
+        return SparkConnector.receive_devices_json(sock)
 
-    def update_spark_firmware(self, spark):
+    @staticmethod
+    def update_spark_firmware(spark):
         logger.info("Update firmware on {}".format(spark))
 
         try:
-            sock = self.__start_connection(spark.ip_address)
+            sock = SparkConnector.__start_connection(spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -186,13 +193,14 @@ class Connector:
             sock.close()
         return
 
-    def device_toggle(self, device, value):
+    @staticmethod
+    def device_toggle(device, value):
         logger.info("Toggle actuator on spark {} at pin {}".format(device.spark, device.pin_nr))
 
         response = "Error"
 
         try:
-            sock = self.__start_connection(device.spark.ip_address)
+            sock = SparkConnector.__start_connection(device.spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -223,11 +231,12 @@ class Connector:
 
         return response
 
-    def set_device_offset(self, device):
+    @staticmethod
+    def set_device_offset(device):
         logger.info("Set device offset on spark {} for device {}".format(device.spark, device))
 
         try:
-            sock = self.__start_connection(device.spark.ip_address)
+            sock = SparkConnector.__start_connection(device.spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -243,14 +252,15 @@ class Connector:
         finally:
             sock.close()
 
-    def device_delete(self, device):
+    @staticmethod
+    def device_delete(device):
         logger.info("Delete device on spark {} at pin_nr {} and hw_address".format(device.spark, device.pin_nr,
                                                                                    device.hw_address))
 
         response = "Error"
 
         try:
-            sock = self.__start_connection(device.spark.ip_address)
+            sock = SparkConnector.__start_connection(device.spark.ip_address)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")

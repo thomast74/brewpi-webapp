@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 
-from api.services.spark_connector import SparkException, Connector
+from api.services.spark_connector import SparkException, SparkConnector
 
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ class BrewPiSpark(models.Model):
 
     def set_mode(self, device_mode):
         if device_mode >= self.SPARK_MODE_MANUAL or device_mode <= self.SPARK_MODE_AUTOMATIC:
-            Connector().set_spark_mode(self, device_mode)
+            SparkConnector().set_spark_mode(self, device_mode)
             self.device_mode = device_mode
             self.save()
         else:

@@ -10,7 +10,8 @@ Y | /api/spark/                                 | GET    | List all registered S
 N | /api/activity/                              | GET    | List recent activities from all Sparks
 Y | /api/spark/{device_id}/                     | GET    | List details of one Spark
 N | /api/spark/{device_id}/activity/            | GET    | List recent activities from a specific Spark
-Y | /api/spark/{device_id}/devices/             | GET    | List sensor/actuator list from Spark (including remote)
+Y | /api/spark/{device_id}/devices/             | GET    | List sensor/actuator from database
+Y | /api/spark/{device_id}/devices/request      | GET    | Request list sensor/actuator list from Spark (including remote)
 Y | /api/spark/{device_id}/devices/{sensor_id}/ | GET    | List sensor/actuator details for a specific device (including remote)
 Y | /api/spark/{device_id}/logs/{config_id}/    | GET    | List logged data for a specific configuration
 
@@ -29,12 +30,14 @@ Updates
 Impl | Entry Point | METHOD | Description
 -----|-------------|--------|------------
 Y | /api/spark/status/                                   | POST   | Receive Spark status updates and check in Spark
+Y | /api/spark/{device_id}/calibration/                  | POST   | Start calibration process for provided sensors
 N | /api/spark/{device_id}/config/{config_id}            | POST   | Updates an existing configuration and sends it to the Spark
 Y | /api/spark/{device_id}/name/                         | POST   | Change name of spark, used as alias
 Y | /api/spark/{device_id}/mode/                         | POST   | Change mode to either [MANUAL,LOGGING,AUTOMATIC]
 ? | /api/spark/{device_id}/firmware/                     | POST   | Updates Spark with latest firmware
 Y | /api/spark/{device_id}/reset/                        | POST   | Force Spark to reset/clear all settings
 Y | /api/spark/{device_id}/devices/{actuator_id}/toggle/ | POST   | In case device is an Actuator or PWM device change the state
+N | /api/spark/{device_id}/devices/offset/               | POST   | Send offset of temp sensors to spark
 
 Deletes
 -------

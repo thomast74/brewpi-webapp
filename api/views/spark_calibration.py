@@ -8,7 +8,7 @@ from api.models import BrewPiSpark, Device, Configuration
 from api.helpers import ApiResponse
 from api.tasks import sensor_calibration
 from api.views.errors import Http400
-from api.services.spark_connector import Connector
+from api.services.spark_connector import SparkConnector
 
 
 logger = logging.getLogger(__name__)
@@ -76,6 +76,6 @@ def configure_sensors_for_calibration(spark, devices):
         device.offset = 0
         device.offset_result = ""
         device.configuration = config
-        Connector().set_device_offset(device)
+        SparkConnector.set_device_offset(device)
         device.save()
 
