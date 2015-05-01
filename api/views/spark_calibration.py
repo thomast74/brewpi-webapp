@@ -48,7 +48,7 @@ def check_if_calibration_is_possible(spark, devices):
         logger.debug("No devices to calibrate")
         raise Http400("No sensors to calibrate")
 
-    if not all(device.config_type == 3 for device in devices):
+    if not all(device.device_type == Device.DEVICE_TYPE_ONEWIRE_TEMP for device in devices):
         logger.debug("Not all sensors are temperature sensors")
         raise Http400("Not all sensors are temperature sensors")
 

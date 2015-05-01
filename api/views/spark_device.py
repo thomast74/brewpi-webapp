@@ -112,3 +112,16 @@ def toggle(request, device_id, actuator_id):
     device.save()
 
     return ApiResponse.ok()
+
+
+@require_http_methods(["POST"])
+def send_offset(request, device_id):
+    logger.info("Send offset to all temp sensors on Spark {}".format(device_id))
+
+    spark = get_object_or_404(BrewPiSpark, device_id=device_id)
+    sensors = Device.objects.filter(spark=spark, device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP)
+
+    for sensor in sensors:
+        SparkConnector.set_device_offset(sensor)
+
+    return ApiResponse.ok()
