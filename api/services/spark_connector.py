@@ -51,7 +51,7 @@ class SparkConnector:
         logger.info("Reset spark {}".format(spark))
 
         try:
-            sock = SparkConnector.__start_connection(spark.ip_address)
+            sock = SparkConnector.__start_connection(spark.ip_address, 1)
         except:
             logger.error("Connection to Spark not possible")
             raise SparkException("Connection to Spark not possible")
@@ -62,7 +62,7 @@ class SparkConnector:
             data = sock.recv(1024)
             logger.info("Response: {}".format(data))
         except socket.timeout:
-            raise SparkException("Connection to Spark times out")
+            logger.debug("Spark was reset")
         finally:
             sock.close()
         return
@@ -291,11 +291,11 @@ class SparkConnector:
         return response
 
     @staticmethod
-    def __start_connection(ip_address):
+    def __start_connection(ip_address, timeout=30):
         logger.debug("Start connection to spark")
         logger.debug("Create socket for: {}:{}".format(str(ip_address), int(settings.SPARK_PORT)))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(30)
+        sock.settimeout(timeout)
 
         logger.debug("Socket connecting")
         server_address = (str(ip_address), int(settings.SPARK_PORT))

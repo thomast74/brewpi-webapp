@@ -118,9 +118,13 @@ class Device(models.Model):
                 device_dic_hardware = device_dic.get('hardware')
 
                 try:
-                    device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
-                                                hw_address=device_dic_hardware.get("hw_address"),
-                                                spark=spark)
+                    if device_dic.get('type') == Device.DEVICE_TYPE_ONEWIRE_TEMP:
+                        device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
+                                                    hw_address=device_dic_hardware.get("hw_address"))
+                    else:
+                        device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
+                                                    hw_address=device_dic_hardware.get("hw_address"),
+                                                    spark=spark)
 
                     device.spark = spark
                     device.device_type = device_dic.get('type')
@@ -161,9 +165,13 @@ class Device(models.Model):
         device_dic_hardware = device_dic.get('hardware')
 
         try:
-            device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
-                                        hw_address=device_dic_hardware.get("hw_address"),
-                                        spark=spark)
+            if device_dic.get('type') == Device.DEVICE_TYPE_ONEWIRE_TEMP:
+                device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
+                                            hw_address=device_dic_hardware.get("hw_address"))
+            else:
+                device = Device.objects.get(pin_nr=device_dic_hardware.get('pin_nr'),
+                                            hw_address=device_dic_hardware.get("hw_address"),
+                                            spark=spark)
 
             device.spark = spark
             device.device_type = device_dic.get('type')
@@ -187,8 +195,15 @@ class Device(models.Model):
 
         return device
 
-    @staticmethod
-    def update_from_json(device, device_json):
+    @classmethod
+    def create(cls, spark, device_type, value, pin_nr, hw_address, offset_from_spark, is_invert, is_deactivate):
+        device = cls(spark=spark, device_type=device_type, value=value, pin_nr=pin_nr, hw_address=hw_address,
+                     offset_from_spark=offset_from_spark, is_invert=is_invert, is_deactivate=is_deactivate)
+        device.last_update = timezone.now()
+
+        return device
+
+    def update_from_json(self, spark, device_json):
 
         logger.debug("Convert json devices into Device objects")
         try:
@@ -199,24 +214,16 @@ class Device(models.Model):
 
         device_dic_hardware = device_dic.get('hardware')
 
-        device.spark = device.spark
-        device.device_type = device_dic.get('type')
-        device.value = device_dic.get('value')
-        device.offset_from_spark = device_dic_hardware.get('offset')
-        device.is_invert = device_dic_hardware.get('is_invert')
-        device.is_deactivate = device_dic_hardware.get('is_deactivate')
-        device.last_update = timezone.now()
-        device.save()
+        self.spark = spark
+        self.device_type = device_dic.get('type')
+        self.value = device_dic.get('value')
+        self.offset_from_spark = device_dic_hardware.get('offset')
+        self.is_invert = device_dic_hardware.get('is_invert')
+        self.is_deactivate = device_dic_hardware.get('is_deactivate')
+        self.last_update = timezone.now()
+        self.save()
 
-        logger.debug(device.__str__())
-
-    @classmethod
-    def create(cls, spark, device_type, value, pin_nr, hw_address, offset_from_spark, is_invert, is_deactivate):
-        device = cls(spark=spark, device_type=device_type, value=value, pin_nr=pin_nr, hw_address=hw_address,
-                     offset_from_spark=offset_from_spark, is_invert=is_invert, is_deactivate=is_deactivate)
-        device.last_update = timezone.now()
-
-        return device
+        logger.debug(self.__str__())
 
     def __str__(self):
         return "Device: [{}] {} -> ['{}' -> {}]".format(self.last_update.strftime('%Y-%m-%d %H:%M:%S'), self.spark,

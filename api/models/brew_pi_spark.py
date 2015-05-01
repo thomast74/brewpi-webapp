@@ -84,10 +84,6 @@ class BrewPiSpark(models.Model):
 
         return spark
 
-    def delete(self, using=None):
-        models.device.Device.objects.filter(spark=self).delete()
-        super.delete(using=None)
-
     def set_mode(self, device_mode):
         if device_mode >= self.SPARK_MODE_MANUAL or device_mode <= self.SPARK_MODE_AUTOMATIC:
             SparkConnector().set_spark_mode(self, device_mode)

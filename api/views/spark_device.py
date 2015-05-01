@@ -26,9 +26,10 @@ def add(request, device_id):
     logger.info("Add new device to Spark {}".format(device_id))
 
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
-    Device.from_json(spark, request.body)
+    device = Device.from_json(spark, request.body)
 
-    logger.debug("-")
+    if device.device_type == Device.DEVICE_TYPE_ONEWIRE_TEMP and device.offset != device.offset_from_spark:
+        SparkConnector.set_device_offset(device)
 
     return ApiResponse.ok()
 
@@ -65,7 +66,7 @@ def get_device(request, device_id, actuator_id):
     device, spark = get_and_check_spark_to_device(device_id, actuator_id)
 
     device_json = SparkConnector.request_device(device)
-    Device.update_from_json(device, device_json)
+    device.update_from_json(spark, device_json)
 
     return ApiResponse.json([device], pretty)
 
@@ -89,7 +90,11 @@ def delete(request, device_id, actuator_id):
 
     response = SparkConnector.device_delete(device)
     if response == "OK":
-        device.delete()
+        if device.device_type == Device.DEVICE_TYPE_ONEWIRE_TEMP:
+            device.spark = None
+            device.save()
+        else:
+            device.delete()
         return ApiResponse.ok()
     else:
         raise Http500(response)

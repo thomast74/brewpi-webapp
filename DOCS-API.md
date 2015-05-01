@@ -37,7 +37,7 @@ Y | /api/spark/{device_id}/mode/                         | POST   | Change mode 
 ? | /api/spark/{device_id}/firmware/                     | POST   | Updates Spark with latest firmware
 Y | /api/spark/{device_id}/reset/                        | POST   | Force Spark to reset/clear all settings
 Y | /api/spark/{device_id}/devices/{actuator_id}/toggle/ | POST   | In case device is an Actuator or PWM device change the state
-N | /api/spark/{device_id}/devices/offset/               | POST   | Send offset of temp sensors to spark
+Y | /api/spark/{device_id}/devices/offset/               | POST   | Send offset of temp sensors to spark
 
 Deletes
 -------

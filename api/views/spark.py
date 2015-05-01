@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
-from api.models import BrewPiSpark
+from api.models import BrewPiSpark, Device
 from api.helpers import ApiResponse
 from api.services.spark_connector import SparkConnector
 
@@ -115,6 +115,8 @@ def delete(request, device_id):
 
     SparkConnector.reset_spark(spark)
 
+    Device.objects.filter(spark=spark).exclude(device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP).delete()
+    Device.objects.filter(spark=spark, device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP).update(spark=None)
     spark.delete()
 
     return ApiResponse.ok()
