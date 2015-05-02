@@ -12,10 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class BrewPiSpark(models.Model):
-    SPARK_MODE_MANUAL = 0
-    SPARK_MODE_CALIBRATION = 1
-    SPARK_MODE_LOGGING = 2
-    SPARK_MODE_AUTOMATIC = 3
+    SPARK_MODE_MANUAL = 'M'
+    SPARK_MODE_CALIBRATION = 'C'
+    SPARK_MODE_LOGGING = 'L'
+    SPARK_MODE_AUTOMATIC = 'A'
 
     SPARK_MODE = (
         (SPARK_MODE_MANUAL, 'MANUAL'),
@@ -26,7 +26,7 @@ class BrewPiSpark(models.Model):
 
     device_id = models.CharField(verbose_name='Device Id', max_length=30, primary_key=True)
     name = models.CharField(verbose_name='Name', max_length=30, unique=True, null=True)
-    device_mode = models.IntegerField(verbose_name='Device Mode', choices=SPARK_MODE, default=0)
+    device_mode = models.CharField(verbose_name='Device Mode', max_length=1, choices=SPARK_MODE, default='M')
     firmware_version = models.FloatField(verbose_name='Firmware Version', default=0.0)
     ip_address = models.GenericIPAddressField(verbose_name='Ip Address')
     web_address = models.GenericIPAddressField(verbose_name='Web Address', null=True)
@@ -85,12 +85,12 @@ class BrewPiSpark(models.Model):
         return spark
 
     def set_mode(self, device_mode):
-        if device_mode >= self.SPARK_MODE_MANUAL or device_mode <= self.SPARK_MODE_AUTOMATIC:
+        if device_mode in [self.SPARK_MODE_MANUAL, self.SPARK_MODE_LOGGING, self.SPARK_MODE_AUTOMATIC]:
             SparkConnector().set_spark_mode(self, device_mode)
             self.device_mode = device_mode
             self.save()
         else:
-            raise SparkException("Given device mode is invalid")
+            raise SparkException("Given device mode {} is invalid".format(device_mode))
 
     def __str__(self):
         return "BrewPiSpark: [{}] {} -> '{}' -> {}]".format(self.last_update.strftime('%Y-%m-%d %H:%M:%S'),
