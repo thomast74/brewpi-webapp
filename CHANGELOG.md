@@ -1,14 +1,26 @@
 # Change Log for Oink Brew Web App 
 
 
-v0.2
-----
-- Receive new Device message from Spark and add device to database
-- Receive disconnect Device message from Spark and unallocated device from Spark and configuration
+## v0.2
 
+### Story
+OB-48 	Receive new Device message from Spark and add device to database  
+OB-38 	Receive Calibration request for a specific Spark and a list of sensors and mark them for calibration  
+OB-40 	Create a task that is called after 2 minutes to calculate the offset and send to Spark  
+OB-42 	Verify the calibration offset values 2 minutes after offset was calculated  
+OB-39 	Receive Device value data and save it into calibration data for 2 minutes  
+OB-59 	Send offset stored in database to temp sensors on provided Spark  
+  
+### Improvement
+OB-43 	Deleting device should not delete the device from database, just unlink from Spark if device is a OneWire device  
+OB-41 	Make sure that request device list and single device does not update the offset  
+  
+### Bug
+OB-57 	Devices, especially Actuators have same PIN NR and HW ADDRESS and should not be deleted once they have been created and never unassigned from a Spark  
+OB-54 	Receive disconnect Device message from Spark and unallocated device from Spark and configuration  
+  
 
-v0.1
-----
+## v0.1
 - receive Json Status message from oinkbrew_listener and insert new BrewPi Sparks or update them in database
 - after status message from Spark received a check is executed and eventually the Spark updated with stored configuration from Web App
 - receive POST spark reset request and send it over to specific Spark provided in Url
