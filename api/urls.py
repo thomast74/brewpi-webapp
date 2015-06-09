@@ -10,8 +10,9 @@ from api.views import spark_status
 
 urlpatterns = patterns('',
                        url(r'^spark/(?P<device_id>\w+)/calibration/', spark_calibration.start),
-                       url(r'^spark/(?P<device_id>\w+)/config/', spark_config.create),
+                       url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/delete/', spark_config.delete),
                        url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/', spark_config.update),
+                       url(r'^spark/(?P<device_id>\w+)/config/', spark_config.create),
                        url(r'^spark/(?P<device_id>\w+)/delete/', spark.delete),
                        url(r'^spark/(?P<device_id>\w+)/devices/(?P<actuator_id>[0-9]+)/delete/', spark_device.delete),
                        url(r'^spark/(?P<device_id>\w+)/devices/(?P<actuator_id>[0-9]+)/toggle/', spark_device.toggle),

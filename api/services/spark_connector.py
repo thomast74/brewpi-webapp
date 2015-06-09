@@ -1,3 +1,4 @@
+from __builtin__ import staticmethod
 from _socket import SHUT_RDWR
 import logging
 import socket
@@ -289,6 +290,26 @@ class SparkConnector:
         logger.info("Response: {}".format(response))
 
         return response
+
+    @staticmethod
+    def send_config(spark):
+        logger.info("Send configuration to spark {}".format(spark))
+
+        try:
+            sock = SparkConnector.__start_connection(spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
+
+        try:
+            message = 'p{"config_id":1,"config_type":1,"temp_sensor":"0;28107974060000AC","heat_actuator":"10;0000000000000000","temp_phases":"0;300000;62000|0;300000;72000"}'
+            logger.debug("Send Message: " + message)
+            sock.send(message)
+            sock.recv(1)
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
+        finally:
+            sock.close()
 
     @staticmethod
     def __start_connection(ip_address, timeout=30):

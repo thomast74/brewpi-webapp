@@ -45,12 +45,14 @@ class Device(models.Model):
     DEVICE_FUNCTION_FRIDGE_OUTSIDE_TEMP_SENSOR = 12
 
     DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR = 13
-    DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR = 14
-    DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR = 15
-    DEVICE_FUNCTION_MACH_OUT_TEMP_SENSOR = 16
-    DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR = 17
-    DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR = 18
-    DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR = 19
+    DEVICE_FUNCTION_HLT_INSIDE_TEMP_SENSOR = 14
+    DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR = 15
+    DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR = 16
+    DEVICE_FUNCTION_MASH_INSIDE_TEMP_SENSOR = 17
+    DEVICE_FUNCTION_MASH_OUT_TEMP_SENSOR = 18
+    DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR = 19
+    DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR = 20
+    DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR = 21
 
     DEVICE_FUNCTION = (
         (DEVICE_FUNCTION_NONE, 'None'),
@@ -71,13 +73,14 @@ class Device(models.Model):
         (DEVICE_FUNCTION_FRIDGE_OUTSIDE_TEMP_SENSOR, 'Outside Fridge Temp Sensor'),
 
         (DEVICE_FUNCTION_HLT_IN_TEMP_SENSOR, 'HLT In Temp Sensor'),
+        (DEVICE_FUNCTION_HLT_INSIDE_TEMP_SENSOR, 'HLT Inside Temp Sensor'),
         (DEVICE_FUNCTION_HLT_OUT_TEMP_SENSOR, 'HLT Out Temp Sensor'),
         (DEVICE_FUNCTION_MASH_IN_TEMP_SENSOR, 'Mash In Temp Sensor'),
-        (DEVICE_FUNCTION_MACH_OUT_TEMP_SENSOR, 'Mash Out Temp Sensor'),
+        (DEVICE_FUNCTION_MASH_INSIDE_TEMP_SENSOR, 'Mash Inside Temp Sensor'),
+        (DEVICE_FUNCTION_MASH_OUT_TEMP_SENSOR, 'Mash Out Temp Sensor'),
         (DEVICE_FUNCTION_BOIL_IN_TEMP_SENSOR, 'Boil In Temp Sensor'),
         (DEVICE_FUNCTION_BOIL_INSIDE_TEMP_SENSOR, 'Boil Inside Temp Sensor'),
         (DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR, 'Boil Out Temp Sensor')
-
     )
 
     spark = models.ForeignKey(BrewPiSpark, null=True)
@@ -194,6 +197,14 @@ class Device(models.Model):
             logger.debug(device.__str__())
 
         return device
+
+    @staticmethod
+    def get_function(function_display):
+        for choice in Device.DEVICE_FUNCTION:
+            if choice[1] == function_display:
+                return choice[0]
+
+        return Device.DEVICE_FUNCTION_NONE
 
     @classmethod
     def create(cls, spark, device_type, value, pin_nr, hw_address, offset_from_spark, is_invert, is_deactivate):
