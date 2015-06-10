@@ -6,7 +6,7 @@ import time
 
 from django.conf import settings
 from django.utils import timezone
-
+import api
 
 logger = logging.getLogger(__name__)
 
@@ -292,7 +292,7 @@ class SparkConnector:
         return response
 
     @staticmethod
-    def send_config(spark):
+    def send_config(spark, configuration):
         logger.info("Send configuration to spark {}".format(spark))
 
         try:
@@ -302,8 +302,55 @@ class SparkConnector:
             raise SparkException("Connection to Spark not possible")
 
         try:
-            message = 'p{"config_id":1,"config_type":1,"temp_sensor":"0;28107974060000AC","heat_actuator":"10;0000000000000000","temp_phases":"0;300000;62000|0;300000;72000"}'
+            first = True
+
+            temp_sensor = configuration.get_temp_sensor()
+            heat_actuator = configuration.get_heat_actuator()
+
+            temp_sensor_str = "{};{}".format(temp_sensor.pin_nr, temp_sensor.hw_address)
+            heat_actuator_str = "{};{}".format(heat_actuator.pin_nr, heat_actuator.hw_address)
+            temp_phases = ""
+
+            for temp_phase in configuration.phases.all():
+                if first:
+                    first = False
+                else:
+                    temp_phases += "|"
+
+                if configuration.type == api.models.Configuration.CONFIG_TYPE_BREW:
+                    temp_phases += "0;{};{};{}".format(temp_phase.duration * 1000, temp_phase.temperature * 1000,
+                                                       "1" if temp_phase.done else "0")
+                elif configuration.type == api.models.Configuration.CONFIG_TYPE_FERMENTATION:
+                    temp_phase += "{};0;{}:{}".format(temp_phase.start_date.timetuple(), temp_phase.temperature * 1000,
+                                                      "1" if temp_phase.done else "0")
+                else:
+                    raise SparkException("Not valid configuration type")
+
+            msg = 'p{{"config_id":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}","temp_phases":"{}"}}'.\
+                format(configuration.id, configuration.type, temp_sensor_str, heat_actuator_str, temp_phases)
+            logger.debug("Send Message: " + msg)
+
+            sock.send(msg)
+            sock.recv(1)
+        except socket.timeout:
+            raise SparkException("Connection to Spark times out")
+        finally:
+            sock.close()
+
+    @staticmethod
+    def delete_config(spark, configuration):
+        logger.info("Delete configuration {} from spark {}".format(configuration, spark))
+
+        try:
+            sock = SparkConnector.__start_connection(spark.ip_address)
+        except:
+            logger.error("Connection to Spark not possible")
+            raise SparkException("Connection to Spark not possible")
+
+        try:
+            message = 'q{{"config_id":{}}}'.format(configuration.id)
             logger.debug("Send Message: " + message)
+
             sock.send(message)
             sock.recv(1)
         except socket.timeout:

@@ -1,4 +1,5 @@
 from datetime import datetime
+import dateutil
 import json
 import logging
 
@@ -23,19 +24,19 @@ def create(request, device_id):
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
     config_dic = convert_json_data(request.body)
 
-    config = create_configuration(spark, config_dic)
+    configuration = create_configuration(spark, config_dic)
 
-    assign_device_function(spark, config, config_dic)
+    assign_device_function(spark, configuration, config_dic)
 
-    set_temp_sensor(config, config_dic)
-    set_heat_actuator(config, config_dic)
-    config.save()
+    set_temp_sensor(configuration, config_dic)
+    set_heat_actuator(configuration, config_dic)
+    configuration.save()
 
-    store_temp_phases(config, config_dic.get("temp_phases"))
+    store_temp_phases(configuration, config_dic.get("temp_phases"))
 
-    # SparkConnector.send_config(spark)
+    SparkConnector.send_config(spark, configuration)
 
-    return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(config.id),
+    return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(configuration.id),
                         content_type="application/json")
 
 
@@ -49,7 +50,11 @@ def update(request, config_id):
 def delete(request, device_id, config_id):
     logger.info("Delete configuration {}".format(config_id))
 
+    spark = get_object_or_404(BrewPiSpark, device_id=device_id)
     configuration = get_object_or_404(Configuration, pk=config_id)
+
+    #SparkConnector.delete_config(spark, configuration)
+
     Device.objects.filter(configuration=configuration).update(configuration=None,function=0)
     configuration.delete()
 
@@ -119,7 +124,7 @@ def set_temp_sensor(config, config_dic):
     if device.device_type != Device.DEVICE_TYPE_ONEWIRE_TEMP:
         raise Http400("Temp Sensor {} must be a temperature sensor".format(temp_sensor_function))
 
-    config.temp_sensor = temp_sensor_function
+    config.temp_sensor_id = device.id
 
 
 def set_heat_actuator(config, config_dic):
@@ -133,36 +138,53 @@ def set_heat_actuator(config, config_dic):
     if device.device_type != Device.DEVICE_TYPE_ACTUATOR_PIN and device.device_type != Device.DEVICE_TYPE_ACTUATOR_PWM:
         raise Http400("Heat actuator {} must be a Pin or PWM Actuator".format(heat_actuator_function))
 
-    config.heat_actuator = heat_actuator_function
+    config.heat_actuator_id = device.id
 
 
 def store_temp_phases(config, temp_phases_arr):
     logger.debug("Store temp phases")
 
-    # loop over them,
     order = 1
+    previous_start_date = datetime.now()
     previous_temperature = 0
     previous_done = True
 
     for temp_phase_dic in temp_phases_arr:
         if config.type == Configuration.CONFIG_TYPE_BREW:
+            start_date = datetime.fromordinal(1)
             duration = temp_phase_dic.get("duration")
-            temperature = temp_phase_dic.get("temperature")
-            done = temp_phase_dic.get("done")
 
             if duration <= 0:
-                raise Http400("Temperature Phase for a Brew Configuration needs to have a duration")
+                raise Http400("A Brew Configuration needs to have a duration")
 
             if previous_temperature > temperature:
-                raise Http400("Temperature Phase for a Brew Configuration needs to raising temperature")
+                raise Http400("A Brew Configuration needs a raising temperature")
 
-            if not previous_done and done:
-                raise Http400("Temperature Phase for a Brew Configuration can't set a later phase as done")
+        elif config.type == Configuration.CONFIG_TYPE_FERMENTATION:
+            start_date = dateutil.parser.parse(temp_phase_dic.get("start_date"))
+            duration = 0
 
-            temp_phase = TemperaturePhase.create(config, order, datetime(1970, 1, 1), duration, temperature, done)
-            temp_phase.save()
+            if start_date <= datetime.now():
+                raise Http400("A Fermentation Configuration needs to have a start date in the future")
 
-            previous_temperature = temperature
-            previous_done = done
-            order += 1
+            if start_date <= previous_start_date:
+                raise Http400("A Fermentation Configuration phase needs to have a start date later than previous one")
+
+        else:
+            raise Http400("Invalid configuration type")
+
+        temperature = temp_phase_dic.get("temperature")
+        done = temp_phase_dic.get("done")
+
+        if not previous_done and done:
+            raise Http400("A Configuration can't set a later phase as done")
+
+
+        temp_phase = TemperaturePhase.create(config, order, start_date, duration, temperature, done)
+        temp_phase.save()
+
+        previous_start_date = start_date
+        previous_temperature = temperature
+        previous_done = done
+        order += 1
 
