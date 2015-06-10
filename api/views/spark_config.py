@@ -3,7 +3,7 @@ import dateutil
 import json
 import logging
 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import HttpResponse
 
 from django.views.decorators.http import require_http_methods
@@ -16,8 +16,46 @@ from api.views.errors import Http400
 
 logger = logging.getLogger(__name__)
 
+def list_or_create(request, device_id):
+    if request.method == 'PUT':
+        return create(request, device_id)
+    else:
+        return list_configs(request, device_id)
 
-@require_http_methods(["PUT"])
+
+def get_or_update(request, device_id, config_id):
+    if request.method == 'POST':
+        return update(request, device_id, config_id)
+    else:
+        return get_config(request, device_id, config_id)
+
+
+def list_configs(request, device_id):
+    logger.info("Get configurations for spark {}".format(device_id))
+    pretty = request.GET.get("pretty", "True")
+
+    spark = get_object_or_404(BrewPiSpark, device_id=device_id)
+    configurations = get_list_or_404(Configuration, spark=spark)
+
+    configs_arr = []
+    for configuration in configurations:
+        configs_arr.append(prepare_config_dic(configuration))
+
+    return ApiResponse.json(configs_arr, pretty, False)
+
+
+def get_config(request, device_id, config_id):
+    logger.info("Get configuration for spark {} and configuration id {}".format(device_id, config_id))
+    pretty = request.GET.get("pretty", "True")
+
+    spark = get_object_or_404(BrewPiSpark, device_id=device_id)
+    configuration = get_object_or_404(Configuration, id=config_id, spark=spark)
+
+    config_dic = prepare_config_dic(configuration)
+
+    return ApiResponse.json(config_dic, pretty, False)
+
+
 def create(request, device_id):
     logger.info("New configuration received for spark {}".format(device_id))
 
@@ -40,8 +78,14 @@ def create(request, device_id):
                         content_type="application/json")
 
 
-@require_http_methods(["POST"])
-def update(request, config_id):
+def update(request, device_id, config_id):
+
+    # allow name change
+    # allow temp_sensor change
+    # allow heat_actuator change
+    # allow function change, fail if temp_sensor or heat_actuator is not part of function
+    # allow temp_phases change
+        
     return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(config_id),
                         content_type="application/json")
 
@@ -61,6 +105,13 @@ def delete(request, device_id, config_id):
     return ApiResponse.ok()
 
 
+@require_http_methods(["POST"])
+def log_phase(request, device_id, config_id):
+    logger.info("Log phase report to database")
+
+    return ApiResponse.ok()
+
+
 def convert_json_data(json_data):
     try:
         return json.loads(json_data)
@@ -68,6 +119,32 @@ def convert_json_data(json_data):
     except ValueError:
         return None
 
+
+def prepare_config_dic(configuration):
+    temp_sensor = configuration.get_temp_sensor()
+    heat_actuator = configuration.get_heat_actuator()
+
+    temp_phases = []
+    for phase in configuration.phases.all():
+        temp_phases.append({
+            "start_date": phase.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "duration": phase.duration,
+            "temperature": phase.temperature,
+            "done": phase.done
+        })
+
+    config_dic = {
+        "name": configuration.name,
+        "type": "Brew" if configuration.type == Configuration.CONFIG_TYPE_BREW else "Fermentation",
+        "temp_sensor": temp_sensor.get_function_display(),
+        "heat_actuator": heat_actuator.get_function_display(),
+        "function": {
+            device.get_function_display(): device.id for device in configuration.get_devices()
+        },
+        "temp_phases": temp_phases
+    }
+
+    return config_dic
 
 def create_configuration(spark, config_dic):
     name = config_dic.get("name")
@@ -178,7 +255,6 @@ def store_temp_phases(config, temp_phases_arr):
 
         if not previous_done and done:
             raise Http400("A Configuration can't set a later phase as done")
-
 
         temp_phase = TemperaturePhase.create(config, order, start_date, duration, temperature, done)
         temp_phase.save()

@@ -61,6 +61,10 @@ class Configuration(models.Model):
         logger.debug("Heat Actuator: {}".format(self.heat_actuator_id))
         return api.models.Device.objects.get(id=self.heat_actuator_id)
 
+    def get_devices(self):
+        logger.debug("Get all associated devices")
+        return api.models.Device.objects.filter(configuration=self)
+
     def __str__(self):
         return "Configuration: [{} - {} -> {}]".format(self.name, self.create_date.strftime('%Y-%m-%d %H:%M:%S'),
                                                        self.spark)
