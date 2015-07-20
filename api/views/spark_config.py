@@ -5,6 +5,7 @@ import logging
 
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import HttpResponse
+from django.utils.timezone import utc
 
 from django.views.decorators.http import require_http_methods
 from api.helpers import ApiResponse
@@ -85,7 +86,7 @@ def update(request, device_id, config_id):
     # allow heat_actuator change
     # allow function change, fail if temp_sensor or heat_actuator is not part of function
     # allow temp_phases change
-        
+
     return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(config_id),
                         content_type="application/json")
 
@@ -97,7 +98,7 @@ def delete(request, device_id, config_id):
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
     configuration = get_object_or_404(Configuration, pk=config_id)
 
-    #SparkConnector.delete_config(spark, configuration)
+    SparkConnector.delete_config(spark, configuration)
 
     Device.objects.filter(configuration=configuration).update(configuration=None,function=0)
     configuration.delete()
@@ -227,8 +228,13 @@ def store_temp_phases(config, temp_phases_arr):
     previous_done = True
 
     for temp_phase_dic in temp_phases_arr:
+
+        duration = 0
+        temperature = temp_phase_dic.get("temperature")
+        done = temp_phase_dic.get("done")
+
         if config.type == Configuration.CONFIG_TYPE_BREW:
-            start_date = datetime.fromordinal(1)
+            start_date = datetime.fromordinal(1).replace(tzinfo=utc)
             duration = temp_phase_dic.get("duration")
 
             if duration <= 0:
@@ -249,9 +255,6 @@ def store_temp_phases(config, temp_phases_arr):
 
         else:
             raise Http400("Invalid configuration type")
-
-        temperature = temp_phase_dic.get("temperature")
-        done = temp_phase_dic.get("done")
 
         if not previous_done and done:
             raise Http400("A Configuration can't set a later phase as done")

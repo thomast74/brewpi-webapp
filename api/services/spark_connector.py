@@ -307,8 +307,8 @@ class SparkConnector:
             temp_sensor = configuration.get_temp_sensor()
             heat_actuator = configuration.get_heat_actuator()
 
-            temp_sensor_str = "{};{}".format(temp_sensor.pin_nr, temp_sensor.hw_address)
-            heat_actuator_str = "{};{}".format(heat_actuator.pin_nr, heat_actuator.hw_address)
+            temp_sensor_str = "{};{};{}".format(temp_sensor.pin_nr, temp_sensor.hw_address, temp_sensor.function)
+            heat_actuator_str = "{};{};{}".format(heat_actuator.pin_nr, heat_actuator.hw_address, heat_actuator.function)
             temp_phases = ""
 
             for temp_phase in configuration.phases.all():
@@ -318,7 +318,7 @@ class SparkConnector:
                     temp_phases += "|"
 
                 if configuration.type == api.models.Configuration.CONFIG_TYPE_BREW:
-                    temp_phases += "0;{};{};{}".format(temp_phase.duration * 1000, temp_phase.temperature * 1000,
+                    temp_phases += "0;{};{};{}".format(temp_phase.duration * 60000, temp_phase.temperature * 1000,
                                                        "1" if temp_phase.done else "0")
                 elif configuration.type == api.models.Configuration.CONFIG_TYPE_FERMENTATION:
                     temp_phase += "{};0;{}:{}".format(temp_phase.start_date.timetuple(), temp_phase.temperature * 1000,
@@ -326,8 +326,8 @@ class SparkConnector:
                 else:
                     raise SparkException("Not valid configuration type")
 
-            msg = 'p{{"config_id":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}","temp_phases":"{}"}}'.\
-                format(configuration.id, configuration.type, temp_sensor_str, heat_actuator_str, temp_phases)
+            msg = 'p{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}","temp_phases":"{}"}}'.\
+                format(configuration.id, configuration.name, configuration.type, temp_sensor_str, heat_actuator_str, temp_phases)
             logger.debug("Send Message: " + msg)
 
             sock.send(msg)
