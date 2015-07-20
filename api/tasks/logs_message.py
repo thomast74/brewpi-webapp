@@ -113,6 +113,7 @@ def save_points(influx_data_dic):
         for point in influx_data_dic:
             influx_point = influx_data_dic[point]
             data = convert_to_points(influx_point)
+            logger.debug(data)
 
             client.write_points(data)
 
@@ -123,12 +124,12 @@ def save_points(influx_data_dic):
 def convert_to_points(influx_data):
     return [
         {
-            "name": influx_data.name,
+            "measurement": influx_data.name,
             "tags": {
                 "device_id": influx_data.device_id,
                 "config_type": influx_data.config_type
             },
-            "timestamp": influx_data.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "time": influx_data.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "fields": {
                 key: influx_data.fields[key] for key in influx_data.fields
             }
