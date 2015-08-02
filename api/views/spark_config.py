@@ -12,6 +12,7 @@ from api.helpers import ApiResponse
 
 from api.models import BrewPiSpark, Configuration, Device, TemperaturePhase
 from api.services.spark_connector import SparkConnector
+from api.tasks import logs_phase
 from api.views.errors import Http400
 
 
@@ -107,8 +108,10 @@ def delete(request, device_id, config_id):
 
 
 @require_http_methods(["POST"])
-def log_phase(request, device_id, config_id):
+def update_phase(request, device_id, config_id):
     logger.info("Log phase report to database")
+
+    logs_phase.log_phase_data.delay(device_id, config_id, request.body)
 
     return ApiResponse.ok()
 
@@ -146,6 +149,7 @@ def prepare_config_dic(configuration):
     }
 
     return config_dic
+
 
 def create_configuration(spark, config_dic):
     name = config_dic.get("name")
@@ -234,7 +238,7 @@ def store_temp_phases(config, temp_phases_arr):
         done = temp_phase_dic.get("done")
 
         if config.type == Configuration.CONFIG_TYPE_BREW:
-            start_date = datetime.fromordinal(1).replace(tzinfo=utc)
+            start_date = datetime.fromtimestamp(0).replace(tzinfo=utc)
             duration = temp_phase_dic.get("duration")
 
             if duration <= 0:
@@ -244,9 +248,11 @@ def store_temp_phases(config, temp_phases_arr):
                 raise Http400("A Brew Configuration needs a raising temperature")
 
         elif config.type == Configuration.CONFIG_TYPE_FERMENTATION:
+            # I think it needs to be converted into UTC
             start_date = dateutil.parser.parse(temp_phase_dic.get("start_date"))
             duration = 0
 
+            # here it needs to be compared to UTC.Now
             if start_date <= datetime.now():
                 raise Http400("A Fermentation Configuration needs to have a start date in the future")
 

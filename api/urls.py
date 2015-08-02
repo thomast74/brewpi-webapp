@@ -11,7 +11,7 @@ from api.views import spark_status
 urlpatterns = patterns('',
                        url(r'^spark/(?P<device_id>\w+)/calibration/', spark_calibration.start),
                        url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/delete/', spark_config.delete),
-                       url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/phase/', spark_config.log_phase),
+                       url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/phase/', spark_config.update_phase),
                        url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/', spark_config.get_or_update),
                        url(r'^spark/(?P<device_id>\w+)/config/', spark_config.list_or_create),
                        url(r'^spark/(?P<device_id>\w+)/delete/', spark.delete),

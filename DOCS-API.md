@@ -34,6 +34,7 @@ Impl | Entry Point | METHOD | Description
 Y | /api/spark/status/                                   | POST   | Receive Spark status updates and check in Spark
 Y | /api/spark/{device_id}/calibration/                  | POST   | Start calibration process for provided sensors
 N | /api/spark/{device_id}/config/{config_id}/           | POST   | Updates an existing configuration and sends it to the Spark
+Y | /api/spark/{device_id}/config/{config_id}/phase      | POST   | Updates a temp phase DONE of an existing configuration
 Y | /api/spark/{device_id}/name/                         | POST   | Change name of spark, used as alias
 Y | /api/spark/{device_id}/mode/                         | POST   | Change mode to either [MANUAL,LOGGING,AUTOMATIC]
 ? | /api/spark/{device_id}/firmware/                     | POST   | Updates Spark with latest firmware
