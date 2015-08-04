@@ -5,6 +5,7 @@ import logging
 
 from django.core.exceptions import ObjectDoesNotExist
 from celery import shared_task
+from pytz import utc
 from api.models import TemperaturePhase, Configuration
 
 from api.models.brew_pi_spark import BrewPiSpark
@@ -70,7 +71,7 @@ def convert_json_data(json_data):
 def get_phase(config, log_phase_dic):
     try:
 
-        start_date = datetime.fromtimestamp(log_phase_dic.get("start_date"))
+        start_date = datetime.fromtimestamp(log_phase_dic.get("start_date")).replace(tzinfo=utc)
         duration = log_phase_dic.get("duration") / 60000
         temperature = log_phase_dic.get("temperature") / 1000
 
