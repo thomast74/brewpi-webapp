@@ -308,7 +308,8 @@ class SparkConnector:
             heat_actuator = configuration.get_heat_actuator()
 
             temp_sensor_str = "{};{};{}".format(temp_sensor.pin_nr, temp_sensor.hw_address, temp_sensor.function)
-            heat_actuator_str = "{};{};{}".format(heat_actuator.pin_nr, heat_actuator.hw_address, heat_actuator.function)
+            heat_actuator_str = "{};{};{}".format(heat_actuator.pin_nr, heat_actuator.hw_address,
+                                                  heat_actuator.function)
             temp_phases = ""
             functions = ""
 
@@ -338,17 +339,23 @@ class SparkConnector:
                     raise SparkException("Not valid configuration type")
 
             sock.send("p");
-            msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}","temp_phases":"{}","functions":"{}"}}'.\
+            time.sleep(0.02)
+            msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}","temp_phases":"{}","functions":"{}"}}'. \
                 format(configuration.id, configuration.name, configuration.type, temp_sensor_str, heat_actuator_str,
                        temp_phases, functions)
             logger.debug("Send Message: p" + msg)
 
             sock.send(msg)
-            sock.recv(1)
+
+            time.sleep(0.02)
+            response = sock.recv(1)
+
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
         finally:
             sock.close()
+
+        return True if response == "!" else False
 
     @staticmethod
     def delete_config(spark, configuration):
@@ -365,11 +372,15 @@ class SparkConnector:
             logger.debug("Send Message: " + message)
 
             sock.send(message)
-            sock.recv(1)
+            time.sleep(0.02)
+            response = sock.recv(1)
+
         except socket.timeout:
             raise SparkException("Connection to Spark times out")
         finally:
             sock.close()
+
+        return True if response == "!" else False
 
     @staticmethod
     def __start_connection(ip_address, timeout=30):

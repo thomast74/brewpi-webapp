@@ -71,13 +71,24 @@ def create(request, device_id):
     set_temp_sensor(configuration, config_dic)
     set_heat_actuator(configuration, config_dic)
     configuration.save()
-
     store_temp_phases(configuration, config_dic.get("temp_phases"))
 
-    SparkConnector.send_config(spark, configuration)
+    tries = 0
+    success = False
+    while tries < 5:
+        success = SparkConnector.send_config(spark, configuration)
+        if success:
+            break
+        tries += 1
 
-    return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(configuration.id),
-                        content_type="application/json")
+    if success:
+        return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(configuration.id),
+                            content_type="application/json")
+    else:
+        delete(None, device_id, configuration.pk)
+        return HttpResponse('{{"Status":"Error","Message":"Spark could not be updated, try again."}}\n',
+                            content_type="application/json")
+
 
 
 def update(request, device_id, config_id):
@@ -99,12 +110,21 @@ def delete(request, device_id, config_id):
     spark = get_object_or_404(BrewPiSpark, device_id=device_id)
     configuration = get_object_or_404(Configuration, pk=config_id)
 
-    SparkConnector.delete_config(spark, configuration)
+    tries = 0
+    success = False
+    while tries < 5:
+        success = SparkConnector.delete_config(spark, configuration)
+        if success:
+            break
+        tries += 1
 
-    Device.objects.filter(configuration=configuration).update(configuration=None,function=0)
-    configuration.delete()
+    if success:
+        Device.objects.filter(configuration=configuration).update(configuration=None,function=0)
+        configuration.delete()
+        return ApiResponse.ok()
 
-    return ApiResponse.ok()
+    else:
+        return ApiResponse.bad_request("Spark could not be updated, try again.")
 
 
 @require_http_methods(["POST"])
