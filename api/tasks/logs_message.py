@@ -7,10 +7,9 @@ from celery import shared_task
 from django.utils import timezone
 from influxdb import InfluxDBClient
 
-from api.models import Device
+from api.models import Device, Configuration
 from api.models.brew_pi_spark import BrewPiSpark
 from oinkbrew_webapp import settings
-
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +28,16 @@ def log_device_data(device_id, json_data):
         logger.error("Convert json data into log data not possible")
         return "Error"
 
-    influx_data = build_points(log_data, spark)
-    save_points(influx_data)
+    influx_data_dic = {}
+
+    if "temperatures" not in log_data:
+        build_temperature_points(log_data.get("temperatures"), spark, influx_data_dic)
+
+    if "targets" not in log_data:
+        build_target_points(log_data.get("targets"), spark, influx_data_dic)
+
+    if len(influx_data_dic) > 0:
+        save_points(influx_data_dic)
 
     logger.debug("-")
 
@@ -40,6 +47,14 @@ def log_device_data(device_id, json_data):
 def get_spark(device_id):
     try:
         return BrewPiSpark.objects.get(device_id=device_id)
+
+    except ObjectDoesNotExist:
+        return None
+
+
+def get_configuration(config_id):
+    try:
+        return Configuration.objects.get(pk=config_id)
 
     except ObjectDoesNotExist:
         return None
@@ -66,9 +81,7 @@ def convert_json_data(json_data):
         return None
 
 
-def build_points(log_data, spark):
-    influx_data_dic = {}
-
+def build_temperature_points(log_data, spark, influx_data_dic):
     for device_data_dic in log_data:
 
         device = get_device(spark, device_data_dic.get("pin_nr"), device_data_dic.get("hw_address"))
@@ -101,7 +114,32 @@ def build_points(log_data, spark):
             influx_data_dic[name].timestamp = timezone.now()
             influx_data_dic[name].fields[function] = value
 
-    return influx_data_dic
+
+def build_target_points(target_data, spark, influx_data_dic):
+    for target_temperature in target_data:
+
+        configuration = get_configuration(target_temperature.get("config_id"))
+        if configuration is None:
+            logger.debug("Configuration {} can't be found".format(target_temperature.get("config_id")))
+            continue
+
+        if configuration.name == "Calibration":
+            continue
+
+        name = configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime('%Y_%m_%d')
+        config_type = configuration.get_type_display()
+        function = "Target Temperature"
+        value = float(target_temperature.get("temperature"))
+
+        if name in influx_data_dic:
+            influx_data_dic[name].fields[function] = value
+        else:
+            influx_data_dic[name] = InfluxData()
+            influx_data_dic[name].name = name
+            influx_data_dic[name].device_id = spark.device_id
+            influx_data_dic[name].config_type = config_type
+            influx_data_dic[name].timestamp = timezone.now()
+            influx_data_dic[name].fields[function] = value
 
 
 def save_points(influx_data_dic):
@@ -132,7 +170,7 @@ def convert_to_points(influx_data):
             "time": influx_data.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "fields": {
                 key: influx_data.fields[key] for key in influx_data.fields
-            }
+                }
         }]
 
 
