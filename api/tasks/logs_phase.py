@@ -34,7 +34,7 @@ def log_phase_data(device_id, config_id, json_data):
 
     phase = get_phase(config, log_phase_dic)
     if phase is None:
-        logger.error("Phase for configuration could not eb found")
+        logger.error("Phase for configuration could not be found")
         return "Error"
 
     logger.debug("Phase {} change to {}".format(phase, log_phase_dic.get("done")))
