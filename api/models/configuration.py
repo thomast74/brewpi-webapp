@@ -30,6 +30,8 @@ class Configuration(models.Model):
     spark = models.ForeignKey(BrewPiSpark, verbose_name="Spark", null=False)
     temp_sensor_id = models.IntegerField(verbose_name='Temp Sensor', null=True)
     heat_actuator_id = models.IntegerField(verbose_name='Heat Actuator', null=True)
+    cool_actuator_id = models.IntegerField(verbose_name='Cool Actuator', null=True)
+    fan_actuator_id = models.IntegerField(verbose_name='Fan Actuator', null=True)
 
     class Meta:
         verbose_name = 'Configuration'
@@ -60,6 +62,20 @@ class Configuration(models.Model):
     def get_heat_actuator(self):
         logger.debug("Heat Actuator: {}".format(self.heat_actuator_id))
         return api.models.Device.objects.get(id=self.heat_actuator_id)
+
+    def get_cool_actuator(self):
+        logger.debug("Cool Actuator: {}".format(self.cool_actuator_id))
+        if self.cool_actuator_id is None:
+            return None
+        else:
+            return api.models.Device.objects.get(id=self.cool_actuator_id)
+
+    def get_fan_actuator(self):
+        logger.debug("Fan Actuator: {}".format(self.fan_actuator_id))
+        if self.fan_actuator_id is None:
+            return None
+        else:
+            return api.models.Device.objects.get(id=self.fan_actuator_id)
 
     def get_devices(self):
         logger.debug("Get all associated devices")

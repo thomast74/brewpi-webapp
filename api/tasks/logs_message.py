@@ -30,10 +30,10 @@ def log_device_data(device_id, json_data):
 
     influx_data_dic = {}
 
-    if "temperatures" not in log_data:
+    if "temperatures" in log_data:
         build_temperature_points(log_data.get("temperatures"), spark, influx_data_dic)
 
-    if "targets" not in log_data:
+    if "targets" in log_data:
         build_target_points(log_data.get("targets"), spark, influx_data_dic)
 
     if len(influx_data_dic) > 0:
@@ -82,6 +82,8 @@ def convert_json_data(json_data):
 
 
 def build_temperature_points(log_data, spark, influx_data_dic):
+    logger.debug("Build temperature points: {}".format(log_data))
+
     for device_data_dic in log_data:
 
         device = get_device(spark, device_data_dic.get("pin_nr"), device_data_dic.get("hw_address"))
@@ -116,6 +118,9 @@ def build_temperature_points(log_data, spark, influx_data_dic):
 
 
 def build_target_points(target_data, spark, influx_data_dic):
+
+    logger.debug("Build target temperature points: {}".format(target_data))
+
     for target_temperature in target_data:
 
         configuration = get_configuration(target_temperature.get("config_id"))

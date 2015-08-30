@@ -6,6 +6,7 @@ import time
 
 from django.conf import settings
 from django.utils import timezone
+from pytz import utc
 import api
 
 logger = logging.getLogger(__name__)
@@ -306,10 +307,18 @@ class SparkConnector:
 
             temp_sensor = configuration.get_temp_sensor()
             heat_actuator = configuration.get_heat_actuator()
+            cool_actuator = configuration.get_cool_actuator()
+            fan_actuator = configuration.get_fan_actuator()
 
             temp_sensor_str = "{};{};{}".format(temp_sensor.pin_nr, temp_sensor.hw_address, temp_sensor.function)
             heat_actuator_str = "{};{};{}".format(heat_actuator.pin_nr, heat_actuator.hw_address,
                                                   heat_actuator.function)
+            cool_actuator_str = "0;0;0" if cool_actuator is None else "{};{};{}".format(cool_actuator.pin_nr,
+                                                                                        cool_actuator.hw_address,
+                                                                                        cool_actuator.function)
+            fan_actuator_str = "0;0;0" if fan_actuator is None else "{};{};{}".format(fan_actuator.pin_nr,
+                                                                                      fan_actuator.hw_address,
+                                                                                      fan_actuator.function)
             temp_phases = ""
             functions = ""
 
@@ -330,19 +339,21 @@ class SparkConnector:
                     temp_phases += "|"
 
                 if configuration.type == api.models.Configuration.CONFIG_TYPE_BREW:
-                    temp_phases += "0;{};{};{}".format(temp_phase.duration * 60000, temp_phase.temperature * 1000,
+                    temp_phases += "0;{};{};{}".format(temp_phase.duration * 60000,
+                                                       round(temp_phase.temperature * 1000),
                                                        "1" if temp_phase.done else "0")
                 elif configuration.type == api.models.Configuration.CONFIG_TYPE_FERMENTATION:
-                    temp_phase += "{};0;{}:{}".format(temp_phase.start_date.timetuple(), temp_phase.temperature * 1000,
-                                                      "1" if temp_phase.done else "0")
+                    temp_phases += "{};0;{};{}".format(int(time.mktime(temp_phase.start_date.timetuple())),
+                                                       round(temp_phase.temperature * 1000),
+                                                       "1" if temp_phase.done else "0")
                 else:
                     raise SparkException("Not valid configuration type")
 
             sock.send("p");
             time.sleep(0.02)
-            msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}","temp_phases":"{}","functions":"{}"}}'. \
+            msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}","cool_actuator":"{}","fan_actuator":"{}","temp_phases":"{}","functions":"{}"}}'. \
                 format(configuration.id, configuration.name, configuration.type, temp_sensor_str, heat_actuator_str,
-                       temp_phases, functions)
+                       cool_actuator_str, fan_actuator_str, temp_phases, functions)
             logger.debug("Send Message: p" + msg)
 
             sock.send(msg)
