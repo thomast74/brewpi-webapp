@@ -1,0 +1,14 @@
+{
+  "name":"KuneKune",
+  "type":"Brew",
+  "temp_sensor":"HLT Inside Temp Sensor",
+  "heat_actuator":"HLT Heating Actuator",
+  "function": {
+    "HLT Heating Actuator": 55,
+    "HLT Inside Temp Sensor": 64
+  },
+  "temp_phases": [
+    { "start_date": 0, "duration": 10, "temperature": 45.0, "done": false }
+  ]
+}
+

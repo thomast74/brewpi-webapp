@@ -1,0 +1,18 @@
+CELERYD_NODES="worker"
+
+CELERY_BIN="/usr/local/bin/celery"
+
+CELERY_APP="oinkbrew_webapp"
+
+CELERYD_CHDIR="/opt/oinkbrew/oinkbrew_webapp"
+
+CELERYD_OPTS="--time-limit=300 --concurrency=8"
+
+CELERYD_LOG_FILE="/var/log/celery/%N.log"
+CELERYD_PID_FILE="/var/run/celery/%N.pid"
+
+CELERYD_USER="oinkbrew"
+CELERYD_GROUP="oinkbrew"
+
+CELERY_CREATE_DIRS=1
+
