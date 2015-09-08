@@ -165,6 +165,8 @@ def convert_json_data(json_data):
 def prepare_config_dic(configuration):
     temp_sensor = configuration.get_temp_sensor()
     heat_actuator = configuration.get_heat_actuator()
+    cool_actuator = configuration.get_cool_actuator()
+    fan_actuator = configuration.get_fan_actuator()
 
     temp_phases = []
     for phase in configuration.phases.all():
@@ -176,10 +178,15 @@ def prepare_config_dic(configuration):
         })
 
     config_dic = {
+        "pk": configuration.pk,
         "name": configuration.name,
+        "create_date": configuration.create_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
         "type": "Brew" if configuration.type == Configuration.CONFIG_TYPE_BREW else "Fermentation",
+        "spark": configuration.spark.pk,
         "temp_sensor": temp_sensor.get_function_display(),
         "heat_actuator": heat_actuator.get_function_display(),
+        "cool_actuator": cool_actuator.get_function_display(),
+        "fan_actuator": fan_actuator.get_function_display(),
         "function": {
             device.get_function_display(): device.id for device in configuration.get_devices()
             },
