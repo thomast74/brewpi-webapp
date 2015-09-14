@@ -1,3 +1,4 @@
+from django.db import transaction
 import dateutil
 import json
 import logging
@@ -8,7 +9,7 @@ from dateutil import parser
 
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import HttpResponse
-from django.utils.timezone import utc, pytz
+from django.utils.timezone import utc
 from django.views.decorators.http import require_http_methods
 from tzlocal import get_localzone
 
@@ -70,7 +71,7 @@ def create(request, device_id):
     configuration = create_configuration(spark, config_dic)
 
     try:
-        assign_device_function(spark, configuration, config_dic)
+        assign_device_function(spark, configuration, config_dic, False)
 
         configuration.heat_actuator_id = get_sensor_or_actuator("heat_actuator", False, configuration, config_dic)
         configuration.temp_sensor_id = get_sensor_or_actuator("temp_sensor", False, configuration, config_dic)
@@ -80,7 +81,7 @@ def create(request, device_id):
             configuration.cool_actuator_id = get_sensor_or_actuator("cool_actuator", False, configuration, config_dic)
 
         configuration.save()
-        store_temp_phases(configuration, config_dic.get("temp_phases"))
+        store_temp_phases(configuration, config_dic.get("temp_phases"), False)
 
         tries = 0
         success = False
@@ -102,15 +103,54 @@ def create(request, device_id):
         raise Http400(sys.exc_info()[1])
 
 
+@transaction.non_atomic_requests
 def update(request, device_id, config_id):
-    # allow name change
-    # allow temp_sensor change
-    # allow heat_actuator change
-    # allow function change, fail if temp_sensor or heat_actuator is not part of function
-    # allow temp_phases change
+    logger.info("Update configuration {} received for spark {}".format(config_id, device_id))
 
-    return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(config_id),
-                        content_type="application/json")
+    spark = get_object_or_404(BrewPiSpark, device_id=device_id)
+    configuration = get_object_or_404(Configuration, pk=config_id)
+
+    config_dic = convert_json_data(request.body)
+
+    try:
+        name = config_dic.get("name")
+        if "name" not in config_dic or len(name) == 0:
+            raise Http400("A name must be given")
+        configuration.name = name
+
+        assign_device_function(spark, configuration, config_dic, True)
+        configuration.temp_sensor_id = get_sensor_or_actuator("temp_sensor", False, configuration, config_dic)
+        configuration.heat_actuator_id = get_sensor_or_actuator("heat_actuator", False, configuration, config_dic)
+
+        if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
+            configuration.fan_actuator_id = get_sensor_or_actuator("fan_actuator", False, configuration, config_dic)
+            configuration.cool_actuator_id = get_sensor_or_actuator("cool_actuator", False, configuration, config_dic)
+        else:
+            configuration.fan_actuator_id = None
+            configuration.cool_actuator_id = None
+
+        configuration.save()
+        store_temp_phases(configuration, config_dic.get("temp_phases"), True)
+
+        tries = 0
+        success = False
+        while tries < 5:
+            success = SparkConnector.send_config(spark, configuration)
+            if success:
+                break
+            tries += 1
+
+        if success:
+            transaction.commit()
+            return HttpResponse('{{"Status":"OK","ConfigId":"{}"}}\n'.format(configuration.id),
+                                content_type="application/json")
+        else:
+            transaction.rollback()
+            return HttpResponse('{{"Status":"Error","Message":"Spark could not be updated, try again."}}\n',
+                                content_type="application/json")
+    except:
+        transaction.rollback()
+        raise Http400(sys.exc_info()[1])
 
 
 @require_http_methods(["DELETE"])
@@ -211,7 +251,7 @@ def create_configuration(spark, config_dic):
     return config
 
 
-def assign_device_function(spark, config, config_dic):
+def assign_device_function(spark, config, config_dic, is_update):
     logger.debug("Assign device functions")
 
     function_dic = config_dic.get("function")
@@ -222,7 +262,7 @@ def assign_device_function(spark, config, config_dic):
         if device.spark != spark:
             raise Http400("Device {}:{} does not belong to provided Spark".format(function, device_id, spark))
 
-        if device.configuration is not None:
+        if not is_update and device.configuration is not None:
             raise Http400("Device {}:{} is already assigned to a configuration {}".format(function, device_id,
                                                                                           device.configuration))
 
@@ -254,7 +294,7 @@ def get_sensor_or_actuator(name, temp_sensor, config, config_dic):
     return device.id
 
 
-def store_temp_phases(config, temp_phases_arr):
+def store_temp_phases(config, temp_phases_arr, is_update):
     logger.debug("Store temp phases")
 
     order = 1
@@ -262,11 +302,14 @@ def store_temp_phases(config, temp_phases_arr):
     previous_done = True
     tz = get_localzone()
     now = datetime.utcnow() - timedelta(hours=1)
-    previous_start_date = utc.localize(now)
+    start_date_utc = utc.localize(now)
+    previous_start_date = datetime.fromtimestamp(0).replace(tzinfo=utc) if is_update else start_date_utc
+
+    if is_update:
+        TemperaturePhase.objects.filter(configuration=config).delete()
 
     for temp_phase_dic in temp_phases_arr:
 
-        duration = 0
         temperature = temp_phase_dic.get("temperature")
         done = temp_phase_dic.get("done")
 
@@ -287,12 +330,13 @@ def store_temp_phases(config, temp_phases_arr):
 
             logger.debug("Utc now: {}; Start date: {}; previous date: {};".format(datetime.utcnow(), start_date_utc,
                                                                                   previous_start_date))
-            if start_date_utc <= utc.localize(now):
+            if not is_update and start_date_utc <= utc.localize(now):
                 logger.warn("Start date {} is in the past".format(start_date_utc))
                 raise Http400("A Fermentation Configuration needs to have a start date in the future")
 
             if start_date_utc <= previous_start_date:
-                logger.warn("Start date {} is before previous start date {}".format(start_date_utc, previous_start_date))
+                logger.warn(
+                    "Start date {} is before previous start date {}".format(start_date_utc, previous_start_date))
                 raise Http400("A Fermentation Configuration phase needs to have a start date later than previous one")
 
         else:
