@@ -25,12 +25,17 @@
   "name": "Barabtos",
   "config_type": 2, 
 
-  "temp_sensor":"",
+  "temp_sensor":"0;0",
 
-  "heat_actuator":"",
-  "cool_actuator":"",
-  "fan_actuator":"",
+  "heat_actuator":"0;0",
+  "cool_actuator":"0;0",
+  "fan_actuator":"0;0",
 
-  "temperature":""
-  "pwm":""
+  "temperature":20000		=> if temperature is greateer 0 use heater PID
+  "heaterPwm":0             => else use a fixed PWM value
+  "fanPwm":255
+  
+  "p":,
+  "i",
+  "d"
 }
