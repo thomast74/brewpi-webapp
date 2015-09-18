@@ -1,22 +1,36 @@
 {
-  "name":"KuneKune",
+  "name":"Barbatos",
   "type":"Fermentation",
   "fan_actuator": "Fridge Fan Actuator",
   "cool_actuator": "Fridge Cooling Actuator",
   "heat_actuator":"Fridge Heating Actuator",
   "temp_sensor": "Fridge Beer 1 Temp Sensor",
   "function": {
-    "Fridge Fan Actuator": 55,
-    "Fridge Cooling Actuator": 56,
-    "Fridge Heating Actuator": 57,
-    "Outside Fridge Temp Sensor": 69,
-    "Fridge Inside Temp Sensor": 70,
-    "Fridge Beer 1 Temp Sensor": 71
+    "Fridge Fan Actuator": 1,
+    "Fridge Cooling Actuator": 2,
+    "Fridge Heating Actuator": 3,
+    "Outside Fridge Temp Sensor": 4,
+    "Fridge Inside Temp Sensor": 5,
+    "Fridge Beer 1 Temp Sensor": 6
   },
-  "temp_phases": [
-    { "start_date": "2015-08-30T01:42:00", "duration": 0, "temperature": 18.0, "done": false },
-    { "start_date": "2015-08-30T19:00:00", "duration": 0, "temperature": 10.0, "done": false },
-    { "start_date": "2015-08-31T19:00:00", "duration": 0, "temperature": 20.0, "done": false }
-  ]
+  "phase": {
+    "temperature": ,
+    "pwm": 
+  }
 }
 
+
+{
+  "config_id": 1,
+  "name": "Barabtos",
+  "config_type": 2, 
+
+  "temp_sensor":"",
+
+  "heat_actuator":"",
+  "cool_actuator":"",
+  "fan_actuator":"",
+
+  "temperature":""
+  "pwm":""
+}
