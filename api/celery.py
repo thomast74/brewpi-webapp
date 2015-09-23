@@ -5,7 +5,8 @@ from celery import Celery
 app = Celery('api',
              broker='amqp://guest:guest@127.0.0.1:5672/',
              backend='amqp://guest:guest@127.0.0.1:5672/',
-             include=['api.tasks.status_message', 'api.tasks.logs_message', 'api.tasks.sensor_calibration'])
+             include=['api.tasks.LogsMessage', 'api.tasks.RequestConfigurations',
+                      'api.tasks.SensorCalibration', 'api.tasks.StatusMessage'])
 
 app.conf.update(
     CELERY_TASK_RESULT_EXPIRES=3600,

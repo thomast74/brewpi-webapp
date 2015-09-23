@@ -1,3 +1,4 @@
-from brew_pi_spark import BrewPiSpark
-from configuration import Configuration, TemperaturePhase
-from device import Device
+from BrewPi import BrewPi
+from Configuration import Configuration
+from Device import Device
+from Phase import Phase

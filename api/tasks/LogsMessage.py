@@ -2,13 +2,16 @@ from __future__ import absolute_import
 import json
 import logging
 
-from django.core.exceptions import ObjectDoesNotExist
 from celery import shared_task
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+
 from influxdb import InfluxDBClient
 
+from api.helpers.BrewPi import get_brewpi
 from api.models import Device, Configuration
-from api.models.brew_pi_spark import BrewPiSpark
+
 from oinkbrew_webapp import settings
 
 logger = logging.getLogger(__name__)
@@ -18,9 +21,9 @@ logger = logging.getLogger(__name__)
 def log_device_data(device_id, json_data):
     logger.debug("Received log device data for {}: {}".format(device_id, json_data))
 
-    spark = get_spark(device_id)
-    if spark is None:
-        logger.error("Spark with device_id {} can't be found".format(device_id))
+    brewpi = get_brewpi(device_id)
+    if brewpi is None:
+        logger.error("BrewPi with device_id {} can't be found".format(device_id))
         return "Error"
 
     log_data = convert_json_data(json_data)
@@ -31,10 +34,10 @@ def log_device_data(device_id, json_data):
     influx_data_dic = {}
 
     if "temperatures" in log_data:
-        build_temperature_points(log_data.get("temperatures"), spark, influx_data_dic)
+        build_temperature_points(log_data.get("temperatures"), brewpi, influx_data_dic)
 
     if "targets" in log_data:
-        build_target_points(log_data.get("targets"), spark, influx_data_dic)
+        build_target_points(log_data.get("targets"), brewpi, influx_data_dic)
 
     if len(influx_data_dic) > 0:
         save_points(influx_data_dic)
@@ -42,14 +45,6 @@ def log_device_data(device_id, json_data):
     logger.debug("-")
 
     return "Ok"
-
-
-def get_spark(device_id):
-    try:
-        return BrewPiSpark.objects.get(device_id=device_id)
-
-    except ObjectDoesNotExist:
-        return None
 
 
 def get_configuration(config_id):
@@ -60,11 +55,11 @@ def get_configuration(config_id):
         return None
 
 
-def get_device(spark, pin_nr, hw_address):
+def get_device(brewpi, pin_nr, hw_address):
     try:
         device = Device.objects.get(pin_nr=pin_nr, hw_address=hw_address)
 
-        if device.spark == spark:
+        if device.brewpi == brewpi:
             return device
         else:
             return None
@@ -81,12 +76,12 @@ def convert_json_data(json_data):
         return None
 
 
-def build_temperature_points(log_data, spark, influx_data_dic):
+def build_temperature_points(log_data, brewpi, influx_data_dic):
     logger.debug("Build temperature points: {}".format(log_data))
 
     for device_data_dic in log_data:
 
-        device = get_device(spark, device_data_dic.get("pin_nr"), device_data_dic.get("hw_address"))
+        device = get_device(brewpi, device_data_dic.get("pin_nr"), device_data_dic.get("hw_address"))
         if device is None or device.configuration is None:
             logger.debug("No configuration assigned to device: {}".format(device))
             continue
@@ -111,13 +106,13 @@ def build_temperature_points(log_data, spark, influx_data_dic):
         else:
             influx_data_dic[name] = InfluxData()
             influx_data_dic[name].name = name
-            influx_data_dic[name].device_id = spark.device_id
+            influx_data_dic[name].device_id = brewpi.device_id
             influx_data_dic[name].config_type = config_type
             influx_data_dic[name].timestamp = timezone.now()
             influx_data_dic[name].fields[function] = value
 
 
-def build_target_points(target_data, spark, influx_data_dic):
+def build_target_points(target_data, brewpi, influx_data_dic):
 
     logger.debug("Build target temperature points: {}".format(target_data))
 
@@ -141,7 +136,7 @@ def build_target_points(target_data, spark, influx_data_dic):
         else:
             influx_data_dic[name] = InfluxData()
             influx_data_dic[name].name = name
-            influx_data_dic[name].device_id = spark.device_id
+            influx_data_dic[name].device_id = brewpi.device_id
             influx_data_dic[name].config_type = config_type
             influx_data_dic[name].timestamp = timezone.now()
             influx_data_dic[name].fields[function] = value

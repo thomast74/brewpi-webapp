@@ -1,54 +1,126 @@
 Documentation about API Entry Points
 ====================================
 
-Requests
---------
+BrewPi
+------
+Impl | Entry Point                | METHOD | Description
+-----|----------------------------|--------|----------------------------------------------------------------------------
+Y    | /api/brewpis/              | GET    | List all registered BrewPi's
+Y    | /api/brewpis/              | POST   | Create a new BrewPi from json request
+Y    | /api/brewpis/{device_id}/  | GET    | List details of BrewPi with device_id
+Y    | /api/brewpis/{device_id}/  | PUT    | Update BrewPi with device_id from json request, sends message to BrewPi device
+Y    | /api/brewpis/{device_id}/  | DELETE | Deletes BrewPi with device_id including actuators but excludes all OneWrite devices
 
-Impl | Entry Point | METHOD | Description
------|-------------|--------|------------
-N | /api/activity/                              | GET    | List recent activities from all Sparks
-Y | /api/spark/                                 | GET    | List all registered Sparks
-Y | /api/spark/{device_id}/                     | GET    | List details of one Spark
-N | /api/spark/{device_id}/activity/            | GET    | List recent activities from a specific Spark
-Y | /api/spark/{device_id}/config/              | GET    | List all configuration
-Y | /api/spark/{device_id}/config/{config_id}/  | GET    | List the configuration requested by config_id
-Y | /api/spark/{device_id}/devices/             | GET    | List sensor/actuator from database
-Y | /api/spark/{device_id}/devices/request/     | GET    | Request list sensor/actuator list from Spark (including remote)
-Y | /api/spark/{device_id}/devices/{sensor_id}/ | GET    | List sensor/actuator details for a specific device (including remote)
-Y | /api/spark/{device_id}/logs/{config_id}/    | GET    | List logged data for a specific configuration
+Sample Json Update Request:
+```
+{  
+  "command": "[status|update|reset]",  
+  "device_id": "54ff6c066678574929420565",  
+  "name": "Chamber 1",  
+  "firmware_version": "0.3",  
+  "ip_address": "192.168.1.11",  
+  "web_address": "192.168.1.3",  
+  "web_port": "80",  
+  "brewpi_time": "0"  
+}  
+```
 
-Inserts
+Logs
+----
+Impl | Entry Point                           | METHOD | Description
+-----|---------------------------------------|--------|-----------------------------------------------------------------
+Y    | /api/logs/{device_id}/                | POST   | Receive actuator and sensor value data from BrewPi with device_id
+Y    | /api/logs/{device_id}/{config_id}/    | GET    | List logged data for a specific configuration and BrewPi with device_id
+Y    | /api/logs/{device_id}/{config_id}/    | DELETE | Deletes the Sensors/Actuators log data for a config_id and for BrewPi with device_id
+
+Sample Json Log Data Request:
+```
+{  
+ "temperatures": [  
+    {"pin_nr":"10","hw_address":"0000000000000000","value":200.000000},   
+    {"pin_nr":"11","hw_address":"0000000000000000","value":0.000000},  
+    {"pin_nr":"16","hw_address":"0000000000000000","value":0.000000},  
+    {"pin_nr":"0","hw_address":"28107974060000AC","value":23.625000},  
+    {"pin_nr":"0","hw_address":"280AA3730600005D","value":10.500000},  
+    {"pin_nr":"0","hw_address":"2886927306000083","value":13.250000}  
+  ],  
+  "targets": [  
+    {"config_id":2,"temperature":4.000000, "output": 23.09}  
+  ]  
+}  
+```
+
+Devices
 -------
-Impl | Entry Point | METHOD | Description
------|-------------|--------|------------
-Y | /api/spark/{device_id}/config/              | PUT    | Creates a new configuration and sends it to the Spark
-Y | /api/spark/{device_id}/devices/             | PUT    | Receives a newly connected device from Spark
-Y | /api/spark/{device_id}/logs/                | PUT    | Receive actuator and sensor value data
+Impl | Entry Point                           | METHOD | Description
+-----|---------------------------------------|--------|-----------------------------------------------------------------
+Y    | /api/devices/                         | GET    | List sensor/actuator from database that are not attached to a BrewPi
+Y    | /api/devices/{device_id}/             | GET    | List sensor/actuator from database attached to BrewPi with device_id
+Y    | /api/devices/{device_id}/             | DELETE | Delete a sensor that was disconnected from BrewPi with device_id
+Y    | /api/devices/{device_id}/             | PUT    | Receives a already or newly connected device from BrewPi with device_id
+Y    | /api/devices/{device_id}/             | POST   | Updates device from json request attached to BrewPi with device_id
+Y    | /api/devices/{device_id}/offset/      | POST   | Send offset of temp sensors to BrewPi
+Y    | /api/devices/{device_id}/calibration/ | POST   | Start calibration process for provided sensors
+
+Sample json request data:
+```
+{  
+  "brewpi_id": "",  
+  "device_type": 1,  
+  "function": 1,  
+  "value": 12.98,  
+  "pin_nr": 0,  
+  "hw_address": "0000000",  
+  "offset": 1.20,  
+  "offset_from_brewpi": 0.0,  
+  "is_deativate": false  
+}
+```
 
 
-Updates
--------
+Configurations
+--------------
+Impl | Entry Point                           | METHOD | Description
+-----|---------------------------------------|--------|-----------------------------------------------------------------
+Y    | /api/configs/                         | GET    | List all configurations
+Y    | /api/configs/{device_id}/             | GET    | List all configurations for a BrewPi with device_id
+Y    | /api/configs/{device_id}/             | POST   | Creates a new configuration and sends it to the BrewPi
+Y    | /api/configs/{device_id}/{config_id}/ | GET    | List the configuration requested by config_id
+Y    | /api/configs/{device_id}/{config_id}/ | PUT    | Updates an existing configuration and sends new configuration to the BrewPi with device_id
+Y    | /api/configs/{device_id}/{config_id}/ | DELETE | Deletes a configuration and sends delete request to BrewPi with device_id
+Y    | /api/configs/{device_id}/request      | GET    | Device requests all stored configurations to be sent
 
-Impl | Entry Point | METHOD | Description
------|-------------|--------|------------
-Y | /api/spark/status/                                   | POST   | Receive Spark status updates and check in Spark
-Y | /api/spark/{device_id}/calibration/                  | POST   | Start calibration process for provided sensors
-N | /api/spark/{device_id}/config/{config_id}/           | POST   | Updates an existing configuration and sends it to the Spark
-Y | /api/spark/{device_id}/config/{config_id}/phase      | POST   | Updates a temp phase DONE of an existing configuration
-Y | /api/spark/{device_id}/name/                         | POST   | Change name of spark, used as alias
-Y | /api/spark/{device_id}/mode/                         | POST   | Change mode to either [MANUAL,LOGGING,AUTOMATIC]
-? | /api/spark/{device_id}/firmware/                     | POST   | Updates Spark with latest firmware
-Y | /api/spark/{device_id}/reset/                        | POST   | Force Spark to reset/clear all settings
-Y | /api/spark/{device_id}/devices/{actuator_id}/toggle/ | POST   | In case device is an Actuator or PWM device change the state
-Y | /api/spark/{device_id}/devices/offset/               | POST   | Send offset of temp sensors to spark
+Sample json request for a new configuration:
+```
+{  
+  "name":"Barbatos",  
+  "type":"Fermentation",  
+  "fan_actuator": "Fridge Fan Actuator",  
+  "cool_actuator": "Fridge Cooling Actuator",  
+  "heat_actuator":"Fridge Heating Actuator",  
+  "temp_sensor": "Fridge Beer 1 Temp Sensor",  
+  "function": {  
+    "Fridge Fan Actuator": 1,  
+    "Fridge Cooling Actuator": 2,  
+    "Fridge Heating Actuator": 3,  
+    "Outside Fridge Temp Sensor": 4,  
+    "Fridge Inside Temp Sensor": 5,  
+    "Fridge Beer 1 Temp Sensor": 6  
+  },  
+  "phase": {  
+    "temperature": 21.0,  
+    "heat_pwm": 0.0,  
+    "fan_pwm": 255.0,  
+    "p": 5.0,  
+    "i": 0.01,  
+    "d": -3.0  
+  }  
+}  
+```
 
-Deletes
--------
-
-Impl | Entry Point | METHOD | Description
------|-------------|--------|------------
-Y | /api/spark/{device_id}/delete/                     | DELETE | Deletes a Spark and all its data from database
-Y | /api/spark/{device_id}/devices/delete/             | DELETE | Deletes the Sensor that was disconnected from Spark
-Y | /api/spark/{device_id}/devices/{sensor_id}/delete/ | DELETE | Deletes the Sensor/Actuator from this Sparks configuration
-Y | /api/spark/{device_id}/config/{config_id}/delete/  | DELETE | Deletes a configuration and removes from Spark
-N | /api/spark/{device_id}/logs/{config_id}/delete/    | DELETE | Deletes the Sensors/Actuators log data
+Activities
+----------
+Impl | Entry Point                     | METHOD | Description
+-----|---------------------------------|--------|-----------------------------------------------------------------------
+N    | /api/activities/                | GET    | List recent activities from all BrewPis
+N    | /api/activities/{device_id}/    | GET    | List recent activities from a specific BrewPi

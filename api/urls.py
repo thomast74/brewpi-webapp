@@ -1,33 +1,31 @@
 from django.conf.urls import patterns, url
 
-from api.views import spark
-from api.views import spark_calibration
-from api.views import spark_config
-from api.views import spark_device
-from api.views import spark_logs
-from api.views import spark_status
+from api.views.BrewPiDetail import BrewPiDetail
+from api.views.BrewPiList import BrewPiList
+from api.views.ConfigurationCommand import ConfigurationCommand
+from api.views.ConfigurationDetail import ConfigurationDetail
+from api.views.ConfigurationList import ConfigurationList
+from api.views.ConfigurationGeneral import ConfigurationGeneral
+from api.views.DeviceDetail import DeviceDetail
+from api.views.DeviceList import DeviceList
+from api.views.DeviceCommand import DeviceCommand
+from api.views.LogDetail import LogDetail
+from api.views.LogList import LogList
 
 
 urlpatterns = patterns('',
-                       url(r'^spark/(?P<device_id>\w+)/calibration/', spark_calibration.start),
-                       url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/delete/', spark_config.delete),
-                       url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/phase/', spark_config.update_phase),
-                       url(r'^spark/(?P<device_id>\w+)/config/(?P<config_id>[0-9]+)/', spark_config.get_or_update),
-                       url(r'^spark/(?P<device_id>\w+)/config/', spark_config.list_or_create),
-                       url(r'^spark/(?P<device_id>\w+)/delete/', spark.delete),
-                       url(r'^spark/(?P<device_id>\w+)/devices/(?P<actuator_id>[0-9]+)/delete/', spark_device.delete),
-                       url(r'^spark/(?P<device_id>\w+)/devices/(?P<actuator_id>[0-9]+)/toggle/', spark_device.toggle),
-                       url(r'^spark/(?P<device_id>\w+)/devices/(?P<actuator_id>[0-9]+)/', spark_device.get_device),
-                       url(r'^spark/(?P<device_id>\w+)/devices/request/', spark_device.request_devices),
-                       url(r'^spark/(?P<device_id>\w+)/devices/offset/', spark_device.send_offset),
-                       url(r'^spark/(?P<device_id>\w+)/devices/', spark_device.get_add_or_delete),
-                       url(r'^spark/(?P<device_id>\w+)/mode/', spark.set_mode),
-                       url(r'^spark/(?P<device_id>\w+)/logs/(?P<config_id>[0-9]+)/', spark_logs.list_logs),
-                       url(r'^spark/(?P<device_id>\w+)/logs/', spark_logs.add),
-                       url(r'^spark/(?P<device_id>\w+)/name/', spark.set_name),
-                       url(r'^spark/(?P<device_id>\w+)/reset/', spark.reset),
-                       url(r'^spark/(?P<device_id>\w+)/firmware/', spark.update_firmware),
-                       url(r'^spark/status/', spark_status.check_in),
-                       url(r'^spark/(?P<device_id>\w+)/', spark.get),
-                       url(r'^spark/', spark.get_list),
+                       url(r'^configs/(?P<device_id>\w+)/(?P<config_id>[0-9]+)/', ConfigurationDetail.as_view()),
+                       url(r'^configs/(?P<device_id>\w+)/(?P<command>\w+)/', ConfigurationCommand.as_view()),
+                       url(r'^configs/(?P<device_id>\w+)/', ConfigurationList.as_view()),
+                       url(r'^configs/', ConfigurationGeneral.as_view()),
+
+                       url(r'^devices/(?P<device_id>\w+)/(?P<command>\w+)/', DeviceCommand.as_view()),
+                       url(r'^devices/(?P<device_id>\w+)/', DeviceDetail.as_view()),
+                       url(r'^devices/', DeviceList.as_view()),
+
+                       url(r'^logs/(?P<device_id>\w+)/(?P<config_id>[0-9]+)/', LogDetail.as_view()),
+                       url(r'^logs/(?P<device_id>\w+)/', LogList.as_view()),
+
+                       url(r'^brewpis/(?P<device_id>\w+)/$', BrewPiDetail.as_view()),
+                       url(r'^brewpis/', BrewPiList.as_view()),
                        )

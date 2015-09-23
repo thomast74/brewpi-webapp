@@ -6,9 +6,8 @@ import os
 DEBUG = False
 TEMPLATE_DEBUG = False
 TIME_ZONE = 'Europe/London'
-TEMP_TYPE = 'C'
 
-SPARK_PORT = 7873
+BREWPI_PORT = 7873
 
 INFLUXDB_HOST = 'localhost'
 INFLUXDB_PORT = 8086

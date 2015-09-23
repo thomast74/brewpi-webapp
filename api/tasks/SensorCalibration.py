@@ -5,7 +5,7 @@ import sys
 from celery import shared_task
 from influxdb import InfluxDBClient
 from api.models import Configuration
-from api.services.spark_connector import SparkConnector
+from api.services.BrewPiConnector import BrewPiConnector
 from oinkbrew_webapp import settings
 
 
@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(ignore_result=True)
-def calculate_offset(spark, sensors):
-    logger.info("Calculate offset for spark {} and sensors {}".format(spark, sensors))
+def calculate_offset(brewpi, sensors):
+    logger.info("Calculate offset for BrewPi {} and sensors {}".format(brewpi, sensors))
 
     client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
                             settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
@@ -27,21 +27,21 @@ def calculate_offset(spark, sensors):
 
             logger.debug("Sensor {} offset: {}".format(sensor.pk, sensor.offset))
 
-            SparkConnector().set_device_offset(sensor)
+            BrewPiConnector().send_device_offset(sensor)
 
             sensor.save()
         except:
             tp, value, traceback = sys.exc_info()
             logger.error("Sensor error: {}".format(value))
 
-    validate_offset.apply_async((spark, sensors), countdown=200)
+    validate_offset.apply_async((brewpi, sensors), countdown=200)
 
     return "Ok"
 
 
 @shared_task(ignore_result=True)
-def validate_offset(spark, sensors):
-    logger.info("Validate offset for spark {} and sensors {}".format(spark, sensors))
+def validate_offset(brewpi, sensors):
+    logger.info("Validate offset for BrewPi {} and sensors {}".format(brewpi, sensors))
 
     client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
                             settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
@@ -61,18 +61,13 @@ def validate_offset(spark, sensors):
             tp, value, traceback = sys.exc_info()
             logger.error("Sensor error: {}".format(value))
 
-    cleanup_calibration(spark, sensors)
+    cleanup_calibration(brewpi, sensors)
 
     return "Ok"
 
 
-def cleanup_calibration(spark, sensors):
-    logger.info("Calibration cleanup for spark {} and sensors {}".format(spark, sensors))
-
-    # set spark mode to MANUAL if in CALIBRATION
-    if spark.device_mode == spark.SPARK_MODE_CALIBRATION:
-        logger.debug("Set spark {} mode to MANUAL".format(spark))
-        spark.set_mode(spark.SPARK_MODE_MANUAL)
+def cleanup_calibration(brewpi, sensors):
+    logger.info("Calibration cleanup for BrewPi {} and sensors {}".format(brewpi, sensors))
 
     # remove device configuration
     for sensor in sensors:
@@ -81,12 +76,10 @@ def cleanup_calibration(spark, sensors):
         sensor.save()
 
     # remove configuration
-    Configuration.objects.filter(spark=spark, name="Calibration").delete()
+    Configuration.objects.filter(brewpi=brewpi, name="Calibration").delete()
 
     # if no other calibration exists; drop measurement Calibration
     if Configuration.objects.filter(name="Calibration").count() == 0:
         client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
                                 settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
-        # client.query("DROP MEASUREMENT Calibration;")
-
-
+        client.query("DROP MEASUREMENT Calibration;")

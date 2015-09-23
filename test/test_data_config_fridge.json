@@ -14,28 +14,11 @@
     "Fridge Beer 1 Temp Sensor": 6
   },
   "phase": {
-    "temperature": ,
-    "pwm": 
+    "temperature": 20.0,
+    "heat_pwm": 0.0,
+    "fan_pwm": 255.0,
+    "p": 5,
+    "i": 0.001,
+    "d": -3
   }
-}
-
-
-{
-  "config_id": 1,
-  "name": "Barabtos",
-  "config_type": 2, 
-
-  "temp_sensor":"0;0",
-
-  "heat_actuator":"0;0",
-  "cool_actuator":"0;0",
-  "fan_actuator":"0;0",
-
-  "temperature":20000		=> if temperature is greateer 0 use heater PID
-  "heaterPwm":0             => else use a fixed PWM value
-  "fanPwm":255
-  
-  "p":,
-  "i",
-  "d"
 }

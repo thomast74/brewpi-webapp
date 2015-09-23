@@ -1,17 +1,16 @@
 import api
 import logging
 
-from datetime import datetime
-
 from django.db import models
 from django.utils import timezone
 
-from api.models import BrewPiSpark
+from api.models import BrewPi
 
 logger = logging.getLogger(__name__)
 
 
 class Configuration(models.Model):
+
     CONFIG_TYPE_NONE = 0
     CONFIG_TYPE_BREW = 1
     CONFIG_TYPE_FERMENTATION = 2
@@ -27,7 +26,7 @@ class Configuration(models.Model):
     name = models.CharField(verbose_name="Name", max_length=30)
     create_date = models.DateTimeField(verbose_name='Create Date', editable=False)
     type = models.IntegerField(verbose_name='Configuration Type', choices=CONFIG_TYPE)
-    spark = models.ForeignKey(BrewPiSpark, verbose_name="Spark", null=False)
+    brewpi = models.ForeignKey(BrewPi, verbose_name="BrewPi", null=True)
     temp_sensor_id = models.IntegerField(verbose_name='Temp Sensor', null=True)
     heat_actuator_id = models.IntegerField(verbose_name='Heat Actuator', null=True)
     cool_actuator_id = models.IntegerField(verbose_name='Cool Actuator', null=True)
@@ -48,10 +47,10 @@ class Configuration(models.Model):
         return Configuration.CONFIG_TYPE_NONE
 
     @classmethod
-    def create(cls, name, type_id, spark):
-        logger.debug("Create new configuration: name={}, type_id={}, spark={}".format(name, type_id, spark))
+    def create(cls, name, type_id, brewpi):
+        logger.debug("Create new configuration: name={}, type_id={}, brewpi={}".format(name, type_id, brewpi))
 
-        config = cls(name=name, create_date=timezone.now(), type=type_id, spark=spark)
+        config = cls(name=name, create_date=timezone.now(), type=type_id, brewpi=brewpi)
 
         return config
 
@@ -83,36 +82,4 @@ class Configuration(models.Model):
 
     def __str__(self):
         return "Configuration: [{} - {} -> {}]".format(self.name, self.create_date.strftime('%Y-%m-%d %H:%M:%S'),
-                                                       self.spark)
-
-
-class TemperaturePhase(models.Model):
-    configuration = models.ForeignKey(Configuration, verbose_name="Configuration", related_name='phases', null=False)
-    order = models.IntegerField(verbose_name="Order", null=False)
-    start_date = models.DateTimeField(verbose_name="Start Date", null=False, default=datetime(1970, 1, 1))
-    duration = models.IntegerField(verbose_name="Duration", null=False, default=0)
-    temperature = models.FloatField(verbose_name="Temperature", null=False)
-    done = models.BooleanField(verbose_name="Done", null=False, default=False)
-
-    class Meta:
-        verbose_name = 'Temperature Phase'
-        verbose_name_plural = 'Temperature Phases'
-        ordering = ['configuration', 'order']
-
-    @classmethod
-    def create(cls, configuration, order, start_date, duration, temperature, done):
-        logger.debug(
-            "Create new temp_pase: configuration={}, order={}, start_date={}, duration={}, temperature={}, done={}".
-                format(configuration, order, start_date, duration, temperature, done))
-
-        temp_phase = cls(configuration=configuration, order=order, start_date=start_date, duration=duration,
-                         temperature=temperature, done=done)
-
-        return temp_phase
-
-    def __str__(self):
-        return "TemperaturePhase: [{}; {}; {}; {}; {}]".format(self.configuration,
-                                                               self.start_date.strftime('%Y-%m-%d %H:%M:%S'),
-                                                               self.duration,
-                                                               self.temperature,
-                                                               self.done)
+                                                       self.brewpi)
