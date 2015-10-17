@@ -1,15 +1,19 @@
 from __future__ import absolute_import
-import logging
+
 import sys
 
 from celery import shared_task
+from celery.utils.log import get_task_logger
+
 from influxdb import InfluxDBClient
+
 from api.models import Configuration
 from api.services.BrewPiConnector import BrewPiConnector
+
 from oinkbrew_webapp import settings
 
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
 
 
 @shared_task(ignore_result=True)

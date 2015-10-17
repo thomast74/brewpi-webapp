@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 import json
-import logging
 
 from celery import shared_task
+from celery.utils.log import get_task_logger
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -14,7 +14,7 @@ from api.models import Device, Configuration
 
 from oinkbrew_webapp import settings
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
 
 
 @shared_task(ignore_result=True)
