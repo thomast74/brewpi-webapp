@@ -73,7 +73,7 @@ Sample json request data:
   "hw_address": "0000000",  
   "offset": 1.20,  
   "offset_from_brewpi": 0.0,  
-  "is_deativate": false  
+  "is_deactivate": false  
 }
 ```
 
