@@ -191,6 +191,9 @@ class ConfigurationDetail(View):
             "temperature": ,
             "heat_pwm": ,
             "fan_pwm": ,
+            "heating_period": ,
+            "cooling_on_period": ,
+            "cooling_off_period": ,
             "p": ,
             "i": ,
             "d":
@@ -208,5 +211,7 @@ class ConfigurationDetail(View):
             raise Http400("Heat PWM must be between 0 and 100")
 
         phase = Phase.create(configuration, timezone.now(), temperature, heat_pwm, phase_dic.get("fan_pwm", 200),
-                             phase_dic.get("p", 0), phase_dic.get("i", 0), phase_dic.get("d", 0), False)
+                             phase_dic.get("heating_period", 4000), phase_dic.get("cooling_on_period", 600000),
+                             phase_dic.get("cooling_off_period", 180000), phase_dic.get("p", 0),
+                             phase_dic.get("i", 0), phase_dic.get("d", 0), False)
         phase.save()

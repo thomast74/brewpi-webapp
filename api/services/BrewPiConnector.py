@@ -110,11 +110,14 @@ class BrewPiConnector:
             time.sleep(0.015)
             msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}",' \
                   '"cool_actuator":"{}","fan_actuator":"{}","temperature":{},"heat_pwm":{},"fan_pwm":{},' \
+                  '"heating_period":{},"cooling_on_period":{},"cooling_off_period":{},' \
                   '"p":{},"i":{},"d":[]}}'.format(configuration.id, configuration.name, configuration.type,
                                                   temp_sensor_str, heat_actuator_str, cool_actuator_str,
                                                   fan_actuator_str,
                                                   int(phase.temperature*10000), int(phase.heat_pwm*10000),
-                                                  int(phase.fan_pwm*10000), int(phase.p*10000), int(phase.i*10000),
+                                                  int(phase.fan_pwm*10000),
+                                                  phase.heating_period, phase.cooling_on_period,
+                                                  phase.cooling_off_period, int(phase.p*10000), int(phase.i*10000),
                                                   int(phase.d*10000))
             logger.debug("Send Message: p" + msg)
 

@@ -111,6 +111,9 @@ Sample json request for a new configuration:
     "temperature": 21.0,  
     "heat_pwm": 0.0,  
     "fan_pwm": 255.0,  
+    "heating_period": 4000,
+    "cooling_on_period": 600000,
+    "cooling_off_period": 180000,
     "p": 5.0,  
     "i": 0.01,  
     "d": -3.0  
