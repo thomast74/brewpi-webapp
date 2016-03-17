@@ -203,6 +203,10 @@ class ConfigurationDetail(View):
 
         temperature = phase_dic.get("temperature", 0)
         heat_pwm = phase_dic("heat_pwm", 0)
+        fan_pwm = phase_dic("fan_pwm", 0)
+        pump_1_pwm = phase_dic("pump_1_pwm", 0)
+        pump_2_pwm = phase_dic("pump_2_pwm", 0)
+
 
         if temperature <= 0 and heat_pwm <= 0:
             raise Http400("Either a temperature or heat PWM value need to be provided")
@@ -210,7 +214,17 @@ class ConfigurationDetail(View):
         if temperature == 0 and (heat_pwm < 0 or heat_pwm > 100):
             raise Http400("Heat PWM must be between 0 and 100")
 
-        phase = Phase.create(configuration, timezone.now(), temperature, heat_pwm, phase_dic.get("fan_pwm", 200),
+        if fan_pwm < 0 or fan_pwm > 255:
+            raise Http400("Fan PWM must be between 0 and 255")
+
+        if pump_1_pwm < 0 or pump_1_pwm > 100:
+            raise Http400("Pump 1 PWM must be between 0 and 100")
+
+        if pump_2_pwm < 0 or pump_2_pwm > 100:
+            raise Http400("Pump 2 PWM must be between 0 and 100")
+
+        phase = Phase.create(configuration, timezone.now(), temperature, heat_pwm, phase_dic.get("fan_pwm", 0),
+                             pump_1_pwm, pump_2_pwm,
                              phase_dic.get("heating_period", 4000), phase_dic.get("cooling_on_period", 600000),
                              phase_dic.get("cooling_off_period", 180000), phase_dic.get("p", 0),
                              phase_dic.get("i", 0), phase_dic.get("d", 0), False)

@@ -96,6 +96,8 @@ class BrewPiConnector:
             heat_actuator = configuration.get_heat_actuator()
             cool_actuator = configuration.get_cool_actuator()
             fan_actuator = configuration.get_fan_actuator()
+            pump_1_actuator = configuration.get_pump_1_actuator()
+            pump_2_actuator = configuration.get_pump_2_actuator()
 
             temp_sensor_str = "{};{}".format(temp_sensor.pin_nr, temp_sensor.hw_address)
             heat_actuator_str = "{};{}".format(heat_actuator.pin_nr, heat_actuator.hw_address)
@@ -103,22 +105,27 @@ class BrewPiConnector:
                                                                                    cool_actuator.hw_address)
             fan_actuator_str = "0;0" if fan_actuator is None else "{};{}".format(fan_actuator.pin_nr,
                                                                                  fan_actuator.hw_address)
+            pump_1_actuator_str = "0;0" if pump_1_actuator is None else "{};{}".format(pump_1_actuator.pin_nr,
+                                                                                       pump_1_actuator.hw_address)
+            pump_2_actuator_str = "0;0" if pump_2_actuator is None else "{};{}".format(pump_2_actuator.pin_nr,
+                                                                                       pump_2_actuator.hw_address)
 
             phase = Phase.objects.filter(configuration=configuration, done=False)[0]
 
             sock.send("p")
             time.sleep(0.015)
             msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}",' \
-                  '"cool_actuator":"{}","fan_actuator":"{}","temperature":{},"heat_pwm":{},"fan_pwm":{},' \
+                  '"cool_actuator":"{}","fan_actuator":"{}", "pump_1_actuator":"{}", "pump_2_actuator":"{}",' \
+                  '"temperature":{},"heat_pwm":{},"fan_pwm":{},"pump_1_pwm":{},"pump_2_pwm":{}, ' \
                   '"heating_period":{},"cooling_on_period":{},"cooling_off_period":{},' \
                   '"p":{},"i":{},"d":[]}}'.format(configuration.id, configuration.name, configuration.type,
                                                   temp_sensor_str, heat_actuator_str, cool_actuator_str,
-                                                  fan_actuator_str,
-                                                  int(phase.temperature*10000), int(phase.heat_pwm*10000),
-                                                  int(phase.fan_pwm*10000),
-                                                  phase.heating_period, phase.cooling_on_period,
-                                                  phase.cooling_off_period, int(phase.p*10000), int(phase.i*10000),
-                                                  int(phase.d*10000))
+                                                  fan_actuator_str, pump_1_actuator_str, pump_2_actuator_str,
+                                                  int(phase.temperature * 10000), int(phase.heat_pwm * 10000),
+                                                  int(phase.fan_pwm * 10000), int(phase.pump_1_pwm * 10000),
+                                                  int(phase.pump_2_pwm * 10000), phase.heating_period,
+                                                  phase.cooling_on_period, phase.cooling_off_period,
+                                                  int(phase.p * 10000), int(phase.i * 10000), int(phase.d * 10000))
             logger.debug("Send Message: p" + msg)
 
             sock.send(msg)
