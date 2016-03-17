@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigurationDetail(View):
-
     def get(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
@@ -50,15 +49,24 @@ class ConfigurationDetail(View):
             configuration.name = name
 
             ConfigurationDetail.assign_device_function(brewpi, configuration, config_dic, True)
-            configuration.temp_sensor_id = ConfigurationDetail.get_sensor_or_actuator("temp_sensor", False,
-                                                                                      configuration, config_dic)
-            configuration.heat_actuator_id = ConfigurationDetail.get_sensor_or_actuator("heat_actuator", False,
-                                                                                        configuration, config_dic)
+            configuration.temp_sensor_id = ConfigurationDetail.get_sensor_or_actuator("temp_sensor", configuration,
+                                                                                      config_dic)
+            configuration.heat_actuator_id = ConfigurationDetail.get_sensor_or_actuator("heat_actuator", configuration,
+                                                                                        config_dic)
+
+            if configuration.type == Configuration.CONFIG_TYPE_BREW:
+                configuration.pump_1_actuator_id = ConfigurationDetail.get_sensor_or_actuator("pump_1_actuator",
+                                                                                              configuration, config_dic)
+                configuration.pump_2_actuator_id = ConfigurationDetail.get_sensor_or_actuator("pump_2_actuator",
+                                                                                              configuration, config_dic)
+            else:
+                configuration.pump_1_actuator_id = None
+                configuration.pump_2_actuator_id = None
 
             if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
-                configuration.fan_actuator_id = ConfigurationDetail.get_sensor_or_actuator("fan_actuator", False,
+                configuration.fan_actuator_id = ConfigurationDetail.get_sensor_or_actuator("fan_actuator",
                                                                                            configuration, config_dic)
-                configuration.cool_actuator_id = ConfigurationDetail.get_sensor_or_actuator("cool_actuator", False,
+                configuration.cool_actuator_id = ConfigurationDetail.get_sensor_or_actuator("cool_actuator",
                                                                                             configuration, config_dic)
             else:
                 configuration.fan_actuator_id = None
@@ -171,7 +179,7 @@ class ConfigurationDetail(View):
             device.save()
 
     @staticmethod
-    def get_sensor_or_actuator(name, temp_sensor, config, config_dic):
+    def get_sensor_or_actuator(name, config, config_dic):
         logger.debug("Set {} Sensor/Actuator".format(name))
 
         temp_sensor_function = Device.get_function(config_dic.get(name))
@@ -207,15 +215,14 @@ class ConfigurationDetail(View):
         pump_1_pwm = phase_dic("pump_1_pwm", 0)
         pump_2_pwm = phase_dic("pump_2_pwm", 0)
 
-
         if temperature <= 0 and heat_pwm <= 0:
             raise Http400("Either a temperature or heat PWM value need to be provided")
 
         if temperature == 0 and (heat_pwm < 0 or heat_pwm > 100):
             raise Http400("Heat PWM must be between 0 and 100")
 
-        if fan_pwm < 0 or fan_pwm > 255:
-            raise Http400("Fan PWM must be between 0 and 255")
+        if fan_pwm < 0 or fan_pwm > 100:
+            raise Http400("Fan PWM must be between 0 and 100")
 
         if pump_1_pwm < 0 or pump_1_pwm > 100:
             raise Http400("Pump 1 PWM must be between 0 and 100")
@@ -223,8 +230,7 @@ class ConfigurationDetail(View):
         if pump_2_pwm < 0 or pump_2_pwm > 100:
             raise Http400("Pump 2 PWM must be between 0 and 100")
 
-        phase = Phase.create(configuration, timezone.now(), temperature, heat_pwm, phase_dic.get("fan_pwm", 0),
-                             pump_1_pwm, pump_2_pwm,
+        phase = Phase.create(configuration, timezone.now(), temperature, heat_pwm, fan_pwm, pump_1_pwm, pump_2_pwm,
                              phase_dic.get("heating_period", 4000), phase_dic.get("cooling_on_period", 600000),
                              phase_dic.get("cooling_off_period", 180000), phase_dic.get("p", 0),
                              phase_dic.get("i", 0), phase_dic.get("d", 0), False)

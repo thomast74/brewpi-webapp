@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigurationList(View):
-
     def get(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         pretty = request.GET.get("pretty", "True")
@@ -42,15 +41,21 @@ class ConfigurationList(View):
         try:
             ConfigurationDetail.assign_device_function(brewpi, configuration, config_dic, False)
 
-            configuration.heat_actuator_id = ConfigurationDetail.get_sensor_or_actuator("heat_actuator", False,
-                                                                                        configuration, config_dic)
-            configuration.temp_sensor_id = ConfigurationDetail.get_sensor_or_actuator("temp_sensor", False,
-                                                                                      configuration, config_dic)
+            configuration.heat_actuator_id = ConfigurationDetail.get_sensor_or_actuator("heat_actuator", configuration,
+                                                                                        config_dic)
+            configuration.temp_sensor_id = ConfigurationDetail.get_sensor_or_actuator("temp_sensor", configuration,
+                                                                                      config_dic)
+
+            if configuration.type == Configuration.CONFIG_TYPE_BREW:
+                configuration.pump_1_actuator_id = ConfigurationDetail.get_sensor_or_actuator("pump_1_actuator",
+                                                                                              configuration, config_dic)
+                configuration.pump_2_actuator_id = ConfigurationDetail.get_sensor_or_actuator("pump_2_actuator",
+                                                                                              configuration, config_dic)
 
             if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
-                configuration.fan_actuator_id = ConfigurationDetail.get_sensor_or_actuator("fan_actuator", False,
+                configuration.fan_actuator_id = ConfigurationDetail.get_sensor_or_actuator("fan_actuator",
                                                                                            configuration, config_dic)
-                configuration.cool_actuator_id = ConfigurationDetail.get_sensor_or_actuator("cool_actuator", False,
+                configuration.cool_actuator_id = ConfigurationDetail.get_sensor_or_actuator("cool_actuator",
                                                                                             configuration, config_dic)
 
             configuration.save()

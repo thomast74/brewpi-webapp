@@ -31,6 +31,8 @@ class Configuration(models.Model):
     heat_actuator_id = models.IntegerField(verbose_name='Heat Actuator', null=True)
     cool_actuator_id = models.IntegerField(verbose_name='Cool Actuator', null=True)
     fan_actuator_id = models.IntegerField(verbose_name='Fan Actuator', null=True)
+    pump_1_actuator_id = models.IntegerField(verbose_name='Pump 1 Actuator', null=True)
+    pump_2_actuator_id = models.IntegerField(verbose_name='Pump 2 Actuator', null=True)
 
     class Meta:
         verbose_name = 'Configuration'
@@ -75,6 +77,20 @@ class Configuration(models.Model):
             return None
         else:
             return api.models.Device.objects.get(id=self.fan_actuator_id)
+
+    def get_pump_1_actuator(self):
+        logger.debug("Pump 1 Actuator: {}".format(self.pump_1_actuator_id))
+        if self.pump_1_actuator_id is None:
+            return None
+        else:
+            return api.models.Device.objects.get(id=self.pump_1_actuator_id)
+
+    def get_pump_2_actuator(self):
+        logger.debug("Pump 2 Actuator: {}".format(self.pump_2_actuator_id))
+        if self.pump_2_actuator_id is None:
+            return None
+        else:
+            return api.models.Device.objects.get(id=self.pump_2_actuator_id)
 
     def get_devices(self):
         logger.debug("Get all associated devices")
