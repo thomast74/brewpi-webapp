@@ -70,7 +70,7 @@ Sample json request data:
   "function": 1,  
   "value": 12.98,  
   "pin_nr": 0,  
-  "hw_address": "0000000",  
+  "hw_address": "00000000",  
   "offset": 1.20,  
   "offset_from_brewpi": 0.0,  
   "is_deactivate": false  
