@@ -56,7 +56,7 @@ MIDDLEWARE_CLASSES = (
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.oinkbrew'),
+        'NAME': os.path.join(BASE_DIR, 'oinkbrew.sqlite'),
     }
 }
 
