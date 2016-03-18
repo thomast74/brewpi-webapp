@@ -32,6 +32,7 @@ class BrewPiSerializer:
 
             brewpi.name = brewpi_dic.get("name", default=brewpi.name)
             brewpi.firmware_version = brewpi_dic.get("firmware_version", default=brewpi.firmware_version)
+            brewpi.spark_version = brewpi_dic.get("spark_version", default=brewpi.spark_version)
             brewpi.ip_address = brewpi_dic.get("ip_address", default=brewpi.ip_address)
             brewpi.web_address = brewpi_dic.get("web_address", default=brewpi.web_address)
             brewpi.web_port = brewpi_dic.get("web_port", default=brewpi.web_port)
@@ -44,8 +45,9 @@ class BrewPiSerializer:
             logger.debug("BrewPi does not exist, create a new one")
 
             brewpi = BrewPi.create(brewpi_dic.get("device_id"), brewpi_dic.get("firmware_version"),
-                                   brewpi_dic.get("ip_address"), brewpi_dic.get("web_address"),
-                                   brewpi_dic.get("web_port"), brewpi_dic.get("brewpi_time"))
+                                   brewpi_dic.get("spark_version"), brewpi_dic.get("ip_address"), 
+                                   brewpi_dic.get("web_address"), brewpi_dic.get("web_port"), 
+                                   brewpi_dic.get("brewpi_time"))
 
             logger.debug(brewpi.__str__())
 
