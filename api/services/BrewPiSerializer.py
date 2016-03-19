@@ -30,13 +30,13 @@ class BrewPiSerializer:
 
             logger.debug("Found existing BrewPi, update fields")
 
-            brewpi.name = brewpi_dic.get("name", default=brewpi.name)
-            brewpi.firmware_version = brewpi_dic.get("firmware_version", default=brewpi.firmware_version)
-            brewpi.spark_version = brewpi_dic.get("spark_version", default=brewpi.spark_version)
-            brewpi.ip_address = brewpi_dic.get("ip_address", default=brewpi.ip_address)
-            brewpi.web_address = brewpi_dic.get("web_address", default=brewpi.web_address)
-            brewpi.web_port = brewpi_dic.get("web_port", default=brewpi.web_port)
-            brewpi.brewpi_time = brewpi_dic.get("brewpi_time", default=brewpi.brewpi_time)
+            brewpi.name = brewpi_dic.get("name", brewpi.name)
+            brewpi.firmware_version = brewpi_dic.get("firmware_version", brewpi.firmware_version)
+            brewpi.spark_version = brewpi_dic.get("spark_version", brewpi.spark_version)
+            brewpi.ip_address = brewpi_dic.get("ip_address", brewpi.ip_address)
+            brewpi.web_address = brewpi_dic.get("web_address", brewpi.web_address)
+            brewpi.web_port = brewpi_dic.get("web_port", brewpi.web_port)
+            brewpi.brewpi_time = brewpi_dic.get("brewpi_time", brewpi.brewpi_time)
             brewpi.last_update = timezone.now()
 
             logger.debug(brewpi.__str__())
@@ -51,4 +51,4 @@ class BrewPiSerializer:
 
             logger.debug(brewpi.__str__())
 
-        return brewpi, brewpi_dic.get['command']
+        return brewpi, brewpi_dic.get('command')
