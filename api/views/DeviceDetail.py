@@ -26,7 +26,7 @@ class DeviceDetail(View):
     def put(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
 
-        logger.ingo("Receive registered device request from BrewPi {}: ".format(device_id, request.body))
+        logger.info("Receive registered device request from BrewPi {}: ".format(device_id, request.body))
 
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
 
@@ -38,7 +38,7 @@ class DeviceDetail(View):
     def post(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
 
-        logger.ingo("Update device request from BrewPi {}: ".format(device_id, request.body))
+        logger.info("Update device request from BrewPi {}: ".format(device_id, request.body))
 
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
 
