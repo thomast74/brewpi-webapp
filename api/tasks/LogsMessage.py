@@ -1,8 +1,9 @@
 from __future__ import absolute_import
+
 import json
+import logging
 
 from celery import shared_task
-from celery.utils.log import get_task_logger
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -14,7 +15,7 @@ from api.models import Device, Configuration
 
 from oinkbrew_webapp import settings
 
-logger = get_task_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @shared_task(ignore_result=True)
@@ -81,8 +82,19 @@ def build_temperature_points(log_data, brewpi, influx_data_dic):
 
     for device_data_dic in log_data:
 
+        value = float(device_data_dic.get("value"))
         device = get_device(brewpi, device_data_dic.get("pin_nr"), device_data_dic.get("hw_address"))
-        if device is None or device.configuration is None:
+
+        if device is None:
+            logger.debug("Device can't be found: {}".format(device_data_dic.get("pin_nr"),
+                                                            device_data_dic.get("hw_address")))
+            continue
+
+        # save latest value into database
+        device.value = value
+        device.save()
+
+        if device.configuration is None:
             logger.debug("No configuration assigned to device: {}".format(device))
             continue
 
@@ -96,7 +108,6 @@ def build_temperature_points(log_data, brewpi, influx_data_dic):
             config_type = device.configuration.get_type_display()
             function = device.get_function_display()
 
-        value = float(device_data_dic.get("value"))
         if value < -120:
             # wrong reading don't log
             continue
