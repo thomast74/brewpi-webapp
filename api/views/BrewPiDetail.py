@@ -48,7 +48,7 @@ class BrewPiDetail(View):
 
         return ApiResponse.ok()
 
-    def update(self, request, brewpi):
+    def update(self, brewpi, request):
         logger.info("Received BrewPi status/update request for {}".format(brewpi.device_id))
 
         brewpi.save()
