@@ -2,8 +2,8 @@
   "name": "Barbatos",
   "type": "Brew",
   "heat_actuator": "HLT Heating Actuator",
-  "pump_1": "Pump 1 Actuator",
-  "pump_2": "Pump 2 Actuator",
+  "pump_1_actuator": "Pump 1 Actuator",
+  "pump_2_actuator": "Pump 2 Actuator",
   "temp_sensor": "HLT Out Temp Sensor",
   "function": {
     "HLT Heating Actuator": 7,
@@ -13,12 +13,12 @@
     "HLT Out Temp Sensor": 11,
     "Mash In Temp Sensor": 12,
     "Mash Out Temp Sensor": 13,
-    "Boil Out Temp Sensor": 14,
+    "Boil Out Temp Sensor": 14
   },
   "phase": {
     "temperature": 72.0,
-    "pump_1": 100,
-    "pump_2": 0,
+    "pump_1_pwm": 100.0,
+    "pump_2_pwm": 0.0,
     "p": 10.0,  
     "i": 0.001,  
     "d": -5.0  
