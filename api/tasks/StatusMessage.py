@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
+import logging
 import socket
 import time
 
 from celery import shared_task
-from celery.utils.log import get_task_logger
 
 from api.models.BrewPi import BrewPi
 from api.services.BrewPiConnector import BrewPiConnector
@@ -14,7 +14,7 @@ from django.utils import timezone
 from netifaces import interfaces, ifaddresses, AF_INET
 
 
-logger = get_task_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @shared_task(ignore_result=True)

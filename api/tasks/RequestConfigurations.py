@@ -1,11 +1,14 @@
+from __future__ import absolute_import
+
+import logging
+
 from celery import shared_task
-from celery.utils.log import get_task_logger
 
 from api.helpers.BrewPi import get_brewpi
 from api.models import Configuration
 from api.services.BrewPiConnector import BrewPiConnector
 
-logger = get_task_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @shared_task(ignore_result=True)
