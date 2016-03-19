@@ -44,9 +44,9 @@ class DeviceSerializer:
             logger.debug(device.__str__())
 
         except ObjectDoesNotExist:
-            device = Device.create(brewpi, device_dic.get('device_type'), device_dic.get('function'),
+            device = Device.create(brewpi, device_dic.get('device_type'), device_dic.get('function', 0),
                                    device_dic.get('value'), device_dic.get('pin_nr'), device_dic.get('hw_address'),
-                                   device_dic.get('offset_from_brewpi'), device_dic.get('is_deactivate'))
+                                   device_dic.get('offset_from_brewpi'), device_dic.get('is_deactivate', False))
             device.save()
 
             logger.debug(device.__str__())
