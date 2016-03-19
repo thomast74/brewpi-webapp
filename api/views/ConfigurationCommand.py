@@ -10,14 +10,14 @@ logger = logging.getLogger(__name__)
 
 class ConfigurationCommand(View):
 
-    def get(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         command = kwargs['command']
 
-        logger.info("Execute configuration command {} on BrewPi {}: {}".format(command, device_id, request.body))
+        logger.info("Execute configuration command '{}' on BrewPi {}: {}".format(command, device_id, request.body))
 
         if command == "request":
-            RequestConfigurations.request_configurations.delay(kwargs['device_id'])
+            RequestConfigurations.request_configurations.delay(device_id)
             return ApiResponse.ok()
 
         return ApiResponse.bad_request("Command '{}' unknown".format(command))
