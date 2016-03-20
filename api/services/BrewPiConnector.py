@@ -118,7 +118,7 @@ class BrewPiConnector:
                   '"cool_actuator":"{}","fan_actuator":"{}", "pump_1_actuator":"{}", "pump_2_actuator":"{}",' \
                   '"temperature":{},"heat_pwm":{},"fan_pwm":{},"pump_1_pwm":{},"pump_2_pwm":{}, ' \
                   '"heating_period":{},"cooling_on_period":{},"cooling_off_period":{},' \
-                  '"p":{},"i":{},"d":[]}}'.format(configuration.id, configuration.name, configuration.type,
+                  '"p":{},"i":{},"d":{}}}'.format(configuration.id, configuration.name, configuration.type,
                                                   temp_sensor_str, heat_actuator_str, cool_actuator_str,
                                                   fan_actuator_str, pump_1_actuator_str, pump_2_actuator_str,
                                                   int(phase.temperature * 10000), int(phase.heat_pwm * 10000),
