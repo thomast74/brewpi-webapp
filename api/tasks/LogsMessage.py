@@ -58,7 +58,7 @@ def get_configuration(config_id):
 
 def get_device(brewpi, pin_nr, hw_address):
     try:
-        device = Device.objects.get(pin_nr=pin_nr, hw_address=hw_address)
+        device = Device.objects.get(brewpi=brewpi, pin_nr=pin_nr, hw_address=hw_address)
 
         if device.brewpi == brewpi:
             return device
