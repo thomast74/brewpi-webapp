@@ -187,7 +187,7 @@ class ConfigurationDetail(View):
             raise Http400("Sensor/Actuator {} can't be found".format(temp_sensor_function))
 
         device = get_object_or_404(Device, configuration=config, function=temp_sensor_function)
-        if temp_sensor and device.device_type != Device.DEVICE_TYPE_ONEWIRE_TEMP:
+        if name == 'temp_sensor' and device.device_type != Device.DEVICE_TYPE_ONEWIRE_TEMP:
             raise Http400("Sensor {} must be a temperature sensor".format(temp_sensor_function))
 
         return device.id
@@ -209,11 +209,11 @@ class ConfigurationDetail(View):
         """
         Phase.objects.filter(configuration=configuration, done=False).update(done=True)
 
-        temperature = phase_dic.get("temperature", 0)
-        heat_pwm = phase_dic("heat_pwm", 0)
-        fan_pwm = phase_dic("fan_pwm", 0)
-        pump_1_pwm = phase_dic("pump_1_pwm", 0)
-        pump_2_pwm = phase_dic("pump_2_pwm", 0)
+        temperature = phase_dic.get("temperature", 0.0)
+        heat_pwm = phase_dic.get("heat_pwm", 0.0)
+        fan_pwm = phase_dic.get("fan_pwm", 0.0)
+        pump_1_pwm = phase_dic.get("pump_1_pwm", 0)
+        pump_2_pwm = phase_dic.get("pump_2_pwm", 0)
 
         if temperature <= 0 and heat_pwm <= 0:
             raise Http400("Either a temperature or heat PWM value need to be provided")
