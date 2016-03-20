@@ -11,6 +11,7 @@ class BrewPi(models.Model):
 
     device_id = models.CharField(verbose_name='Device Id', max_length=30, primary_key=True)
     name = models.CharField(verbose_name='Name', max_length=30, unique=True, null=True)
+    system_version = models.CharField(verbose_name='System Version', max_length=10, default='0.0')
     firmware_version = models.FloatField(verbose_name='Firmware Version', default=0.0)
     spark_version = models.CharField(verbose_name='Spark Version', max_length=2, default='')
     ip_address = models.GenericIPAddressField(verbose_name='Ip Address')
@@ -26,14 +27,17 @@ class BrewPi(models.Model):
         get_latest_by = '-last_update'
 
     @classmethod
-    def create(cls, device_id, firmware_version, spark_version, ip_address, web_address, web_port, brewpi_time):
-        brewpi = cls(device_id, device_id, firmware_version, spark_version, ip_address, web_address, web_port, brewpi_time)
+    def create(cls, device_id, system_version, firmware_version, spark_version, ip_address, web_address, web_port,
+               brewpi_time):
+        brewpi = cls(device_id, device_id, system_version, firmware_version, spark_version, ip_address, web_address,
+                     web_port, brewpi_time)
         brewpi.last_update = timezone.now()
 
         return brewpi
 
     def reset(self):
         self.name = None
+        self.system_version = '0.0'
         self.firmware_version = 0.0
         self.spark_version = ''
         self.ip_address = "0.0.0.0"

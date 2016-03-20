@@ -30,7 +30,7 @@ class BrewPiSerializer:
 
             logger.debug("Found existing BrewPi, update fields")
 
-            brewpi.name = brewpi_dic.get("name", brewpi.name)
+            brewpi.system_version = brewpi_dic.get("system_version", brewpi.system_version)
             brewpi.firmware_version = brewpi_dic.get("firmware_version", brewpi.firmware_version)
             brewpi.spark_version = brewpi_dic.get("spark_version", brewpi.spark_version)
             brewpi.ip_address = brewpi_dic.get("ip_address", brewpi.ip_address)
@@ -44,10 +44,10 @@ class BrewPiSerializer:
         except ObjectDoesNotExist:
             logger.debug("BrewPi does not exist, create a new one")
 
-            brewpi = BrewPi.create(brewpi_dic.get("device_id"), brewpi_dic.get("firmware_version"),
-                                   brewpi_dic.get("spark_version"), brewpi_dic.get("ip_address"), 
-                                   brewpi_dic.get("web_address"), brewpi_dic.get("web_port"), 
-                                   brewpi_dic.get("brewpi_time"))
+            brewpi = BrewPi.create(brewpi_dic.get("device_id"), brewpi_dic.get("system_version"),
+                                   brewpi_dic.get("firmware_version"), brewpi_dic.get("spark_version"),
+                                   brewpi_dic.get("ip_address"), brewpi_dic.get("web_address"),
+                                   brewpi_dic.get("web_port"), brewpi_dic.get("brewpi_time"))
 
             logger.debug(brewpi.__str__())
 
