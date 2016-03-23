@@ -115,8 +115,8 @@ class BrewPiConnector:
             sock.send("p")
             time.sleep(0.015)
             msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}",' \
-                  '"cool_actuator":"{}","fan_actuator":"{}", "pump_1_actuator":"{}", "pump_2_actuator":"{}",' \
-                  '"temperature":{},"heat_pwm":{},"fan_pwm":{},"pump_1_pwm":{},"pump_2_pwm":{}, ' \
+                  '"cool_actuator":"{}","fan_actuator":"{}","pump_1_actuator":"{}","pump_2_actuator":"{}",' \
+                  '"temperature":{},"heat_pwm":{},"fan_pwm":{},"pump_1_pwm":{},"pump_2_pwm":{},' \
                   '"heating_period":{},"cooling_on_period":{},"cooling_off_period":{},' \
                   '"p":{},"i":{},"d":{}}}'.format(configuration.id, configuration.name, configuration.type,
                                                   temp_sensor_str, heat_actuator_str, cool_actuator_str,
