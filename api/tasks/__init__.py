@@ -1,4 +1,4 @@
 from LogsMessage import log_device_data
 from RequestConfigurations import request_configurations
 from SensorCalibration import calculate_offset, validate_offset
-from StatusMessage import check_if_status_update_required
+from StatusMessage import check_if_status_update_required, send_offset

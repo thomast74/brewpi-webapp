@@ -14,8 +14,9 @@ class Phase(models.Model):
     pump_1_pwm = models.FloatField(verbose_name="Pump 1 PWM", null=False, default=0)
     pump_2_pwm = models.FloatField(verbose_name="Pump 2 PWM", null=False, default=0)
     heating_period = models.IntegerField(verbose_name="Heating Period", null=False, default=4000)
-    cooling_on_period = models.IntegerField(verbose_name="Cooling On Period", null=False, default=600000)
-    cooling_off_period = models.IntegerField(verbose_name="Cooling Off Period", null=False, default=180000)
+    cooling_period = models.IntegerField(verbose_name="Cooling Period", null=False, default=1200000)
+    cooling_on_time = models.IntegerField(verbose_name="Cooling On Time", null=False, default=180000)
+    cooling_off_time = models.IntegerField(verbose_name="Cooling Off Time", null=False, default=300000)
     p = models.FloatField(verbose_name="P", null=False, default=0)
     i = models.FloatField(verbose_name="I", null=False, default=0)
     d = models.FloatField(verbose_name="D", null=False, default=0)
@@ -28,10 +29,10 @@ class Phase(models.Model):
 
     @classmethod
     def create(cls, configuration, start_date, temperature, heat_pwm, fan_pwm, pump_1_pwm, pump_2_pwm, heating_period,
-               cooling_on_period, cooling_off_period, p, i, d, done):
+               cooling_period, cooling_on_time, cooling_off_time, p, i, d, done):
         logger.debug(
             "Create new Phase: configuration={}, start_date={}, temperature={}, heat_pwm={}, fan_pwm={}, pump_1_pwm={},"
-            " pump_2_pwm={}, heating_period = {}, cooling_on_period = {}, cooling_off_period ={}, "
+            " pump_2_pwm={}, heating_period = {}, cooling_period = {}, cooling_on_time = {}, cooling_off_time ={}, "
             "p={}, i={}, d={}, done={}".format(configuration,
                                                start_date,
                                                temperature,
@@ -40,20 +41,21 @@ class Phase(models.Model):
                                                pump_1_pwm,
                                                pump_2_pwm,
                                                heating_period,
-                                               cooling_on_period,
-                                               cooling_off_period,
+                                               cooling_period,
+                                               cooling_on_time,
+                                               cooling_off_time,
                                                p, i, d,
                                                done))
 
         temp_phase = cls(configuration=configuration, start_date=start_date, temperature=temperature, heat_pwm=heat_pwm,
                          fan_pwm=fan_pwm, pump_1_pwm=pump_1_pwm, pump_2_pwm=pump_2_pwm, heating_period=heating_period,
-                         cooling_on_period=cooling_on_period, cooling_off_period=cooling_off_period,
-                         p=p, i=i, d=d, done=done)
+                         cooling_period=cooling_period, cooling_on_time=cooling_on_time,
+                         cooling_off_time=cooling_off_time, p=p, i=i, d=d, done=done)
 
         return temp_phase
 
     def __str__(self):
-        return "Phase: [{}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}]".format(self.configuration,
+        return "Phase: [{}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}; {}]".format(self.configuration,
                                                                                         self.start_date.strftime(
                                                                                             '%Y-%m-%d %H:%M:%S'),
                                                                                         self.temperature,
@@ -62,8 +64,9 @@ class Phase(models.Model):
                                                                                         self.pump_1_pwm,
                                                                                         self.pump_2_pwm,
                                                                                         self.heating_period,
-                                                                                        self.cooling_on_period,
-                                                                                        self.cooling_off_period,
+                                                                                        self.cooling_period,
+                                                                                        self.cooling_on_time,
+                                                                                        self.cooling_off_time,
                                                                                         self.p,
                                                                                         self.i,
                                                                                         self.d,

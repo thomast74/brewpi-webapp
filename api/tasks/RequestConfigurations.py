@@ -25,12 +25,14 @@ def request_configurations(device_id):
         tries = 0
         success = False
         while tries < 10:
-            success = BrewPiConnector.send_configuration(brewpi, configuration)
+            success, response = BrewPiConnector.send_configuration(brewpi, configuration)
             if success:
                 break
             tries += 1
 
         if not success:
-            logger.error("Configuration {} could not be send to BrewPi {}".format(configuration.pk, device_id))
+            logger.error("Configuration {} could not be send to BrewPi {}: [{}]".format(configuration.pk,
+                                                                                        device_id,
+                                                                                        response))
 
     logger.info("Configurations send to BrewPi {}".format(device_id))

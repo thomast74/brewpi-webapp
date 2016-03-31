@@ -31,9 +31,19 @@ def calculate_offset(brewpi, sensors):
 
             logger.debug("Sensor {} offset: {}".format(sensor.pk, sensor.offset))
 
-            BrewPiConnector().send_device_offset(sensor)
+            tries = 0
+            success = False
+            while tries < 5:
+                success, response = BrewPiConnector().send_device_offset(sensor)
+                if success:
+                    break
+                tries += 1
+
+            if not success:
+                logger.error("Sensor {} offset not sent: [{}]".format(sensor.pk, response))
 
             sensor.save()
+
         except:
             tp, value, traceback = sys.exc_info()
             logger.error("Sensor error: {}".format(value))

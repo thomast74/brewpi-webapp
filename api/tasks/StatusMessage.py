@@ -6,6 +6,7 @@ import time
 
 from celery import shared_task
 
+from api.models import Device
 from api.models.BrewPi import BrewPi
 from api.services.BrewPiConnector import BrewPiConnector
 
@@ -29,7 +30,44 @@ def check_if_status_update_required(device_id, local_port):
     logger.debug("BrewPi Web Port: {}   Local Port: {}".format(brewpi.web_port, local_port))
     logger.debug("BrewPi Time: {}   localtime: {}".format(brewpi.brewpi_time, datetime))
 
-    BrewPiConnector().send_brewpi_info(brewpi, local_ip, local_port)
+    tries = 0
+    success = False
+    while tries < 5:
+        success, response = BrewPiConnector().send_brewpi_info(brewpi, local_ip, local_port)
+        if success:
+            break
+        tries += 1
+
+    if success:
+        send_offset.apply_async(args=[brewpi], countdown=20)
+    else:
+        logger.error("BrewPi info could not be send to BrewPi {}: [{}]".format(device_id, response))
+
+    return "Ok"
+
+
+@shared_task(ignore_result=True)
+def send_offset(brewpi):
+
+    devices = Device.objects.filter(brewpi=brewpi, device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP)
+
+    for device in devices:
+        if device.offset == 0.0:
+            continue
+
+        logger.info("Send offset for device {}/{}: {}".format(device.pin_nr, device.hw_address, device.offset))
+        tries = 0
+        success = False
+        while tries < 5:
+            success, response = BrewPiConnector().send_device_offset(device)
+            if success:
+                break
+            tries += 1
+
+        if not success:
+            logger.error("Device {}/{} offset could not be sent: [{}]".format(device.pin_nr,
+                                                                              device.hw_address,
+                                                                              response))
 
     return "Ok"
 

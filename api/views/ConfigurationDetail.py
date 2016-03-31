@@ -78,7 +78,7 @@ class ConfigurationDetail(View):
             tries = 0
             success = False
             while tries < 5:
-                success = BrewPiConnector.send_configuration(brewpi, configuration)
+                success, response = BrewPiConnector.send_configuration(brewpi, configuration)
                 if success:
                     break
                 tries += 1
@@ -88,7 +88,7 @@ class ConfigurationDetail(View):
                 return ApiResponse.message('"ConfigId":"{}"'.format(configuration.pk))
             else:
                 transaction.rollback()
-                return ApiResponse.bad_request("BrewPi could not be updated")
+                return ApiResponse.bad_request("BrewPi could not be updated: [{}]".format(response))
         except:
             transaction.rollback()
             return ApiResponse.bad_request(sys.exc_info()[1])
@@ -99,13 +99,14 @@ class ConfigurationDetail(View):
 
         logger.info("Received delete configuration {} request".format(config_id))
 
-        success = self.delete_configuration(device_id, config_id)
+        success, response = self.delete_configuration(device_id, config_id)
 
         if success:
             return ApiResponse.ok()
         else:
-            return ApiResponse.bad_request("Could not delete configuration {} from BrewPi {}".format(config_id,
-                                                                                                     device_id))
+            return ApiResponse.bad_request("Could not delete configuration {} from BrewPi {} [{}]".format(config_id,
+                                                                                                          device_id,
+                                                                                                          response))
 
     @staticmethod
     def delete_configuration(device_id, config_id):
@@ -116,7 +117,7 @@ class ConfigurationDetail(View):
         tries = 0
         success = False
         while tries < 5:
-            success = BrewPiConnector.delete_configuration(brewpi, configuration)
+            success, response = BrewPiConnector.delete_configuration(brewpi, configuration)
             if success:
                 break
 
@@ -124,7 +125,7 @@ class ConfigurationDetail(View):
             Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
             configuration.delete()
 
-        return success
+        return success, response
 
     @staticmethod
     def convert_json_data(json_data):
@@ -200,8 +201,9 @@ class ConfigurationDetail(View):
             "heat_pwm": ,
             "fan_pwm": ,
             "heating_period": ,
-            "cooling_on_period": ,
-            "cooling_off_period": ,
+            "cooling_period": ,
+            "cooling_on_time": ,
+            "cooling_off_time": ,
             "p": ,
             "i": ,
             "d":
@@ -231,7 +233,7 @@ class ConfigurationDetail(View):
             raise Http400("Pump 2 PWM must be between 0 and 100")
 
         phase = Phase.create(configuration, timezone.now(), temperature, heat_pwm, fan_pwm, pump_1_pwm, pump_2_pwm,
-                             phase_dic.get("heating_period", 4000), phase_dic.get("cooling_on_period", 600000),
-                             phase_dic.get("cooling_off_period", 180000), phase_dic.get("p", 0),
-                             phase_dic.get("i", 0), phase_dic.get("d", 0), False)
+                             phase_dic.get("heating_period", 4000), phase_dic.get("cooling_period", 1200000),
+                             phase_dic.get("cooling_on_time", 180000), phase_dic.get("cooling_off_time", 300000),
+                             phase_dic.get("p", 0), phase_dic.get("i", 0), phase_dic.get("d", 0), False)
         phase.save()

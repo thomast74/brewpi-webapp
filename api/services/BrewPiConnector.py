@@ -21,9 +21,9 @@ class BrewPiConnector:
         logger.info("Send device info to BrewPi {}".format(brewpi))
         datetime = int(time.mktime(timezone.now().timetuple()))
 
-        sock = BrewPiConnector.__start_connection(brewpi.ip_address)
-
         try:
+            sock = BrewPiConnector.__start_connection(brewpi.ip_address)
+
             message = "s{{name:{},oinkweb:{},oinkwebport:{},datetime:{}}}".format(brewpi.name, local_ip, local_port,
                                                                                   datetime)
             logger.debug("Send Message: {}".format(message))
@@ -33,21 +33,25 @@ class BrewPiConnector:
             response = sock.recv(2)
             logger.info("Response: {}".format(response))
 
-        except socket.timeout:
-            raise BrewPiException("Connection to BrewPi timed out")
-        finally:
-            sock.shutdown(SHUT_RDWR)
             sock.close()
 
-        return True if response == "Ok" else False
+        except socket.timeout as e:
+            response = e.message
+            logger.error("Time Out: {}", e.message)
+
+        except socket.error as e:
+            response = e.message
+            logger.error("Socket Error: {}", e.message)
+
+        return True if response == "Ok" else False, response
 
     @staticmethod
     def send_reset(brewpi):
         logger.info("Reset BrewPi {}".format(brewpi))
 
-        sock = BrewPiConnector.__start_connection(brewpi.ip_address, 1)
-
         try:
+            sock = BrewPiConnector.__start_connection(brewpi.ip_address, 1)
+
             logger.debug("Send Message: r")
             sock.sendall("r")
 
@@ -55,20 +59,25 @@ class BrewPiConnector:
             response = sock.recv(2)
             logger.info("Response: {}".format(response))
 
-        except socket.timeout:
-            logger.debug("Connection to BrewPi timed out")
-        finally:
             sock.close()
 
-        return True if response == "Ok" else False
+        except socket.timeout as e:
+            response = e.message
+            logger.debug("Time Out: {}", e.message)
+
+        except socket.error as e:
+            response = e.message
+            logger.debug("Socket Error: {}", e.message)
+
+        return True if response == "Ok" else False, response
 
     @staticmethod
     def send_device_offset(device):
         logger.info("Send device offset to BrewPi {} for device {}".format(device.brewpi, device))
 
-        sock = BrewPiConnector.__start_connection(device.brewpi.ip_address)
-
         try:
+            sock = BrewPiConnector.__start_connection(device.brewpi.ip_address)
+
             message = "o{{pin_nr:{},hw_address:{},offset:{}}}".format(device.pin_nr, device.hw_address,
                                                                       int(device.offset * 10000))
             logger.debug("Send Message: " + message)
@@ -78,20 +87,25 @@ class BrewPiConnector:
             response = sock.recv(2)
             logger.debug("Response: {}".format(response))
 
-        except socket.timeout:
-            raise BrewPiException("Connection to BrewPi timed out")
-        finally:
             sock.close()
 
-        return response
+        except socket.timeout as e:
+            response = e.message
+            logger.error("TimeOut: {}", e.message)
+
+        except socket.error as e:
+            response = e.message
+            logger.error("Socket Error: {}", e.message)
+
+        return True if response == "Ok" else False, response
 
     @staticmethod
     def send_configuration(brewpi, configuration):
         logger.info("Send configuration {} to BrewPi {}".format(configuration.pk, brewpi))
 
-        sock = BrewPiConnector.__start_connection(brewpi.ip_address)
-
         try:
+            sock = BrewPiConnector.__start_connection(brewpi.ip_address)
+
             temp_sensor = configuration.get_temp_sensor()
             heat_actuator = configuration.get_heat_actuator()
             cool_actuator = configuration.get_cool_actuator()
@@ -117,15 +131,16 @@ class BrewPiConnector:
             msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}",' \
                   '"cool_actuator":"{}","fan_actuator":"{}","pump_1_actuator":"{}","pump_2_actuator":"{}",' \
                   '"temperature":{},"heat_pwm":{},"fan_pwm":{},"pump_1_pwm":{},"pump_2_pwm":{},' \
-                  '"heating_period":{},"cooling_on_period":{},"cooling_off_period":{},' \
+                  '"heating_period":{},"cooling_period":{},"cooling_on_time":{},"cooling_off_time":{},' \
                   '"p":{},"i":{},"d":{}}}'.format(configuration.id, configuration.name, configuration.type,
                                                   temp_sensor_str, heat_actuator_str, cool_actuator_str,
                                                   fan_actuator_str, pump_1_actuator_str, pump_2_actuator_str,
                                                   int(phase.temperature * 10000), int(phase.heat_pwm * 10000),
                                                   int(phase.fan_pwm * 10000), int(phase.pump_1_pwm * 10000),
                                                   int(phase.pump_2_pwm * 10000), phase.heating_period,
-                                                  phase.cooling_on_period, phase.cooling_off_period,
-                                                  int(phase.p * 10000), int(phase.i * 10000), int(phase.d * 10000))
+                                                  phase.cooling_period, phase.cooling_on_time,
+                                                  phase.cooling_off_time, int(phase.p * 10000), int(phase.i * 10000),
+                                                  int(phase.d * 10000))
             logger.debug("Send Message: p" + msg)
 
             sock.send(msg)
@@ -134,20 +149,25 @@ class BrewPiConnector:
             response = sock.recv(2)
             logger.debug("Response: {}".format(response))
 
-        except socket.timeout:
-            raise BrewPiException("Connection to BrewPi timed out")
-        finally:
             sock.close()
 
-        return True if response == "Ok" else False
+        except socket.timeout as e:
+            response = e.message
+            logger.error("Time Out: {}", e.message)
+
+        except socket.error as e:
+            response = e.message
+            logger.error("Socket Error: {}", e.message)
+
+        return True if response == "Ok" else False, response
 
     @staticmethod
     def delete_configuration(brewpi, configuration):
         logger.info("Delete configuration {} from BrewPi {}".format(configuration, brewpi))
 
-        sock = BrewPiConnector.__start_connection(brewpi.ip_address)
-
         try:
+            sock = BrewPiConnector.__start_connection(brewpi.ip_address)
+
             message = 'q{{"config_id":{}}}'.format(configuration.id)
             logger.debug("Send Message: " + message)
 
@@ -157,12 +177,17 @@ class BrewPiConnector:
             response = sock.recv(2)
             logger.debug("Response: {}".format(response))
 
-        except socket.timeout:
-            raise BrewPiException("Connection to BrewPi timed out")
-        finally:
             sock.close()
 
-        return True if response == "Ok" else False
+        except socket.timeout as e:
+            response = e.message
+            logger.error("Time Out: {}", e.message)
+
+        except socket.error as e:
+            response = e.message
+            logger.error("Socket Error: {}", e.message)
+
+        return True if response == "Ok" else False, response
 
     @staticmethod
     def __start_connection(ip_address, timeout=30):

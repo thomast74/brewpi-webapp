@@ -40,13 +40,25 @@ class BrewPiDetail(View):
         logger.info("Delete BrewPi {}".format(kwargs['device_id']))
 
         brewpi = get_object_or_404(BrewPi, device_id=kwargs['device_id'])
-        BrewPiConnector.send_reset(brewpi)
 
-        Device.objects.filter(brewpi=brewpi).exclude(device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP).delete()
-        Device.objects.filter(brewpi=brewpi, device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP).update(brewpi=None)
-        brewpi.delete()
+        tries = 0
+        success = False
+        while tries < 5:
+            success, response = BrewPiConnector.send_reset(brewpi)
+            if success:
+                break
+            tries += 1
 
-        return ApiResponse.ok()
+        if not success:
+            logger.error("BrewPi {} could not be reset: [{}]".format(brewpi.device_id, response))
+
+            return ApiResponse.bad_request("BrewPi {} could not be reset".format(brewpi.device_id))
+        else:
+            Device.objects.filter(brewpi=brewpi).exclude(device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP).delete()
+            Device.objects.filter(brewpi=brewpi, device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP).update(brewpi=None)
+            brewpi.delete()
+
+            return ApiResponse.ok()
 
     def update(self, brewpi, request):
         logger.info("Received BrewPi status/update request for {}".format(brewpi.device_id))
@@ -60,9 +72,18 @@ class BrewPiDetail(View):
     def reset(self, brewpi):
         logger.info("Received BrewPi reset request for {}".format(brewpi.pk))
 
-        BrewPiConnector.send_reset(brewpi)
+        tries = 0
+        success = False
+        while tries < 5:
+            success, response = BrewPiConnector.send_reset(brewpi)
+            if success:
+                break
+            tries += 1
 
-        brewpi.send_reset()
-        brewpi.save()
-
-        return ApiResponse.ok()
+        if success:
+            brewpi.send_reset()
+            brewpi.save()
+            return ApiResponse.ok()
+        else:
+            logger.error("BrewPi {} reset failed: [{}]".format(brewpi.device_id, response))
+            return ApiResponse.bad_request("BrewPi {} reset failed: [{}]".format(brewpi.device_id, response))

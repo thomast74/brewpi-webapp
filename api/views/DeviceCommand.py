@@ -39,11 +39,27 @@ class DeviceCommand(View):
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         devices = Device.objects.filter(brewpi=brewpi, device_type=Device.DEVICE_TYPE_ONEWIRE_TEMP)
 
+        all_sent = True
         for device in devices:
-            logger.info("Send offset for device {}/{}: {}".format(device.pin_nr, device.hw_address, device.offset))
-            BrewPiConnector.send_device_offset(device)
+            if device.offset == 0.0:
+                continue
 
-        return ApiResponse.ok()
+            logger.info("Send offset for device {}/{}: {}".format(device.pin_nr, device.hw_address, device.offset))
+            tries = 0
+            success = False
+            while tries < 5:
+                success, response = BrewPiConnector.send_device_offset(device)
+                if success:
+                    break
+                tries += 1
+
+            if not success:
+                logger.error("Device {}/{} offset could not be sent: [{}]".format(device.pin_nr,
+                                                                                  device.hw_address,
+                                                                                  response))
+                all_sent = False
+
+        return ApiResponse.ok() if all_sent else ApiResponse.bad_request("At least one device offset was not sent")
 
     def start_calibration(self, request, device_id):
         logger.info("Start a calibration session on BrewPi {}".format(device_id))
@@ -99,5 +115,18 @@ class DeviceCommand(View):
             device.offset = 0
             device.offset_result = ""
             device.configuration = config
-            BrewPiConnector.send_device_offset(device)
+
+            tries = 0
+            success = False
+            while tries < 5:
+                success, response = BrewPiConnector.send_device_offset(device)
+                if success:
+                    break
+                tries += 1
+
+            if not success:
+                logger.error("Device {}/{} offset could not be sent: [{}]".format(device.pin_nr,
+                                                                                  device.hw_address,
+                                                                                  response))
+
             device.save()
