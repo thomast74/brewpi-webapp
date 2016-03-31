@@ -118,8 +118,9 @@ Sample json request for a new configuration:
     "pump_1_pwm": 100.0,
     "pump_2_pwm": 0.0,
     "heating_period": 4000,
-    "cooling_on_period": 600000,
-    "cooling_off_period": 180000,
+    "cooling_period": 1200000,
+    "cooling_on_time": 600000,
+    "cooling_off_time": 180000,
     "p": 5.0,  
     "i": 0.01,  
     "d": -3.0  
