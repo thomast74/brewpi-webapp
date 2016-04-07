@@ -1,0 +1,27 @@
+{
+  "name":"Test",
+  "type":"Fermentation",
+  "fan_actuator": "Fridge Fan Actuator",
+  "cool_actuator": "Fridge Cooling Actuator",
+  "heat_actuator":"Fridge Heating Actuator",
+  "temp_sensor": "Fridge Beer 1 Temp Sensor",
+  "function": {
+    "Fridge Fan Actuator": 14,
+    "Fridge Cooling Actuator": 12,
+    "Fridge Heating Actuator": 13,
+    "Outside Fridge Temp Sensor": 15,
+    "Fridge Inside Temp Sensor": 16,
+    "Fridge Beer 1 Temp Sensor": 17
+  },
+  "phase": {
+    "temperature": 2.0,
+    "fan_pwm": 100.0,
+    "heating_period": 6000,
+    "cooling_period": 1200000,
+    "cooling_on_time": 210000,
+    "cooling_off_time": 300000,
+    "p": 60.0,
+    "i": 0.001,
+    "d": -2
+  }
+}
