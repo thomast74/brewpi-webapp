@@ -90,6 +90,9 @@ Y    | /api/configs/{device_id}/{config_id}/ | PUT    | Updates an existing conf
 Y    | /api/configs/{device_id}/{config_id}/ | DELETE | Deletes a configuration and sends delete request to BrewPi with device_id
 Y    | /api/configs/{device_id}/request      | GET    | Device requests all stored configurations to be sent
 
+Archived configuration can be retrieved by adding ?archived=True to the GET request
+To get all phases you have to add ?all_phases=True
+
 Sample json request for a new configuration:
 ```
 {  
