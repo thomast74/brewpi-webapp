@@ -63,7 +63,10 @@ def prepare_configuration_dic(configuration, all_phases):
         "name": configuration.name,
         "create_date": configuration.create_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
         "type": "Brew" if configuration.type == Configuration.CONFIG_TYPE_BREW else "Fermentation",
-        "brewpi": configuration.brewpi.pk,
+        "brewpi": {
+            "pk": configuration.brewpi.pk,
+            "name": configuration.brewpi.name,
+        },
         "fan_actuator": "" if fan_actuator is None else fan_actuator.get_function_display(),
         "cool_actuator": "" if cool_actuator is None else cool_actuator.get_function_display(),
         "heat_actuator": "" if heat_actuator is None else heat_actuator.get_function_display(),
