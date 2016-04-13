@@ -56,6 +56,7 @@ def prepare_configuration_dic(configuration):
 
     config_dic = {
         "pk": configuration.pk,
+        "archived": configuration.archived,
         "name": configuration.name,
         "create_date": configuration.create_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
         "type": "Brew" if configuration.type == Configuration.CONFIG_TYPE_BREW else "Fermentation",

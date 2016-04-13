@@ -16,12 +16,13 @@ logger = logging.getLogger(__name__)
 class ConfigurationList(View):
     def get(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
+        archived = True if request.GET.get("archived", "False") == "True" else False
         pretty = request.GET.get("pretty", "True")
 
         logger.info("Get all configurations for BrewPi {}".format(device_id))
 
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
-        configurations = get_list_or_404(Configuration, brewpi=brewpi)
+        configurations = get_list_or_404(Configuration, brewpi=brewpi, archived=archived)
 
         configs_arr = []
         for configuration in configurations:

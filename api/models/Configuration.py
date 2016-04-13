@@ -33,6 +33,7 @@ class Configuration(models.Model):
     fan_actuator_id = models.IntegerField(verbose_name='Fan Actuator', null=True)
     pump_1_actuator_id = models.IntegerField(verbose_name='Pump 1 Actuator', null=True)
     pump_2_actuator_id = models.IntegerField(verbose_name='Pump 2 Actuator', null=True)
+    archived = models.BooleanField(verbose_name='Archived', null=False, default=False)
 
     class Meta:
         verbose_name = 'Configuration'
@@ -52,7 +53,7 @@ class Configuration(models.Model):
     def create(cls, name, type_id, brewpi):
         logger.debug("Create new configuration: name={}, type_id={}, brewpi={}".format(name, type_id, brewpi))
 
-        config = cls(name=name, create_date=timezone.now(), type=type_id, brewpi=brewpi)
+        config = cls(name=name, create_date=timezone.now(), type=type_id, brewpi=brewpi, archived=False)
 
         return config
 

@@ -12,11 +12,12 @@ logger = logging.getLogger(__name__)
 class ConfigurationGeneral(View):
 
     def get(self, request, *args, **kwargs):
+        archived = True if request.GET.get("archived", "False") == "True" else False
         pretty = request.GET.get("pretty", "True")
 
         logger.info("Get all configurations")
 
-        configurations = get_list_or_404(Configuration)
+        configurations = get_list_or_404(Configuration, archived=archived)
 
         configs_arr = []
         for configuration in configurations:

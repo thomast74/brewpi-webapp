@@ -20,7 +20,7 @@ def request_configurations(device_id):
         logger.error("BrewPi {} can't be found".format(device_id))
         return "Error"
 
-    configurations = Configuration.objects.filter(brewpi=brewpi)
+    configurations = Configuration.objects.filter(brewpi=brewpi, archived=False)
     for configuration in configurations:
         tries = 0
         success = False
