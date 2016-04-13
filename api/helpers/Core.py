@@ -27,7 +27,7 @@ def get_and_check_brewpi_to_device(device_id, actuator_id):
     return device, brewpi
 
 
-def prepare_configuration_dic(configuration):
+def prepare_configuration_dic(configuration, all_phases):
     temp_sensor = configuration.get_temp_sensor()
     heat_actuator = configuration.get_heat_actuator()
     cool_actuator = configuration.get_cool_actuator()
@@ -37,6 +37,9 @@ def prepare_configuration_dic(configuration):
 
     phases = []
     for phase in configuration.phases.all():
+        if not all_phases and phase.done:
+            continue
+
         phases.append({
             "start_date": phase.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "temperature": phase.temperature,

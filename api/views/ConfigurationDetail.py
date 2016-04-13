@@ -21,6 +21,7 @@ class ConfigurationDetail(View):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
         archived = True if request.GET.get("archived", "False") == "True" else False
+        all_phases = True if request.GET.get("all_phases", "False") == "True" else False
         pretty = request.GET.get("pretty", "True")
 
         logger.info("Get all configurations for BrewPi {}".format(device_id))
@@ -28,7 +29,7 @@ class ConfigurationDetail(View):
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         configuration = get_object_or_404(Configuration, pk=config_id, brewpi=brewpi, archived=archived)
 
-        config_dic = prepare_configuration_dic(configuration)
+        config_dic = prepare_configuration_dic(configuration, all_phases)
 
         return ApiResponse.json(config_dic, pretty, False)
 

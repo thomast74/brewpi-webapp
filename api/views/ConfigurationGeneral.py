@@ -13,6 +13,7 @@ class ConfigurationGeneral(View):
 
     def get(self, request, *args, **kwargs):
         archived = True if request.GET.get("archived", "False") == "True" else False
+        all_phases = True if request.GET.get("all_phases", "False") == "True" else False
         pretty = request.GET.get("pretty", "True")
 
         logger.info("Get all configurations")
@@ -21,6 +22,6 @@ class ConfigurationGeneral(View):
 
         configs_arr = []
         for configuration in configurations:
-            configs_arr.append(prepare_configuration_dic(configuration))
+            configs_arr.append(prepare_configuration_dic(configuration, all_phases))
 
         return ApiResponse.json(configs_arr, pretty, False)

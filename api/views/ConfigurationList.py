@@ -17,6 +17,7 @@ class ConfigurationList(View):
     def get(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         archived = True if request.GET.get("archived", "False") == "True" else False
+        all_phases = True if request.GET.get("all_phases", "False") == "True" else False
         pretty = request.GET.get("pretty", "True")
 
         logger.info("Get all configurations for BrewPi {}".format(device_id))
@@ -26,7 +27,7 @@ class ConfigurationList(View):
 
         configs_arr = []
         for configuration in configurations:
-            configs_arr.append(prepare_configuration_dic(configuration))
+            configs_arr.append(prepare_configuration_dic(configuration, all_phases))
 
         return ApiResponse.json(configs_arr, pretty, False)
 
