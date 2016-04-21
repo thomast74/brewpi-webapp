@@ -3,19 +3,20 @@ Documentation about API Entry Points
 
 BrewPi
 ------
-Impl | Entry Point                | METHOD | Description
------|----------------------------|--------|----------------------------------------------------------------------------
-Y    | /api/brewpis/              | GET    | List all registered BrewPi's
-Y    | /api/brewpis/              | POST   | Create a new BrewPi from json request
-Y    | /api/brewpis/{device_id}/  | GET    | List details of BrewPi with device_id
-Y    | /api/brewpis/{device_id}/  | PUT    | Update BrewPi with device_id from json request, sends message to BrewPi device
-Y    | /api/brewpis/{device_id}/  | DELETE | Deletes BrewPi with device_id including actuators but excludes all OneWrite devices
+Impl | Entry Point                          | METHOD | Description
+-----|--------------------------------------|--------|----------------------------------------------------------------------------
+Y    | /api/brewpis/                        | GET    | List all registered BrewPi's
+Y    | /api/brewpis/                        | POST   | Create a new BrewPi from json request
+Y    | /api/brewpis/{device_id}/            | GET    | List details of BrewPi with device_id
+Y    | /api/brewpis/{device_id}/{command}/  | PUT    | Update BrewPi with device_id from json request, sends message to BrewPi device
+Y    | /api/brewpis/{device_id}/            | DELETE | Deletes BrewPi with device_id including actuators but excludes all OneWrite devices
+
+Command can be: [status|update|reset]
 
 Sample Json Update Request:
 ```
 {  
-  "command": "[status|update|reset]",  
-  "device_id": "54ff6c066678574929420565",  
+  "device_id": "54ff6c066678574929420565",
   "name": "Chamber 1",  
   "firmware_version": "0.3",  
   "ip_address": "192.168.1.11",  

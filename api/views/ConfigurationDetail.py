@@ -20,8 +20,8 @@ class ConfigurationDetail(View):
     def get(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
-        archived = True if request.GET.get("archived", "False") == "True" else False
-        all_phases = True if request.GET.get("all_phases", "False") == "True" else False
+        archived = True if request.GET.get("archived", "False").lower() == "true" else False
+        all_phases = True if request.GET.get("all_phases", "False").lower() == "true" else False
         pretty = request.GET.get("pretty", "True")
 
         logger.info("Get all configurations for BrewPi {}".format(device_id))

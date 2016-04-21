@@ -64,7 +64,7 @@ def prepare_configuration_dic(configuration, all_phases):
         "create_date": configuration.create_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
         "type": "Brew" if configuration.type == Configuration.CONFIG_TYPE_BREW else "Fermentation",
         "brewpi": {
-            "pk": configuration.brewpi.pk,
+            "device_id": configuration.brewpi.device_id,
             "name": configuration.brewpi.name,
         },
         "fan_actuator": "" if fan_actuator is None else fan_actuator.get_function_display(),
@@ -80,3 +80,21 @@ def prepare_configuration_dic(configuration, all_phases):
     }
 
     return config_dic
+
+
+def prepare_brewpi_dic(brewpi):
+
+    brewpi_dic = {
+                "device_id": brewpi.device_id,
+                "name": brewpi.name,
+                "system_version": brewpi.system_version,
+                "firmware_version": brewpi.firmware_version,
+                "spark_version": brewpi.spark_version,
+                "ip_address": brewpi.ip_address,
+                "web_address": brewpi.web_address,
+                "web_port": brewpi.web_port,
+                "brewtime_time": brewpi.brewpi_time,
+                "last_update":  brewpi.last_update.strftime('%Y-%m-%dT%H:%M:%SZ')
+            }
+
+    return brewpi_dic

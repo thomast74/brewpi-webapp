@@ -27,10 +27,10 @@ class BrewPi(models.Model):
         get_latest_by = '-last_update'
 
     @classmethod
-    def create(cls, device_id, system_version, firmware_version, spark_version, ip_address, web_address, web_port,
+    def create(cls, device_id, name, system_version, firmware_version, spark_version, ip_address, web_address, web_port,
                brewpi_time):
-        brewpi = cls(device_id, device_id, system_version, firmware_version, spark_version, ip_address, web_address,
-                     web_port, brewpi_time)
+        brewpi = cls(device_id, name if not None else device_id, system_version, firmware_version, spark_version,
+                     ip_address, web_address, web_port, brewpi_time)
         brewpi.last_update = timezone.now()
 
         return brewpi

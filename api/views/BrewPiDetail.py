@@ -3,6 +3,7 @@ import logging
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
 
+from api.helpers.Core import prepare_brewpi_dic
 from api.helpers.Responses import ApiResponse
 from api.models import BrewPi, Device
 from api.services.BrewPiSerializer import BrewPiSerializer
@@ -20,16 +21,18 @@ class BrewPiDetail(View):
         pretty = request.GET.get("pretty", "True")
         brewpi = get_object_or_404(BrewPi, device_id=kwargs['device_id'])
 
-        return ApiResponse.json([brewpi], pretty)
+        return ApiResponse.json(prepare_brewpi_dic(brewpi), pretty, False)
 
     def put(self, request, *args, **kwargs):
-        logger.info("Received PUT request for BrewPi {}".format(kwargs['device_id']))
+        command = kwargs['command']
 
-        brewpi, command = BrewPiSerializer.from_json(request.body)
+        logger.info("Received PUT request for BrewPi {} with command {}".format(kwargs['device_id'], command))
 
-        logger.info("Command: {}".format(command))
+        brewpi = BrewPiSerializer.from_json(request.body)
 
-        if command == "status" or command == "update" or command == "name":
+        if command == "status":
+            self.statusUpdate(brewpi, request)
+        elif command == "update":
             self.update(brewpi, request)
         elif command == "reset":
             self.reset(brewpi)
@@ -61,7 +64,14 @@ class BrewPiDetail(View):
             return ApiResponse.ok()
 
     def update(self, brewpi, request):
-        logger.info("Received BrewPi status/update request for {}".format(brewpi.device_id))
+        logger.info("Received BrewPi update request for {}".format(brewpi.device_id))
+
+        brewpi.save()
+
+        return ApiResponse.ok()
+
+    def statusUpdate(self, brewpi, request):
+        logger.info("Received BrewPi status request for {}".format(brewpi.device_id))
 
         brewpi.save()
 

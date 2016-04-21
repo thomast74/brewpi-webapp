@@ -26,6 +26,7 @@ urlpatterns = patterns('',
                        url(r'^logs/(?P<device_id>\w+)/(?P<config_id>[0-9]+)/', LogDetail.as_view()),
                        url(r'^logs/(?P<device_id>\w+)/', LogList.as_view()),
 
-                       url(r'^brewpis/(?P<device_id>\w+)/$', BrewPiDetail.as_view()),
+                       url(r'^brewpis/(?P<device_id>\w+)/(?P<command>\w+)/', BrewPiDetail.as_view()),
+                       url(r'^brewpis/(?P<device_id>\w+)/', BrewPiDetail.as_view()),
                        url(r'^brewpis/', BrewPiList.as_view()),
                        )
