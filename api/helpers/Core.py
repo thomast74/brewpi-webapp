@@ -93,7 +93,7 @@ def prepare_brewpi_dic(brewpi):
                 "ip_address": brewpi.ip_address,
                 "web_address": brewpi.web_address,
                 "web_port": brewpi.web_port,
-                "brewtime_time": brewpi.brewpi_time,
+                "brewpi_time": brewpi.brewpi_time,
                 "last_update":  brewpi.last_update.strftime('%Y-%m-%dT%H:%M:%SZ')
             }
 
