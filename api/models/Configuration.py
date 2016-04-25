@@ -59,7 +59,10 @@ class Configuration(models.Model):
 
     def get_temp_sensor(self):
         logger.debug("Temp Sensor: {}".format(self.temp_sensor_id))
-        return api.models.Device.objects.get(pk=self.temp_sensor_id)
+        if self.temp_sensor_id is None:
+            return None
+        else:
+            return api.models.Device.objects.get(pk=self.temp_sensor_id)
 
     def get_heat_actuator(self):
         logger.debug("Heat Actuator: {}".format(self.heat_actuator_id))

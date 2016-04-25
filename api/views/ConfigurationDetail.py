@@ -42,6 +42,8 @@ class ConfigurationDetail(View):
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         configuration = get_object_or_404(Configuration, pk=config_id)
 
+        Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
+
         config_dic = ConfigurationDetail.convert_json_data(request.body)
 
         try:
@@ -187,7 +189,7 @@ class ConfigurationDetail(View):
 
         temp_sensor_function = Device.get_function(config_dic.get(name))
         if temp_sensor_function == Device.DEVICE_FUNCTION_NONE:
-            raise Http400("Sensor/Actuator {} can't be found".format(temp_sensor_function))
+            return None
 
         device = get_object_or_404(Device, configuration=config, function=temp_sensor_function)
         if name == 'temp_sensor' and device.device_type != Device.DEVICE_TYPE_ONEWIRE_TEMP:
