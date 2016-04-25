@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import traceback
 
 from django.db import transaction
 from django.views.generic import View
@@ -42,11 +43,11 @@ class ConfigurationDetail(View):
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         configuration = get_object_or_404(Configuration, pk=config_id)
 
-        Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
-
         config_dic = ConfigurationDetail.convert_json_data(request.body)
 
         try:
+            Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
+
             name = config_dic.get("name")
             if "name" not in config_dic or len(name) == 0:
                 raise Http400("A name must be given")
@@ -95,6 +96,8 @@ class ConfigurationDetail(View):
                 return ApiResponse.bad_request("BrewPi could not be updated: [{}]".format(response))
         except:
             transaction.rollback()
+            logger.error(sys.exc_info()[1])
+            logger.error(traceback.format_exc());            
             return ApiResponse.bad_request(sys.exc_info()[1])
 
     def delete(self, request, *args, **kwargs):
