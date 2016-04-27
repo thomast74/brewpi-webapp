@@ -97,7 +97,7 @@ class ConfigurationDetail(View):
         except:
             transaction.rollback()
             logger.error(sys.exc_info()[1])
-            logger.error(traceback.format_exc());            
+            logger.error(traceback.format_exc())
             return ApiResponse.bad_request(sys.exc_info()[1])
 
     def delete(self, request, *args, **kwargs):
