@@ -143,27 +143,26 @@ class BrewPiConnector:
                                                   phase.cooling_off_time, int(phase.p * 10000), int(phase.i * 10000),
                                                   int(phase.d * 10000))
             logger.debug("Send Message: p" + msg)
-
             sock.send(msg)
+            logger.debug("Message sent, waiting")
 
-            time.sleep(0.1)
             response = sock.recv(2)
-            logger.debug("Response: {}".format(response))
 
             sock.close()
 
-        except socket.timeout as e:
-            response = e.message
-            logger.error("Time Out: {}", e.message)
+        except socket.timeout as et:
+            response = et.message
+            logger.error("Time Out: {}", response)
 
-        except socket.error as e:
-            response = e.message
-            logger.error("Socket Error: {}", e.message)
+        except socket.error as ee:
+            response = ee.message
+            logger.error("Socket Error: {}", response)
 
         except:
             response = sys.exc_info()[0]
             logger.error("General Error: {}", response)
 
+        logger.debug("Response: {}".format(response))
         return True if response == "Ok" else False, response
 
     @staticmethod
