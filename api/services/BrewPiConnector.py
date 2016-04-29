@@ -4,6 +4,7 @@ import logging
 import socket
 import time
 
+import sys
 from django.conf import settings
 from django.utils import timezone
 from api.helpers.Exceptions import BrewPiException
@@ -145,7 +146,7 @@ class BrewPiConnector:
 
             sock.send(msg)
 
-            time.sleep(0.02)
+            time.sleep(0.1)
             response = sock.recv(2)
             logger.debug("Response: {}".format(response))
 
@@ -158,6 +159,10 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.error("Socket Error: {}", e.message)
+
+        except:
+            response = sys.exc_info()[0]
+            logger.error("General Error: {}", response)
 
         return True if response == "Ok" else False, response
 
