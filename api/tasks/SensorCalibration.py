@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import logging
 import sys
+import time
 
 from celery import shared_task
 
@@ -37,6 +38,7 @@ def calculate_offset(brewpi, sensors):
                 success, response = BrewPiConnector().send_device_offset(sensor)
                 if success:
                     break
+                time.sleep(0.2)
                 tries += 1
 
             if not success:

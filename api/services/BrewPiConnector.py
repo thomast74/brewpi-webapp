@@ -26,23 +26,23 @@ class BrewPiConnector:
 
             message = "s{{name:{},oinkweb:{},oinkwebport:{},datetime:{}}}".format(brewpi.name, local_ip, local_port,
                                                                                   datetime)
+
             logger.debug("Send Message: {}".format(message))
             sock.sendall(message)
-
-            time.sleep(0.02)
-            response = sock.recv(2)
-            logger.info("Response: {}".format(response))
-
+            response = sock.recv(1024)
             sock.close()
 
         except socket.timeout as e:
             response = e.message
-            logger.error("Time Out: {}", e.message)
-
+            logger.error("Time Out: {}", response)
         except socket.error as e:
             response = e.message
-            logger.error("Socket Error: {}", e.message)
+            logger.error("Socket Error: {}", response)
+        except:
+            response = sys.exc_info()[0]
+            logger.error("General Error: {}", response)
 
+        logger.info("Response: {}".format(response))
         return True if response == "Ok" else False, response
 
     @staticmethod
@@ -54,21 +54,21 @@ class BrewPiConnector:
 
             logger.debug("Send Message: r")
             sock.sendall("r")
-
-            time.sleep(0.02)
             response = sock.recv(2)
-            logger.info("Response: {}".format(response))
 
             sock.close()
 
         except socket.timeout as e:
             response = e.message
-            logger.debug("Time Out: {}", e.message)
-
+            logger.debug("Time Out: {}", response)
         except socket.error as e:
             response = e.message
-            logger.debug("Socket Error: {}", e.message)
+            logger.debug("Socket Error: {}", response)
+        except:
+            response = sys.exc_info()[0]
+            logger.error("General Error: {}", response)
 
+        logger.info("Response: {}".format(response))
         return True if response == "Ok" else False, response
 
     @staticmethod
@@ -80,23 +80,24 @@ class BrewPiConnector:
 
             message = "o{{pin_nr:{},hw_address:{},offset:{}}}".format(device.pin_nr, device.hw_address,
                                                                       int(device.offset * 10000))
-            logger.debug("Send Message: " + message)
-            sock.send(message)
 
-            time.sleep(0.02)
-            response = sock.recv(2)
-            logger.debug("Response: {}".format(response))
+            logger.debug("Send Message: " + message)
+            sock.sendall(message)
+            response = sock.recv(1024)
 
             sock.close()
 
         except socket.timeout as e:
             response = e.message
-            logger.error("TimeOut: {}", e.message)
-
+            logger.error("TimeOut: {}", response)
         except socket.error as e:
             response = e.message
-            logger.error("Socket Error: {}", e.message)
+            logger.error("Socket Error: {}", response)
+        except:
+            response = sys.exc_info()[0]
+            logger.error("General Error: {}", response)
 
+        logger.info("Response: {}".format(response))
         return True if response == "Ok" else False, response
 
     @staticmethod
@@ -141,8 +142,6 @@ class BrewPiConnector:
                                                   int(phase.d * 10000))
             logger.debug("Send Message: " + msg)
             sock.sendall(msg)
-            logger.debug("Message sent, waiting")
-
             response = sock.recv(1024)
 
             sock.close()
@@ -150,16 +149,14 @@ class BrewPiConnector:
         except socket.timeout as et:
             response = et.message
             logger.error("Time Out: {}", response)
-
         except socket.error as ee:
             response = ee.message
             logger.error("Socket Error: {}", response)
-
         except:
             response = sys.exc_info()[0]
             logger.error("General Error: {}", response)
 
-        logger.debug("Response: {}".format(response))
+        logger.info("Response: {}".format(response))
         return True if response == "Ok" else False, response
 
     @staticmethod
@@ -170,24 +167,24 @@ class BrewPiConnector:
             sock = BrewPiConnector.__start_connection(brewpi.ip_address)
 
             message = 'q{{"config_id":{}}}'.format(configuration.id)
+
             logger.debug("Send Message: " + message)
-
-            sock.send(message)
-
-            time.sleep(0.02)
-            response = sock.recv(2)
-            logger.debug("Response: {}".format(response))
+            sock.sendall(message)
+            response = sock.recv(1024)
 
             sock.close()
 
         except socket.timeout as e:
             response = e.message
-            logger.error("Time Out: {}", e.message)
-
+            logger.error("Time Out: {}", response)
         except socket.error as e:
             response = e.message
-            logger.error("Socket Error: {}", e.message)
+            logger.error("Socket Error: {}", response)
+        except:
+            response = sys.exc_info()[0]
+            logger.error("General Error: {}", response)
 
+        logger.info("Response: {}".format(response))
         return True if response == "Ok" else False, response
 
     @staticmethod

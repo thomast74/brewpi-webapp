@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
@@ -50,6 +51,7 @@ class BrewPiDetail(View):
             success, response = BrewPiConnector.send_reset(brewpi)
             if success:
                 break
+            time.sleep(0.2)
             tries += 1
 
         if not success:
@@ -88,6 +90,7 @@ class BrewPiDetail(View):
             success, response = BrewPiConnector.send_reset(brewpi)
             if success:
                 break
+            time.sleep(0.2)
             tries += 1
 
         if success:

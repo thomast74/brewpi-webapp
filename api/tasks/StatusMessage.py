@@ -36,6 +36,7 @@ def check_if_status_update_required(device_id, local_port):
         success, response = BrewPiConnector().send_brewpi_info(brewpi, local_ip, local_port)
         if success:
             break
+        time.sleep(0.2)
         tries += 1
 
     if success:
@@ -62,6 +63,7 @@ def send_offset(brewpi):
             success, response = BrewPiConnector().send_device_offset(device)
             if success:
                 break
+            time.sleep(0.2)
             tries += 1
 
         if not success:

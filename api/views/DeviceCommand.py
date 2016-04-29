@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 
 from django.views.generic import View
 from django.shortcuts import get_object_or_404
@@ -51,6 +52,7 @@ class DeviceCommand(View):
                 success, response = BrewPiConnector.send_device_offset(device)
                 if success:
                     break
+                time.sleep(0.2)
                 tries += 1
 
             if not success:
@@ -122,6 +124,7 @@ class DeviceCommand(View):
                 success, response = BrewPiConnector.send_device_offset(device)
                 if success:
                     break
+                time.sleep(0.2)
                 tries += 1
 
             if not success:

@@ -1,5 +1,6 @@
 import logging
 import sys
+import time
 
 from django.views.generic import View
 from django.shortcuts import get_object_or_404, get_list_or_404
@@ -69,6 +70,7 @@ class ConfigurationList(View):
                 success, response = BrewPiConnector.send_configuration(brewpi, configuration)
                 if success:
                     break
+                time.sleep(0.2)
                 tries += 1
 
             if success:

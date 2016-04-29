@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import logging
+import time
 
 from celery import shared_task
 
@@ -28,6 +29,7 @@ def request_configurations(device_id):
             success, response = BrewPiConnector.send_configuration(brewpi, configuration)
             if success:
                 break
+            time.sleep(0.2)
             tries += 1
 
         if not success:

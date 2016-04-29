@@ -87,7 +87,7 @@ class ConfigurationDetail(View):
                 success, response = BrewPiConnector.send_configuration(brewpi, configuration)
                 if success:
                     break
-                time.sleep(0.5)
+                time.sleep(0.2)
                 tries += 1
 
             if success:
@@ -129,6 +129,8 @@ class ConfigurationDetail(View):
             success, response = BrewPiConnector.delete_configuration(brewpi, configuration)
             if success:
                 break
+            time.sleep(0.2)
+            tries += 1
 
         if success:
             Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
