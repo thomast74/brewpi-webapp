@@ -1,5 +1,4 @@
 from __builtin__ import staticmethod
-from _socket import SHUT_RDWR
 import logging
 import socket
 import time
@@ -127,9 +126,7 @@ class BrewPiConnector:
 
             phase = Phase.objects.filter(configuration=configuration, done=False)[0]
 
-            sock.send("p")
-            time.sleep(0.015)
-            msg = '{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}",' \
+            msg = 'p{{"config_id":{},"name":{},"config_type":{},"temp_sensor":"{}","heat_actuator":"{}",' \
                   '"cool_actuator":"{}","fan_actuator":"{}","pump_1_actuator":"{}","pump_2_actuator":"{}",' \
                   '"temperature":{},"heat_pwm":{},"fan_pwm":{},"pump_1_pwm":{},"pump_2_pwm":{},' \
                   '"heating_period":{},"cooling_period":{},"cooling_on_time":{},"cooling_off_time":{},' \
@@ -142,11 +139,11 @@ class BrewPiConnector:
                                                   phase.cooling_period, phase.cooling_on_time,
                                                   phase.cooling_off_time, int(phase.p * 10000), int(phase.i * 10000),
                                                   int(phase.d * 10000))
-            logger.debug("Send Message: p" + msg)
-            sock.send(msg)
+            logger.debug("Send Message: " + msg)
+            sock.sendall(msg)
             logger.debug("Message sent, waiting")
 
-            response = sock.recv(2)
+            response = sock.recv(1024)
 
             sock.close()
 

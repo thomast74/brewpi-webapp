@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import time
 import traceback
 
 from django.db import transaction
@@ -86,6 +87,7 @@ class ConfigurationDetail(View):
                 success, response = BrewPiConnector.send_configuration(brewpi, configuration)
                 if success:
                     break
+                time.sleep(0.5)
                 tries += 1
 
             if success:
