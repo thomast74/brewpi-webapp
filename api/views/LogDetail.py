@@ -17,14 +17,16 @@ logger = logging.getLogger(__name__)
 
 
 class LogDetail(View):
-
     def get(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
         pretty = request.GET.get("pretty", "True")
-        limit = request.GET.get("limit", 0)
+        limit = request.GET.get("limit", 3)
 
         logger.info("Get list of logs for BrewPi {} and Configuration {}".format(device_id, config_id))
+
+        client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
+                                settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
 
         configuration, brewpi = self.get_and_check_brewpi_to_config(device_id, config_id)
 
@@ -37,21 +39,43 @@ class LogDetail(View):
             "name": brewpi.name
         }
 
-        name = configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime('%Y_%m_%d')
-        where = ""
-        if "ALL" != limit:
-            where = "WHERE time > now() - {}m".format(limit) if int(limit) > 0 else "WHERE time > now() - 24h"
+        measurement = configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime('%Y_%m_%d')
 
-        client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
-                                settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
+        rs = client.query('select * from "{}" ORDER BY time DESC LIMIT 1;'.format(measurement))
+        last_time_entry = list(rs.get_points(measurement=measurement))[0]['time']
 
-        influx_data = client.query('select * from "{}" {};'.format(name, where))
+        if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
+            query = (
+                "SELECT mean(\"Fridge Beer 1 Temp Sensor\") AS Beer_1, "
+                "       mean(\"Fridge Beer 2 Temp Sensor\") AS Beer_2, "
+                "       mean(\"Fridge Inside Temp Sensor\") AS Fridge, "
+                "       mean(\"Target Temperature\") AS Target, "
+                "       mean(\"Fridge Cooling Actuator\") AS Cooling, "
+                "       mean(\"Fridge Heating Actuator\") AS Heating "
+                "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
+                "GROUP BY time(1m) fill(null) ORDER BY time"
+            ).format(measurement, last_time_entry, limit, last_time_entry)
+        else:
+            query = (
+                "SELECT mean(\"Boil Heating Actuator\") AS Boil_Heating, "
+                "       mean(\"HLT Heating Actuator\") AS HLT_Heating, "
+                "       mean(\"Pump 1 Actuator\") AS Pump_1, "
+                "       mean(\"Pump 2 Actuator\") AS Pump_2, "
+                "       mean(\"HLT Out Temp Sensor\") AS HLT_Out, "
+                "       mean(\"Mash In Temp Sensor\") AS Mash_In, "
+                "       mean(\"Mash Out Temp Sensor\") AS Mast_Out, "
+                "       mean(\"Target Temperature\") AS Target "
+                "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
+                "GROUP BY time(5s) fill(null) ORDER BY time"
+            ).format(measurement, last_time_entry, limit, last_time_entry)
 
-        for point in influx_data[name]:
+        rs = client.query(query)
+
+        for point in list(rs.get_points(measurement=measurement)):
             time = parse_datetime(point['time'])
             point['time'] = timezone.localtime(time).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        config_data['points'] = influx_data[name]
+        config_data['points'] = list(rs.get_points(measurement=measurement))
 
         return ApiResponse.json(config_data, pretty, False)
 
