@@ -16,6 +16,20 @@ logger = logging.getLogger(__name__)
 
 class DeviceCommand(View):
 
+    def put(self, request, *args, **kwargs):
+        device_id = kwargs['device_id']
+        internal_device_id = kwargs['id']
+        name = request.PUT.get("name", "");
+
+        logger.info("Change name of device on {} with id {} to name", device_id, internal_device_id, name)
+
+        device = get_object_or_404(Device, pk=internal_device_id)
+
+        device.name = name
+        device.save
+
+        return ApiResponse.ok()
+
     def post(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         command = kwargs['command']

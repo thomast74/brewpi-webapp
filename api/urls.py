@@ -19,6 +19,7 @@ urlpatterns = patterns('',
                        url(r'^configs/(?P<device_id>\w+)/', ConfigurationList.as_view()),
                        url(r'^configs/', ConfigurationGeneral.as_view()),
 
+                       url(r'^devices/(?P<device_id>\w+)/(?P<id>[0-9]+)/', DeviceCommand.as_view()),
                        url(r'^devices/(?P<device_id>\w+)/(?P<command>\w+)/', DeviceCommand.as_view()),
                        url(r'^devices/(?P<device_id>\w+)/', DeviceDetail.as_view()),
                        url(r'^devices/', DeviceList.as_view()),

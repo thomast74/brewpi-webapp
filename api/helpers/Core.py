@@ -104,6 +104,7 @@ def prepare_device_dic(device):
     device_dic = {
 
         "pk": device.pk,
+        "name": device.name,
         "function": device.function,
         "offset_from_brewpi": device.offset_from_brewpi,
         "brewpi": {
