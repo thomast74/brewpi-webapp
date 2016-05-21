@@ -1,9 +1,16 @@
 # Change Log for Oink Brew Web App 
 
+## v0.3
+
+##### Stories
+
+##### Improvements
+
+##### Bugs
 
 ## v0.2
 
-### Stories
+##### Stories
 OB-48 	Receive new Device message from BrewPi and add device to database  
 OB-38 	Receive Calibration request for a specific BrewPi and a list of sensors and mark them for calibration  
 OB-40 	Create a task that is called after 2 minutes to calculate the offset and send to BrewPi  
@@ -11,11 +18,11 @@ OB-42 	Verify the calibration offset values 2 minutes after offset was calculate
 OB-39 	Receive Device value data and save it into calibration data for 2 minutes  
 OB-59 	Send offset stored in database to temp sensors on provided BrewPi  
   
-### Improvements
+##### Improvements
 OB-43 	Deleting device should not delete the device from database, just unlink from BrewPi if device is a OneWire device  
 OB-41 	Make sure that request device list and single device does not update the offset  
   
-### Bugs
+##### Bugs
 OB-57 	Devices, especially Actuators have same PIN NR and HW ADDRESS and should not be deleted once they have been created and never unassigned from a BrewPi  
 OB-54 	Receive disconnect Device message from BrewPi and unallocated device from BrewPi and configuration  
   

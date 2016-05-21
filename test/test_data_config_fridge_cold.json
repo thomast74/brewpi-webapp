@@ -16,12 +16,12 @@
   "phase": {
     "temperature": 2.0,
     "fan_pwm": 100.0,
-    "heating_period": 6000,
+    "heating_period": 1000,
     "cooling_period": 1200000,
     "cooling_on_time": 210000,
     "cooling_off_time": 300000,
-    "p": 60.0,
-    "i": 0.001,
-    "d": -2
+    "p": 90.0,
+    "i": 0.0001,
+    "d": -50
   }
 }

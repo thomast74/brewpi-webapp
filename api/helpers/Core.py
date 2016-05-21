@@ -117,7 +117,7 @@ def prepare_device_dic(device):
         "pin_nr": device.pin_nr,
         "device_type": device.device_type,
         "offset": device.offset,
-        "configuration": device.configuration,
+        "configuration": device.configuration.pk,
         "is_deactivate": device.is_deactivate
     }
 
