@@ -22,4 +22,4 @@ class DeviceList(View):
         for device in devices:
             devices_arr.append(prepare_device_dic(device))
 
-        return ApiResponse.json(devices_arr, pretty)
+        return ApiResponse.json(devices_arr, pretty, False)
