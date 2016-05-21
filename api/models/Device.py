@@ -79,6 +79,7 @@ class Device(models.Model):
         (DEVICE_FUNCTION_BOIL_OUT_TEMP_SENSOR, 'Boil Out Temp Sensor')
     )
 
+    name = models.CharField(verbose_name="Name",  max_length=30, null=True)
     brewpi = models.ForeignKey(BrewPi, null=True)
     configuration = models.ForeignKey(Configuration, null=True)
     device_type = models.IntegerField(verbose_name='Hardware Type', choices=DEVICE_TYPE, default=0)

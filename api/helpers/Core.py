@@ -98,3 +98,27 @@ def prepare_brewpi_dic(brewpi):
             }
 
     return brewpi_dic
+
+def prepare_device_dic(device):
+
+    device_dic = {
+
+        "pk": device.pk,
+        "function": device.function,
+        "offset_from_brewpi": device.offset_from_brewpi,
+        "brewpi": {
+            "device_id": device.brewpi.device_id,
+            "name": device.brewpi.name
+        },
+        "value": device.value,
+        "last_update": device.last_update.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        "hw_address": device.hw_address,
+        "offset_result": device.offset_result,
+        "pin_nr": device.pin_nr,
+        "device_type": device.device_type,
+        "offset": device.offset,
+        "configuration": device.configuration,
+        "is_deactivate": device.is_deactivate
+    }
+
+    return device_dic

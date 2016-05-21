@@ -1,7 +1,9 @@
 import logging
 
 from django.views.generic import View
+
 from api.helpers.Responses import ApiResponse
+from api.helpers.Core import prepare_device_dic
 from api.models import Device
 
 logger = logging.getLogger(__name__)
@@ -16,4 +18,8 @@ class DeviceList(View):
 
         devices = Device.objects.filter(brewpi=None)
 
-        return ApiResponse.json(devices, pretty)
+        devices_arr = []
+        for device in devices:
+            devices_arr.append(prepare_device_dic(device))
+
+        return ApiResponse.json(devices_arr, pretty)

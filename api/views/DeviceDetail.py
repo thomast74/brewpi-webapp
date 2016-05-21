@@ -4,6 +4,7 @@ from django.views.generic import View
 from django.shortcuts import get_object_or_404, get_list_or_404
 
 from api.helpers.Responses import ApiResponse
+from api.helpers.Core import prepare_device_dic
 from api.models import BrewPi, Device
 from api.services.DeviceSerializer import DeviceSerializer
 
@@ -21,7 +22,11 @@ class DeviceDetail(View):
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         devices = get_list_or_404(Device, brewpi=brewpi)
 
-        return ApiResponse.json(devices, pretty)
+        devices_arr = []
+        for device in devices:
+            devices_arr.append(prepare_device_dic(device))
+
+        return ApiResponse.json(devices_arr, pretty)
 
     def put(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
