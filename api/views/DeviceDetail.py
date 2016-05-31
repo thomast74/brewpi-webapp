@@ -60,6 +60,7 @@ class DeviceDetail(View):
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
 
         device = DeviceSerializer.from_json(brewpi, request.body)
-        device.delete()
+        device.brewpi = None
+        device.save()
 
         return ApiResponse.ok()
