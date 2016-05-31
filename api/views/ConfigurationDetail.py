@@ -105,13 +105,13 @@ class ConfigurationDetail(View):
     def delete(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
-        force = request.POST.get("force", "True")
+        force = request.POST.get("force", "False")
 
         logger.info("Received delete configuration {} request".format(config_id))
 
         success, response = self.delete_configuration(device_id, config_id, force)
 
-        if success:
+        if success or force:
             return ApiResponse.ok()
         else:
             return ApiResponse.bad_request("Could not delete configuration {} from BrewPi {} [{}]".format(config_id,
