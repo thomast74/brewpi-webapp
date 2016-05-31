@@ -108,8 +108,8 @@ def prepare_device_dic(device):
         "function": device.function,
         "offset_from_brewpi": device.offset_from_brewpi,
         "brewpi": {
-            "device_id": device.brewpi.device_id,
-            "name": device.brewpi.name
+            "device_id": device.brewpi.device_id if not device.brewpi is None else "",
+            "name": device.brewpi.name if not device.brewpi is None else ""
         },
         "value": device.value,
         "last_update": device.last_update.strftime('%Y-%m-%dT%H:%M:%SZ'),
