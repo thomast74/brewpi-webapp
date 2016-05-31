@@ -105,10 +105,11 @@ class ConfigurationDetail(View):
     def delete(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
+        force = request.DELETE.get("force", "True")
 
         logger.info("Received delete configuration {} request".format(config_id))
 
-        success, response = self.delete_configuration(device_id, config_id)
+        success, response = self.delete_configuration(device_id, config_id, force)
 
         if success:
             return ApiResponse.ok()
@@ -118,7 +119,7 @@ class ConfigurationDetail(View):
                                                                                                           response))
 
     @staticmethod
-    def delete_configuration(device_id, config_id):
+    def delete_configuration(device_id, config_id, force=False):
 
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         configuration = get_object_or_404(Configuration, pk=config_id)
@@ -132,7 +133,7 @@ class ConfigurationDetail(View):
             time.sleep(0.2)
             tries += 1
 
-        if success:
+        if success or force:
             Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
             configuration.delete()
 
