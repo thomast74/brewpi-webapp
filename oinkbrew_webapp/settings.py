@@ -60,8 +60,8 @@ DATABASES = {
     }
 }
 
-U_LOGFILE_SIZE = 1 * 1024 * 1024
-U_LOGFILE_COUNT = 2
+U_LOGFILE_SIZE = 10 * 1024 * 1024
+U_LOGFILE_COUNT = 4
 
 LOGGING = {
     'version': 1,
