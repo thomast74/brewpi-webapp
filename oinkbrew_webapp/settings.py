@@ -60,6 +60,9 @@ DATABASES = {
     }
 }
 
+U_LOGFILE_SIZE = 1 * 1024 * 1024
+U_LOGFILE_COUNT = 2
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -74,27 +77,31 @@ LOGGING = {
     },
     'handlers': {
         'api-file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': '/var/log/oinkbrew/oinkbrew-api.log',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
+            'maxBytes': U_LOGFILE_SIZE,
+            'backupCount': U_LOGFILE_COUNT
         },
         'application-file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': '/var/log/oinkbrew/oinkbrew-application.log',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
+            'maxBytes': U_LOGFILE_SIZE,
+            'backupCount': U_LOGFILE_COUNT
         },
     },
     'loggers': {
         'django': {
             'handlers': ['application-file'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'api': {
             'handlers': ['api-file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
     }
 }
