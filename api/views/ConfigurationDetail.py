@@ -135,7 +135,8 @@ class ConfigurationDetail(View):
 
         if success or force:
             Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
-            configuration.delete()
+            configuration.archived = True
+            configuration.save()
 
         return success, response
 
