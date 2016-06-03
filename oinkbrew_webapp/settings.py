@@ -78,7 +78,7 @@ LOGGING = {
     'handlers': {
         'api-file': {
             'level': 'INFO',
-            'class': 'logging.RotatingFileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': '/var/log/oinkbrew/oinkbrew-api.log',
             'formatter': 'verbose',
             'maxBytes': U_LOGFILE_SIZE,
@@ -86,7 +86,7 @@ LOGGING = {
         },
         'application-file': {
             'level': 'INFO',
-            'class': 'logging.RotatingFileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': '/var/log/oinkbrew/oinkbrew-application.log',
             'formatter': 'verbose',
             'maxBytes': U_LOGFILE_SIZE,
