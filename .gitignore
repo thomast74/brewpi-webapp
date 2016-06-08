@@ -56,3 +56,4 @@ target/
 # project specific files
 oinkbrew.sqlite
 /.idea/
+/celerybeat-schedule
