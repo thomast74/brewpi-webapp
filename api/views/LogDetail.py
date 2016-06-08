@@ -39,10 +39,13 @@ class LogDetail(View):
             "name": brewpi.name
         }
 
-        measurement = configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime('%Y_%m_%d')
+        config_type = configuration.get_type_display()
+        name = config_type + "_" + configuration.name.replace(" ",
+                                                                     "_") + "_" + configuration.create_date.strftime(
+            '%Y_%m_%d')
 
-        rs = client.query('select * from "{}" ORDER BY time DESC LIMIT 1;'.format(measurement))
-        last_time_entry = list(rs.get_points(measurement=measurement))[0]['time']
+        rs = client.query('select * from "{}" ORDER BY time DESC LIMIT 1;'.format(name))
+        last_time_entry = list(rs.get_points(measurement=name))[0]['time']
 
         if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
             query = (
@@ -54,7 +57,7 @@ class LogDetail(View):
                 "       mean(\"Fridge Heating Actuator\") AS Heating "
                 "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
                 "GROUP BY time(1m) fill(null) ORDER BY time"
-            ).format(measurement, last_time_entry, limit, last_time_entry)
+            ).format(name, last_time_entry, limit, last_time_entry)
         else:
             query = (
                 "SELECT mean(\"Boil Heating Actuator\") AS Boil_Heating, "
@@ -67,15 +70,15 @@ class LogDetail(View):
                 "       mean(\"Target Temperature\") AS Target "
                 "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
                 "GROUP BY time(5s) fill(null) ORDER BY time"
-            ).format(measurement, last_time_entry, limit, last_time_entry)
+            ).format(name, last_time_entry, limit, last_time_entry)
 
         rs = client.query(query)
 
-        for point in list(rs.get_points(measurement=measurement)):
+        for point in list(rs.get_points(measurement=name)):
             time = parse_datetime(point['time'])
             point['time'] = timezone.localtime(time).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        config_data['points'] = list(rs.get_points(measurement=measurement))
+        config_data['points'] = list(rs.get_points(measurement=name))
 
         return ApiResponse.json(config_data, pretty, False)
 
@@ -87,7 +90,9 @@ class LogDetail(View):
 
         configuration, brewpi = self.get_and_check_brewpi_to_config(device_id, config_id)
 
-        name = configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime('%Y_%m_%d')
+        config_type = configuration.get_type_display()
+        name = config_type + "_" + configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime(
+            '%Y_%m_%d')
 
         client = InfluxDBClient(settings.INFLUXDB_HOST, settings.INFLUXDB_PORT, settings.INFLUXDB_USER,
                                 settings.INFLUXDB_PWD, settings.INFLUXDB_DB)
