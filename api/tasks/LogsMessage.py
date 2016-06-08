@@ -124,7 +124,6 @@ def build_temperature_points(log_data, brewpi, influx_data_dic):
 
 
 def build_target_points(target_data, brewpi, influx_data_dic):
-
     logger.debug("Build target temperature points: {}".format(target_data))
 
     for target_temperature in target_data:
@@ -137,8 +136,10 @@ def build_target_points(target_data, brewpi, influx_data_dic):
         if configuration.name == "Calibration":
             continue
 
-        name = configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime('%Y_%m_%d')
         config_type = configuration.get_type_display()
+        name = config_type + "_" + configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime(
+            '%Y_%m_%d')
+
         function = "Target Temperature"
         value = float(target_temperature.get("temperature"))
 
