@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @periodic_task(
-    run_every=(crontab(hour='*/1')),
+    run_every=(crontab(minute=0, hour='*/1')),
     name="task_clean_up_influx_db",
     ignore_result=True
 )
@@ -40,8 +40,7 @@ def task_clean_up_influx_db():
             last_time_entry = points[0]['time']
 
             query = (
-                "DELETE FROM {} WHERE time < (\'{}\'  - {}h) "
-                "GROUP BY time(1m) fill(null) ORDER BY time"
+                "DELETE FROM {} WHERE time < (\'{}\'  - {}h)"
             ).format(measurement, last_time_entry, 12)
             client.query(query)
 
