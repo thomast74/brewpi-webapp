@@ -62,7 +62,7 @@ Y    | /api/devices/{device_id}/             | PUT    | Receives a already or ne
 Y    | /api/devices/{device_id}/             | POST   | Updates device from json request attached to BrewPi with device_id
 Y    | /api/devices/{device_id}/offset/      | POST   | Send offset of temp sensors to BrewPi
 Y    | /api/devices/{device_id}/calibration/ | POST   | Start calibration process for provided sensors
-Y    | /api/devices/{pk}/                    | PUT    | Update a sensor's/actuator's name
+Y    | /api/devices/{pk}/update/             | PUT    | Update a sensor's/actuator's name
 
 Sample json request data:
 ```
