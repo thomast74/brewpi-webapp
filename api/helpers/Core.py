@@ -118,7 +118,10 @@ def prepare_device_dic(device):
         "pin_nr": device.pin_nr,
         "device_type": device.device_type,
         "offset": device.offset,
-        "configuration": device.configuration.pk if not device.configuration is None else 0,
+        "configuration": {
+            "pk": device.configuration.pk if not device.configuration is None else 0,
+            "name": device.configuration.name if not device.configuration is None else ""
+        },
         "is_deactivate": device.is_deactivate
     }
 
