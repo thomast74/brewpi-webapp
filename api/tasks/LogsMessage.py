@@ -103,9 +103,10 @@ def build_temperature_points(log_data, brewpi, influx_data_dic):
             config_type = ""
             function = device.pk
         else:
-            name = device.configuration.name.replace(" ", "_") + "_" + device.configuration.create_date.strftime(
+            configuration = device.configuration
+            config_type = configuration.get_type_display()
+            name = config_type + "_" + configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime(
                 '%Y_%m_%d')
-            config_type = device.configuration.get_type_display()
             function = device.get_function_display()
 
         if value < -120:
