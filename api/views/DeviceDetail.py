@@ -30,8 +30,8 @@ class DeviceDetail(View):
         return ApiResponse.json(devices_arr, pretty, False)
 
     def put(self, request, *args, **kwargs):
-        pk = kwargs['pk']
-        device_id = kwargs['device_id']
+        pk = kwargs.get('pk', None)
+        device_id = kwargs.get('device_id', None)
 
         if pk is None:
             logger.info("Receive registered device request from BrewPi {}: ".format(device_id, request.body))
