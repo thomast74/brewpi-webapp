@@ -31,7 +31,8 @@ class DeviceSerializer:
                 device = Device.objects.get(pin_nr=device_dic.get('pin_nr'),
                                             hw_address=device_dic.get("hw_address"),
                                             brewpi=brewpi)
-
+                
+            device.name = device_dic.get('name', device.name)
             device.brewpi = brewpi
             device.device_type = device_dic.get('device_type', device.device_type)
             device.function = device_dic.get('function', device.function)
