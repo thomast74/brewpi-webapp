@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.views.generic import View
@@ -29,14 +30,24 @@ class DeviceDetail(View):
         return ApiResponse.json(devices_arr, pretty, False)
 
     def put(self, request, *args, **kwargs):
+        pk = kwargs['pk']
         device_id = kwargs['device_id']
 
-        logger.info("Receive registered device request from BrewPi {}: ".format(device_id, request.body))
+        if pk is None:
+            logger.info("Receive registered device request from BrewPi {}: ".format(device_id, request.body))
 
-        brewpi = get_object_or_404(BrewPi, device_id=device_id)
+            brewpi = get_object_or_404(BrewPi, device_id=device_id)
 
-        device = DeviceSerializer.from_json(brewpi, request.body)
-        device.save()
+            device = DeviceSerializer.from_json(brewpi, request.body)
+            device.save()
+        else:
+            logger.info("Receive update request fro device {}: ".format(pk))
+
+            device_dic = json.loads(request.body)
+
+            device = get_object_or_404(Device, pk=pk)
+            device.name = device_dic.get('name', device.name)
+            device.save()
 
         return ApiResponse.ok()
 
