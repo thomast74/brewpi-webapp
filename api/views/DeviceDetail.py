@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 
 from api.helpers.Responses import ApiResponse
 from api.helpers.Core import prepare_device_dic
-from api.models import BrewPi, Device
+from api.models import BrewPi, Configuration, Device
 from api.services.DeviceSerializer import DeviceSerializer
 
 logger = logging.getLogger(__name__)
@@ -64,14 +64,25 @@ class DeviceDetail(View):
         return ApiResponse.ok()
 
     def delete(self, request, *args, **kwargs):
-        device_id = kwargs['device_id']
+        pk = kwargs.get('pk', None)
+        device_id = kwargs.get('device_id', None)
 
-        logger.info("Delete actuator or sensor from BrewPi {}: {}".format(device_id, request.body))
+        if pk is None:
+            logger.info("Unassign actuator or sensor from BrewPi {}: {}".format(device_id, request.body))
 
-        brewpi = get_object_or_404(BrewPi, device_id=device_id)
+            brewpi = get_object_or_404(BrewPi, device_id=device_id)
 
-        device = DeviceSerializer.from_json(brewpi, request.body)
-        device.brewpi = None
-        device.save()
+            device = DeviceSerializer.from_json(brewpi, request.body)
+            device.brewpi = None
+            device.save()
+        else:
+            logger.info("Delete actuator or sensor {} from database".format(pk))
+
+            device = get_object_or_404(Device, pk=pk)
+
+            if device.configuration is None:
+                device.delete()
+            else:
+                return ApiResponse.bad_request("Device is part of an configuration and can't be deleted")
 
         return ApiResponse.ok()

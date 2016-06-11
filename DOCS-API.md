@@ -57,12 +57,13 @@ Impl | Entry Point                           | METHOD | Description
 -----|---------------------------------------|--------|-----------------------------------------------------------------
 Y    | /api/devices/                         | GET    | List sensor/actuator from database that are not attached to a BrewPi
 Y    | /api/devices/{device_id}/             | GET    | List sensor/actuator from database attached to BrewPi with device_id
-Y    | /api/devices/{device_id}/             | DELETE | Delete a sensor that was disconnected from BrewPi with device_id
+Y    | /api/devices/{device_id}/             | DELETE | Unassign a sensor that was disconnected from BrewPi with device_id
 Y    | /api/devices/{device_id}/             | PUT    | Receives a already or newly connected device from BrewPi with device_id
 Y    | /api/devices/{device_id}/             | POST   | Updates device from json request attached to BrewPi with device_id
 Y    | /api/devices/{device_id}/offset/      | POST   | Send offset of temp sensors to BrewPi
 Y    | /api/devices/{device_id}/calibration/ | POST   | Start calibration process for provided sensors
 Y    | /api/devices/{pk}/update/             | PUT    | Update a sensor's/actuator's name
+Y    | /api/devices/{pk}/delete/             | DELETE | Delete a sensor's/actuator's from database
 
 Sample json request data:
 ```
