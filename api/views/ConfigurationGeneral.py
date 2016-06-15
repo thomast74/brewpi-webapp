@@ -18,7 +18,7 @@ class ConfigurationGeneral(View):
 
         logger.info("Get all configurations")
 
-        configurations = get_list_or_404(Configuration, archived=archived)
+        configurations = Configuration.objects.filter(archived=archived)
 
         configs_arr = []
         for configuration in configurations:
