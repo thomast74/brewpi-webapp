@@ -45,40 +45,45 @@ class LogDetail(View):
             '%Y_%m_%d')
 
         rs = client.query('select * from "{}" ORDER BY time DESC LIMIT 1;'.format(name))
-        last_time_entry = list(rs.get_points(measurement=name))[0]['time']
+        points = list(rs.get_points(measurement=name))
+        if len(points) > 0:
+            last_time_entry = points[0]['time']
 
-        if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
-            query = (
-                "SELECT mean(\"Fridge Beer 1 Temp Sensor\") AS Beer_1, "
-                "       mean(\"Fridge Beer 2 Temp Sensor\") AS Beer_2, "
-                "       mean(\"Fridge Inside Temp Sensor\") AS Fridge, "
-                "       mean(\"Target Temperature\") AS Target, "
-                "       mean(\"Fridge Cooling Actuator\") AS Cooling, "
-                "       mean(\"Fridge Heating Actuator\") AS Heating "
-                "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
-                "GROUP BY time(1m) fill(null) ORDER BY time"
-            ).format(name, last_time_entry, limit, last_time_entry)
+            if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
+                query = (
+                    "SELECT mean(\"Fridge Beer 1 Temp Sensor\") AS Beer_1, "
+                    "       mean(\"Fridge Beer 2 Temp Sensor\") AS Beer_2, "
+                    "       mean(\"Fridge Inside Temp Sensor\") AS Fridge, "
+                    "       mean(\"Target Temperature\") AS Target, "
+                    "       mean(\"Fridge Cooling Actuator\") AS Cooling, "
+                    "       mean(\"Fridge Heating Actuator\") AS Heating "
+                    "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
+                    "GROUP BY time(1m) fill(null) ORDER BY time"
+                ).format(name, last_time_entry, limit, last_time_entry)
+            else:
+                query = (
+                    "SELECT mean(\"Boil Heating Actuator\") AS Boil_Heating, "
+                    "       mean(\"HLT Heating Actuator\") AS HLT_Heating, "
+                    "       mean(\"Pump 1 Actuator\") AS Pump_1, "
+                    "       mean(\"Pump 2 Actuator\") AS Pump_2, "
+                    "       mean(\"HLT Out Temp Sensor\") AS HLT_Out, "
+                    "       mean(\"Mash In Temp Sensor\") AS Mash_In, "
+                    "       mean(\"Mash Out Temp Sensor\") AS Mast_Out, "
+                    "       mean(\"Target Temperature\") AS Target "
+                    "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
+                    "GROUP BY time(5s) fill(null) ORDER BY time"
+                ).format(name, last_time_entry, limit, last_time_entry)
+
+            rs = client.query(query)
+
+            for point in list(rs.get_points(measurement=name)):
+                time = parse_datetime(point['time'])
+                point['time'] = timezone.localtime(time).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+            config_data['points'] = list(rs.get_points(measurement=name))
+
         else:
-            query = (
-                "SELECT mean(\"Boil Heating Actuator\") AS Boil_Heating, "
-                "       mean(\"HLT Heating Actuator\") AS HLT_Heating, "
-                "       mean(\"Pump 1 Actuator\") AS Pump_1, "
-                "       mean(\"Pump 2 Actuator\") AS Pump_2, "
-                "       mean(\"HLT Out Temp Sensor\") AS HLT_Out, "
-                "       mean(\"Mash In Temp Sensor\") AS Mash_In, "
-                "       mean(\"Mash Out Temp Sensor\") AS Mast_Out, "
-                "       mean(\"Target Temperature\") AS Target "
-                "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
-                "GROUP BY time(5s) fill(null) ORDER BY time"
-            ).format(name, last_time_entry, limit, last_time_entry)
-
-        rs = client.query(query)
-
-        for point in list(rs.get_points(measurement=name)):
-            time = parse_datetime(point['time'])
-            point['time'] = timezone.localtime(time).strftime('%Y-%m-%dT%H:%M:%SZ')
-
-        config_data['points'] = list(rs.get_points(measurement=name))
+            config_data['points'] = {}
 
         return ApiResponse.json(config_data, pretty, False)
 
