@@ -76,7 +76,7 @@ class ConfigurationList(View):
             if success:
                 return ApiResponse.message('"ConfigId":"{}"'.format(configuration.pk))
             else:
-                ConfigurationDetail.delete_configuration(device_id, configuration.pk)
+                ConfigurationDetail.delete_configuration(device_id, configuration.pk, True)
                 return ApiResponse.bad_request("BrewPi could not be updated [{}]".format(response))
         except:
             ConfigurationDetail.delete_configuration(device_id, configuration.pk)
