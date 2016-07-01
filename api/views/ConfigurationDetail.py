@@ -105,8 +105,8 @@ class ConfigurationDetail(View):
     def delete(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
-        force = request.POST.get("force", "False")
-        really_delete = request.POST.get("really", "False")
+        force = True if request.POST.get("force", "False") == "True" else False;
+        really_delete = True if request.POST.get("really", "False") == "True" else False;
 
         logger.info("Received delete configuration {} request".format(config_id))
 
