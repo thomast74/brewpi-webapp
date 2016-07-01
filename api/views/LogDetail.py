@@ -71,7 +71,7 @@ class LogDetail(View):
                     "       mean(\"Mash Out Temp Sensor\") AS Mast_Out, "
                     "       mean(\"Boil Out Temp Sensor\") AS Boil_Out, "
                     "       mean(\"Target Temperature\") AS Target "
-                    "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
+                    "FROM {} WHERE time > (\'{}\'  - {}m) AND time <= \'{}\' "
                     "GROUP BY time(5s) fill(null) ORDER BY time"
                 ).format(name, last_time_entry, limit, last_time_entry)
 
