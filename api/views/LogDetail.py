@@ -69,6 +69,7 @@ class LogDetail(View):
                     "       mean(\"HLT Out Temp Sensor\") AS HLT_Out, "
                     "       mean(\"Mash In Temp Sensor\") AS Mash_In, "
                     "       mean(\"Mash Out Temp Sensor\") AS Mast_Out, "
+                    "       mean(\"Boil Out Temp Sensor\") AS Boil_Out, "
                     "       mean(\"Target Temperature\") AS Target "
                     "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
                     "GROUP BY time(5s) fill(null) ORDER BY time"
