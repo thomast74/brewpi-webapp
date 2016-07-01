@@ -68,7 +68,7 @@ class LogDetail(View):
                     "       mean(\"Pump 2 Actuator\") AS Pump_2, "
                     "       mean(\"HLT Out Temp Sensor\") AS HLT_Out, "
                     "       mean(\"Mash In Temp Sensor\") AS Mash_In, "
-                    "       mean(\"Mash Out Temp Sensor\") AS Mast_Out, "
+                    "       mean(\"Mash Out Temp Sensor\") AS Mash_Out, "
                     "       mean(\"Boil Out Temp Sensor\") AS Boil_Out, "
                     "       mean(\"Target Temperature\") AS Target "
                     "FROM {} WHERE time > (\'{}\'  - {}m) AND time <= \'{}\' "
