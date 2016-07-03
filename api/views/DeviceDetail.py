@@ -70,11 +70,11 @@ class DeviceDetail(View):
         if pk is None:
             logger.info("Unassign actuator or sensor from BrewPi {}: {}".format(device_id, request.body))
 
-            brewpi = get_object_or_404(BrewPi, device_id=device_id)
+            # brewpi = get_object_or_404(BrewPi, device_id=device_id)
 
-            device = DeviceSerializer.from_json(brewpi, request.body)
-            device.brewpi = None
-            device.save()
+            # device = DeviceSerializer.from_json(brewpi, request.body)
+            # device.brewpi = None
+            # device.save()
         else:
             logger.info("Delete actuator or sensor {} from database".format(pk))
 
