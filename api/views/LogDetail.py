@@ -57,7 +57,7 @@ class LogDetail(View):
                     "       mean(\"Target Temperature\") AS Target, "
                     "       mean(\"Fridge Cooling Actuator\") AS Cooling, "
                     "       mean(\"Fridge Heating Actuator\") AS Heating "
-                    "FROM {} WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
+                    "FROM \"{}\" WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
                     "GROUP BY time(1m) fill(null) ORDER BY time"
                 ).format(name, last_time_entry, limit, last_time_entry)
             else:
@@ -71,10 +71,11 @@ class LogDetail(View):
                     "       mean(\"Mash Out Temp Sensor\") AS Mash_Out, "
                     "       mean(\"Boil Out Temp Sensor\") AS Boil_Out, "
                     "       mean(\"Target Temperature\") AS Target "
-                    "FROM {} WHERE time > (\'{}\'  - {}m) AND time <= \'{}\' "
-                    "GROUP BY time(5s) fill(null) ORDER BY time"
+                    "FROM \"{}\" WHERE time > (\'{}\'  - {}m) AND time <= \'{}\' "
+                    "GROUP BY time(20s) fill(null) ORDER BY time"
                 ).format(name, last_time_entry, limit, last_time_entry)
 
+            logger.info(query)
             rs = client.query(query)
 
             for point in list(rs.get_points(measurement=name)):
