@@ -12,9 +12,6 @@ from api.services.BrewPiConnector import BrewPiConnector
 
 from django.utils import timezone
 
-from netifaces import interfaces, ifaddresses, AF_INET
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -75,13 +72,4 @@ def send_offset(brewpi):
 
 
 def get_local_ip():
-    for interface in interfaces():
-        if interface.startswith("eth") or interface.startswith("wlan"):
-            try:
-                for link in ifaddresses(interface)[AF_INET]:
-                    logger.debug("local_ip: {} -> {}".format(interface, link['addr']))
-                    return link['addr']
-            except:
-                logger.debug("Interface {} has no ip address".format(interface))
-
     return socket.gethostbyname(socket.gethostname())
