@@ -1,1 +1,1 @@
-celery -A oinkbrew_webapp worker -l info
+celery -A oinkbrew_webapp worker -b sqla+sqlite:///celerydb.sqlite -P threads -l info --detach

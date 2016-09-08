@@ -231,11 +231,11 @@ _get_pids() {
 
 
 _chuid () {
-    su "$CELERYD_USER" -c "$CELERYD_MULTI $*"
+    "$CELERYD_MULTI $*"
 }
 
 _chuid_beat () {
-    su "$CELERYD_USER" -c "$CELERYD_BEAT $*"
+    "$CELERYD_BEAT $*"
 }
 
 start_workers () {
