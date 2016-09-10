@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 import logging
 
+from datetime import datetime,timedelta
+
 from celery.schedules import crontab
 from celery.task.base import periodic_task
 from influxdb import InfluxDBClient
@@ -39,11 +41,12 @@ def task_clean_up_influx_db():
         rs = client.query('select * from "{}" ORDER BY time DESC LIMIT 1;'.format(name))
         points = list(rs.get_points(measurement=name))
         if len(points) > 0:
-            last_time_entry = points[0]['time']
+            last_time_entry = datetime.strptime(points[0]['time'], '%Y-%m-%dT%H:%M:%SZ')
+            from_time_entry = last_time_entry - timedelta(hours=12)
 
             query = (
-                "DELETE FROM {} WHERE time < (\'{}\'  - {}h)"
-            ).format(name, last_time_entry, 12)
+                "DELETE FROM \"{}\" WHERE time < \'{}\'"
+            ).format(name, from_time_entry)
             client.query(query)
 
             logger.debug("Entries deleted")
