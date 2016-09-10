@@ -15,6 +15,12 @@ INFLUXDB_USER = 'root'
 INFLUXDB_PWD = 'root'
 INFLUXDB_DB = 'oinkbrew'
 
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+BROKER_URL='sqla+sqlite:///celerydb.sqlite'
+CELERY_RESULT_BACKEND = 'db+sqlite:///celeryresults.sqlite'
+
 #
 # Framework Settings
 #
@@ -77,17 +83,17 @@ LOGGING = {
     },
     'handlers': {
         'api-file': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/oinkbrew/oinkbrew-api.log',
+            'filename': '/share/MD0_DATA/Oinkbrew/oinkbrew_webapp/log/oinkbrew-api.log',
             'formatter': 'verbose',
             'maxBytes': U_LOGFILE_SIZE,
             'backupCount': U_LOGFILE_COUNT
         },
         'application-file': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/oinkbrew/oinkbrew-application.log',
+            'filename': '/share/MD0_DATA/Oinkbrew/oinkbrew_webapp/log/oinkbrew-application.log',
             'formatter': 'verbose',
             'maxBytes': U_LOGFILE_SIZE,
             'backupCount': U_LOGFILE_COUNT
