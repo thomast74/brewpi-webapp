@@ -43,7 +43,7 @@ class BrewPiConnector:
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
-        return True if response == "Ok" else False, response
+        return True if response[:2] == "Ok" else False, response
 
     @staticmethod
     def send_reset(brewpi):
@@ -69,7 +69,7 @@ class BrewPiConnector:
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
-        return True if response == "Ok" else False, response
+        return True if response[:2] == "Ok" else False, response
 
     @staticmethod
     def send_device_offset(device):
@@ -98,7 +98,7 @@ class BrewPiConnector:
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
-        return True if response == "Ok" else False, response
+        return True if response[:2] == "Ok" else False, response
 
     @staticmethod
     def send_configuration(brewpi, configuration):
@@ -157,7 +157,7 @@ class BrewPiConnector:
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
-        return True if response == "Ok" else False, response
+        return True if response[:2] == "Ok" else False, response
 
     @staticmethod
     def delete_configuration(brewpi, configuration):
@@ -185,7 +185,7 @@ class BrewPiConnector:
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
-        return True if response == "Ok" else False, response
+        return True if response[:2] == "Ok" else False, response
 
     @staticmethod
     def __start_connection(ip_address, timeout=30):
