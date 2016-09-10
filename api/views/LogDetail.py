@@ -1,5 +1,7 @@
 import logging
 
+from datetime import datetime,timedelta
+
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.views.generic import View
@@ -21,7 +23,7 @@ class LogDetail(View):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
         pretty = request.GET.get("pretty", "True")
-        limit = request.GET.get("limit", 3)
+        limit = int(request.GET.get("limit", 3))
 
         logger.info("Get list of logs for BrewPi {} and Configuration {}".format(device_id, config_id))
 
@@ -47,9 +49,10 @@ class LogDetail(View):
         rs = client.query('select * from "{}" ORDER BY time DESC LIMIT 1;'.format(name))
         points = list(rs.get_points(measurement=name))
         if len(points) > 0:
-            last_time_entry = points[0]['time']
+            last_time_entry = datetime.strptime(points[0]['time'], '%Y-%m-%dT%H:%M:%SZ')
 
             if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
+                from_time_entry = last_time_entry - timedelta(hours=3)
                 query = (
                     "SELECT mean(\"Fridge Beer 1 Temp Sensor\") AS Beer_1, "
                     "       mean(\"Fridge Beer 2 Temp Sensor\") AS Beer_2, "
@@ -57,10 +60,11 @@ class LogDetail(View):
                     "       mean(\"Target Temperature\") AS Target, "
                     "       mean(\"Fridge Cooling Actuator\") AS Cooling, "
                     "       mean(\"Fridge Heating Actuator\") AS Heating "
-                    "FROM \"{}\" WHERE time > (\'{}\'  - {}h) AND time <= \'{}\' "
-                    "GROUP BY time(1m) fill(null) ORDER BY time"
-                ).format(name, last_time_entry, limit, last_time_entry)
+                    "FROM \"{}\" WHERE time > \'{}\' AND time <= \'{}\' "
+                    "GROUP BY time(1m) fill(0) ORDER BY time"
+                ).format(name, from_time_entry, last_time_entry)
             else:
+                from_time_entry = last_time_entry - timedelta(minutes=int(limit))
                 query = (
                     "SELECT mean(\"Boil Heating Actuator\") AS Boil_Heating, "
                     "       mean(\"HLT Heating Actuator\") AS HLT_Heating, "
@@ -71,9 +75,9 @@ class LogDetail(View):
                     "       mean(\"Mash Out Temp Sensor\") AS Mash_Out, "
                     "       mean(\"Boil Out Temp Sensor\") AS Boil_Out, "
                     "       mean(\"Target Temperature\") AS Target "
-                    "FROM \"{}\" WHERE time > (\'{}\'  - {}m) AND time <= \'{}\' "
-                    "GROUP BY time(20s) fill(null) ORDER BY time"
-                ).format(name, last_time_entry, limit, last_time_entry)
+                    "FROM \"{}\" WHERE time > \'{}\' AND time <= \'{}\' "
+                    "GROUP BY time(20s) fill(0) ORDER BY time"
+                ).format(name, from_time_entry, last_time_entry)
 
             logger.info(query)
             rs = client.query(query)
