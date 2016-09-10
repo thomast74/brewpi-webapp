@@ -234,9 +234,6 @@ class ConfigurationDetail(View):
         pump_1_pwm = phase_dic.get("pump_1_pwm", 0)
         pump_2_pwm = phase_dic.get("pump_2_pwm", 0)
 
-        if temperature <= 0 and heat_pwm <= 0:
-            raise Http400("Either a temperature or heat PWM value need to be provided")
-
         if temperature == 0 and (heat_pwm < 0 or heat_pwm > 100):
             raise Http400("Heat PWM must be between 0 and 100")
 
