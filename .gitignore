@@ -55,5 +55,9 @@ target/
 
 # project specific files
 oinkbrew.sqlite
+celerydb.sqlite
 /.idea/
 /celerybeat-schedule
+celerydb.sqlite-journal
+oinkbrew.sqlite-journal
+run/
