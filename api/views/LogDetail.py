@@ -42,8 +42,7 @@ class LogDetail(View):
         }
 
         config_type = configuration.get_type_display()
-        name = config_type + "_" + configuration.name.replace(" ",
-                                                                     "_") + "_" + configuration.create_date.strftime(
+        name = config_type + "_" + configuration.name.replace(" ", "_") + "_" + configuration.create_date.strftime(
             '%Y_%m_%d')
 
         rs = client.query('select * from "{}" ORDER BY time DESC LIMIT 1;'.format(name))
@@ -52,7 +51,7 @@ class LogDetail(View):
             last_time_entry = datetime.strptime(points[0]['time'], '%Y-%m-%dT%H:%M:%SZ')
 
             if configuration.type == Configuration.CONFIG_TYPE_FERMENTATION:
-                from_time_entry = last_time_entry - timedelta(hours=3)
+                from_time_entry = last_time_entry - timedelta(hours=limit)
                 query = (
                     "SELECT mean(\"Fridge Beer 1 Temp Sensor\") AS Beer_1, "
                     "       mean(\"Fridge Beer 2 Temp Sensor\") AS Beer_2, "
@@ -61,7 +60,7 @@ class LogDetail(View):
                     "       mean(\"Fridge Cooling Actuator\") AS Cooling, "
                     "       mean(\"Fridge Heating Actuator\") AS Heating "
                     "FROM \"{}\" WHERE time > \'{}\' AND time <= \'{}\' "
-                    "GROUP BY time(1m) fill(0) ORDER BY time"
+                    "GROUP BY time(1m) fill(none) ORDER BY time"
                 ).format(name, from_time_entry, last_time_entry)
             else:
                 from_time_entry = last_time_entry - timedelta(minutes=int(limit))
@@ -76,7 +75,7 @@ class LogDetail(View):
                     "       mean(\"Boil Out Temp Sensor\") AS Boil_Out, "
                     "       mean(\"Target Temperature\") AS Target "
                     "FROM \"{}\" WHERE time > \'{}\' AND time <= \'{}\' "
-                    "GROUP BY time(20s) fill(0) ORDER BY time"
+                    "GROUP BY time(20s) fill(none) ORDER BY time"
                 ).format(name, from_time_entry, last_time_entry)
 
             logger.info(query)

@@ -1,1 +1,1 @@
-celery -A oinkbrew_webapp beat -b sqla+sqlite:///celerydb.sqlite -l info 
+celery -A oinkbrew_webapp beat -b sqla+mysql://oinkuser:Amara@localhost/celery -l info

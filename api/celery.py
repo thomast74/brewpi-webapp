@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from celery import Celery
 
 app = Celery('api',
-	     include=['api.tasks.LogsMessage', 'api.tasks.RequestConfigurations',
+             include=['api.tasks.LogsMessage', 'api.tasks.RequestConfigurations',
                       'api.tasks.SensorCalibration', 'api.tasks.StatusMessage',
                       'api.tasks.InfluxCleanUp'])
 

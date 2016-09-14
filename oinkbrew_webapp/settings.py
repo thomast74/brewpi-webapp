@@ -9,17 +9,24 @@ TIME_ZONE = 'Europe/London'
 
 BREWPI_PORT = 7873
 
+#
+# Influx DB Settings
+#
 INFLUXDB_HOST = 'localhost'
 INFLUXDB_PORT = 8086
 INFLUXDB_USER = 'root'
 INFLUXDB_PWD = 'root'
 INFLUXDB_DB = 'oinkbrew'
 
+#
+# Celery Settings
+#
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-BROKER_URL='sqla+sqlite:///celerydb.sqlite'
-CELERY_RESULT_BACKEND = 'db+sqlite:///celeryresults.sqlite'
+BROKER_URL='sqla+mysql://oinkuser:Amara@localhost/celery'
+CELERY_RESULT_BACKEND = 'db+mysql://oinkuser:Amara@localhost/celery'
+CELERY_TASK_RESULT_EXPIRES = 3600
 
 #
 # Framework Settings
@@ -61,8 +68,15 @@ MIDDLEWARE_CLASSES = (
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'oinkbrew.sqlite'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'oinkbrew',
+        'USER': 'oinkuser',
+        'PASSWORD': 'Amara',
+        'HOST': 'localhost',
+        'PORT': '',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
@@ -85,7 +99,7 @@ LOGGING = {
         'api-file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/share/MD0_DATA/Oinkbrew/oinkbrew_webapp/log/oinkbrew-api.log',
+            'filename': 'log/oinkbrew-api.log',
             'formatter': 'verbose',
             'maxBytes': U_LOGFILE_SIZE,
             'backupCount': U_LOGFILE_COUNT
@@ -93,7 +107,7 @@ LOGGING = {
         'application-file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/share/MD0_DATA/Oinkbrew/oinkbrew_webapp/log/oinkbrew-application.log',
+            'filename': 'log/oinkbrew-application.log',
             'formatter': 'verbose',
             'maxBytes': U_LOGFILE_SIZE,
             'backupCount': U_LOGFILE_COUNT

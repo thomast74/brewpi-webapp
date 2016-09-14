@@ -1,22 +1,22 @@
 CELERYD_NODES="worker"
 
-CELERY_BIN="/usr/local/bin/celery"
+CELERY_BIN="/usr/bin/celery"
 
 CELERY_APP="oinkbrew_webapp"
 
-CELERYD_CHDIR="/opt/oinkbrew/oinkbrew_webapp"
+CELERYD_CHDIR="/share/MD0_DATA/Oinkbrew/oinkbrew_webapp"
 
-CELERYD_OPTS="--time-limit=300 --concurrency=8"
+CELERYD_OPTS="-P threads -b sqla+mysql://oinkuser:Amara@localhost/celery"
+CELERYD_BEAT_OPTS="-b sqla+mysql://oinkuser:Amara@localhost/celery"
 CELERYD_LOG_LEVEL="INFO"
 
-CELERYD_LOG_FILE="/var/log/celery/%N.log"
-CELERYD_PID_FILE="/var/run/celery/%N.pid"
+CELERYD_LOG_FILE="/share/MD0_DATA/Oinkbrew/oinkbrew_webapp/log/celery/%N.log"
+CELERYD_PID_FILE="/share/MD0_DATA/Oinkbrew/oinkbrew_webapp/run/%N.pid"
 
-CELERYD_BEAT_LOG_FILE="/var/log/celery/beat.log"
-CELERYD_BEAT_PID_FILE="/var/run/celery/beat.pid"
+CELERYD_BEAT_LOG_FILE="/share/MD0_DATA/Oinkbrew/oinkbrew_webapp/log/celery/beat.log"
+CELERYD_BEAT_PID_FILE="/share/MD0_DATA/Oinkbrew/oinkbrew_webapp/run/beat.pid"
 
 CELERYD_USER="oinkbrew"
 CELERYD_GROUP="oinkbrew"
 
 CELERY_CREATE_DIRS=1
-

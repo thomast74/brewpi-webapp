@@ -96,11 +96,11 @@ class Migration(migrations.Migration):
             name='device',
             unique_together=set([('pin_nr', 'hw_address', 'brewpi')]),
         ),
-        migrations.DeleteModel(
-            name='BrewPiSpark',
-        ),
         migrations.RemoveField(
             model_name='device',
             name='spark',
+        ),
+        migrations.DeleteModel(
+            name='BrewPiSpark',
         ),
     ]
