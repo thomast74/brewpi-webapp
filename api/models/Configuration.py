@@ -66,7 +66,10 @@ class Configuration(models.Model):
 
     def get_heat_actuator(self):
         logger.debug("Heat Actuator: {}".format(self.heat_actuator_id))
-        return api.models.Device.objects.get(id=self.heat_actuator_id)
+        if self.heat_actuator_id is None:
+            return None
+        else:
+            return api.models.Device.objects.get(id=self.heat_actuator_id)
 
     def get_cool_actuator(self):
         logger.debug("Cool Actuator: {}".format(self.cool_actuator_id))
