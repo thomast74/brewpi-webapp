@@ -38,8 +38,8 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.error("Socket Error: {}", response)
-        except:
-            response = sys.exc_info()[0]
+        except Exception as e:
+            response = str(e)
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -64,8 +64,8 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.debug("Socket Error: {}", response)
-        except:
-            response = sys.exc_info()[0]
+        except Exception as e:
+            response = str(e)
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -93,8 +93,8 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.error("Socket Error: {}", response)
-        except:
-            response = sys.exc_info()[0]
+        except Exception as e:
+            response = str(e)
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -152,8 +152,8 @@ class BrewPiConnector:
         except socket.error as ee:
             response = ee.message
             logger.error("Socket Error: {}", response)
-        except:
-            response = sys.exc_info()[0]
+        except Exception as e:
+            response = str(e)
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -180,8 +180,8 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.error("Socket Error: {}", response)
-        except:
-            response = sys.exc_info()[0]
+        except Exception as e:
+            response = str(e)
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
