@@ -2,8 +2,8 @@ from __builtin__ import staticmethod
 import logging
 import socket
 import time
+import traceback
 
-import sys
 from django.conf import settings
 from django.utils import timezone
 from api.helpers.Exceptions import BrewPiException
@@ -38,8 +38,8 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.error("Socket Error: {}", response)
-        except Exception as e:
-            response = str(e)
+        except:
+            response = traceback.format_exc()
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -64,8 +64,8 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.debug("Socket Error: {}", response)
-        except Exception as e:
-            response = str(e)
+        except:
+            response = traceback.format_exc()
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -93,8 +93,8 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.error("Socket Error: {}", response)
-        except Exception as e:
-            response = str(e)
+        except:
+            response = traceback.format_exc()
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -152,8 +152,8 @@ class BrewPiConnector:
         except socket.error as ee:
             response = ee.message
             logger.error("Socket Error: {}", response)
-        except Exception as e:
-            response = str(e)
+        except:
+            response = traceback.format_exc()
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -180,8 +180,8 @@ class BrewPiConnector:
         except socket.error as e:
             response = e.message
             logger.error("Socket Error: {}", response)
-        except Exception as e:
-            response = str(e)
+        except:
+            response = traceback.format_exc()
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
