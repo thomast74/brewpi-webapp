@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def bad_request(request):
-    tp, value = sys.exc_info()
+    type, value, tb = sys.exc_info()
     logger.error(traceback.format_exc())
 
     return HttpResponse('{{"Status":"ERROR",Message="{}"}}\n'.format(value), content_type="application/json",
@@ -16,7 +16,7 @@ def bad_request(request):
 
 
 def permission_denied(request):
-    tp, value = sys.exc_info()
+    tp, value, tb = sys.exc_info()
     logger.error(traceback.format_exc())
 
     return HttpResponse('{{"Status":"ERROR",Message="{}"}}\n'.format(value), content_type="application/json",
@@ -24,7 +24,7 @@ def permission_denied(request):
 
 
 def page_not_found(request):
-    tp, value = sys.exc_info()
+    type, value, tb = sys.exc_info()
     logger.error(traceback.format_exc())
 
     return HttpResponse('{{"Status":"ERROR",Message="{}"}}\n'.format(value), content_type="application/json",
@@ -32,7 +32,7 @@ def page_not_found(request):
 
 
 def server_error(request):
-    tp, value = sys.exc_info()
+    tp, value, tb = sys.exc_info()
     logger.error(traceback.format_exc())
 
     return HttpResponse('{{"Status":"ERROR",Message="{}"}}\n'.format(value), content_type="application/json",
