@@ -58,6 +58,7 @@ oinkbrew.sqlite
 celerydb.sqlite
 /.idea/
 /celerybeat-schedule
+/celerybeat.pid
 celerydb.sqlite-journal
 oinkbrew.sqlite-journal
 run/

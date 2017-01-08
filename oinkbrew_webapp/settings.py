@@ -97,7 +97,7 @@ LOGGING = {
     },
     'handlers': {
         'api-file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': 'log/oinkbrew-api.log',
             'formatter': 'verbose',
@@ -105,7 +105,7 @@ LOGGING = {
             'backupCount': U_LOGFILE_COUNT
         },
         'application-file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': 'log/oinkbrew-application.log',
             'formatter': 'verbose',
