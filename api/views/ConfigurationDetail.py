@@ -128,14 +128,15 @@ class ConfigurationDetail(View):
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         configuration = get_object_or_404(Configuration, pk=config_id)
 
-        tries = 0
-        success = False
-        while tries < 5:
-            success, response = BrewPiConnector.delete_configuration(brewpi, configuration)
-            if success:
-                break
-            time.sleep(0.2)
-            tries += 1
+        if not configuration.archived:
+            tries = 0
+            success = False
+            while tries < 5:
+                success, response = BrewPiConnector.delete_configuration(brewpi, configuration)
+                if success:
+                    break
+                time.sleep(0.2)
+                tries += 1
 
         if success or force:
             Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
