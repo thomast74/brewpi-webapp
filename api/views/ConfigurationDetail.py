@@ -108,7 +108,10 @@ class ConfigurationDetail(View):
         force = True if request.POST.get("force", "True") == "True" else False;
         really_delete = True if request.POST.get("really", "False") == "True" else False;
 
-        logger.info("Received delete configuration {} request".format(config_id))
+        logger.info("Received delete configuration {}/{} request. (Force={};Really Delete={})".format(device_id,
+                                                                                                      config_id,
+                                                                                                      force,
+                                                                                                      really_delete))
 
         success, response = self.delete_configuration(device_id, config_id, force, really_delete)
 
