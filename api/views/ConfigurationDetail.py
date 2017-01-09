@@ -105,8 +105,8 @@ class ConfigurationDetail(View):
     def delete(self, request, *args, **kwargs):
         device_id = kwargs['device_id']
         config_id = kwargs['config_id']
-        force = True if request.POST.get("force", "True") == "True" else False;
-        really_delete = True if request.POST.get("really", "False") == "True" else False;
+        force = True if request.GET.get("force", "True") == "True" else False;
+        really_delete = True if request.GET.get("really", "False") == "True" else False;
 
         logger.info("Received delete configuration {}/{} request. (Force={};Really Delete={})".format(device_id,
                                                                                                       config_id,
@@ -128,9 +128,11 @@ class ConfigurationDetail(View):
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         configuration = get_object_or_404(Configuration, pk=config_id)
 
+        success = False
+        response = ""
+
         if not configuration.archived:
             tries = 0
-            success = False
             while tries < 5:
                 success, response = BrewPiConnector.delete_configuration(brewpi, configuration)
                 if success:
