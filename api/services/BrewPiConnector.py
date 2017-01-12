@@ -2,7 +2,6 @@ from __builtin__ import staticmethod
 import logging
 import socket
 import time
-import traceback
 
 from django.conf import settings
 from django.utils import timezone
@@ -32,14 +31,14 @@ class BrewPiConnector:
             response = sock.recv(1024)
             sock.close()
 
-        except socket.timeout as e:
-            response = e.message
+        except socket.timeout as et:
+            response = et.message
             logger.error("Time Out: {}", response)
-        except socket.error as e:
-            response = e.message
+        except socket.error as ee:
+            response = ee.message
             logger.error("Socket Error: {}", response)
-        except:
-            response = traceback.format_exc()
+        except Exception as e:
+            response = e.message
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -58,14 +57,14 @@ class BrewPiConnector:
 
             sock.close()
 
-        except socket.timeout as e:
-            response = e.message
+        except socket.timeout as et:
+            response = et.message
             logger.debug("Time Out: {}", response)
-        except socket.error as e:
-            response = e.message
+        except socket.error as ee:
+            response = ee.message
             logger.debug("Socket Error: {}", response)
-        except:
-            response = traceback.format_exc()
+        except Exception as e:
+            response = e.message
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -87,14 +86,14 @@ class BrewPiConnector:
 
             sock.close()
 
-        except socket.timeout as e:
-            response = e.message
+        except socket.timeout as et:
+            response = et.message
             logger.error("TimeOut: {}", response)
-        except socket.error as e:
-            response = e.message
+        except socket.error as ee:
+            response = ee.message
             logger.error("Socket Error: {}", response)
-        except:
-            response = traceback.format_exc()
+        except Exception as e:
+            response = e.message
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -152,8 +151,8 @@ class BrewPiConnector:
         except socket.error as ee:
             response = ee.message
             logger.error("Socket Error: {}", response)
-        except:
-            response = traceback.format_exc()
+        except Exception as e:
+            response = e.message
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
@@ -174,14 +173,14 @@ class BrewPiConnector:
 
             sock.close()
 
-        except socket.timeout as e:
-            response = e.message
+        except socket.timeout as et:
+            response = et.message
             logger.error("Time Out: {}", response)
-        except socket.error as e:
-            response = e.message
+        except socket.error as ee:
+            response = ee.message
             logger.error("Socket Error: {}", response)
-        except:
-            response = traceback.format_exc()
+        except Exception as e:
+            response = e.message
             logger.error("General Error: {}", response)
 
         logger.info("Response: {}".format(response))
