@@ -66,7 +66,7 @@ class ConfigurationList(View):
 
             tries = 0
             success = False
-            while tries < 5:
+            while tries < 3:
                 success, response = BrewPiConnector.send_configuration(brewpi, configuration)
                 if success:
                     break
@@ -76,7 +76,7 @@ class ConfigurationList(View):
             if success:
                 return ApiResponse.message('"ConfigId":"{}"'.format(configuration.pk))
             else:
-                ConfigurationDetail.delete_configuration(device_id, configuration.pk, True)
+                ConfigurationDetail.delete_configuration(device_id, configuration.pk, True, True, True)
                 return ApiResponse.bad_request("BrewPi could not be updated [{}]".format(response))
         except:
             ConfigurationDetail.delete_configuration(device_id, configuration.pk)

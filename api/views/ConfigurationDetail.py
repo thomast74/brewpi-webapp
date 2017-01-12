@@ -123,7 +123,7 @@ class ConfigurationDetail(View):
                                                                                                           response))
 
     @staticmethod
-    def delete_configuration(device_id, config_id, force=False, really_delete=False):
+    def delete_configuration(device_id, config_id, force=False, really_delete=False, by_pass_brewpi=False):
 
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         configuration = get_object_or_404(Configuration, pk=config_id)
@@ -131,9 +131,9 @@ class ConfigurationDetail(View):
         success = False
         response = ""
 
-        if not configuration.archived:
+        if not configuration.archived and not by_pass_brewpi:
             tries = 0
-            while tries < 5:
+            while tries < 3:
                 success, response = BrewPiConnector.delete_configuration(brewpi, configuration)
                 if success:
                     break
