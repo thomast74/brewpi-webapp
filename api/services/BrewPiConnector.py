@@ -32,13 +32,13 @@ class BrewPiConnector:
             sock.close()
 
         except socket.timeout as et:
-            response = et.message
+            response = et
             logger.error("Time Out: {}".format(response))
         except socket.error as ee:
-            response = ee.message
+            response = ee
             logger.error("Socket Error: {}".format(response))
         except Exception as e:
-            response = e.message
+            response = e
             logger.error("General Error: {}".format(response))
 
         logger.info("Response: {}".format(response))
@@ -58,13 +58,13 @@ class BrewPiConnector:
             sock.close()
 
         except socket.timeout as et:
-            response = et.message
+            response = et
             logger.debug("Time Out: {}".format(response))
         except socket.error as ee:
-            response = ee.message
+            response = ee
             logger.debug("Socket Error: {}".format(response))
         except Exception as e:
-            response = e.message
+            response = e
             logger.error("General Error: {}".format(response))
 
         logger.info("Response: {}".format(response))
@@ -87,13 +87,13 @@ class BrewPiConnector:
             sock.close()
 
         except socket.timeout as et:
-            response = et.message
+            response = et
             logger.error("TimeOut: {}".format(response))
         except socket.error as ee:
-            response = ee.message
+            response = ee
             logger.error("Socket Error: {}".format(response))
         except Exception as e:
-            response = e.message
+            response = e
             logger.error("General Error: {}".format(response))
 
         logger.info("Response: {}".format(response))
@@ -146,13 +146,13 @@ class BrewPiConnector:
             sock.close()
 
         except socket.timeout as et:
-            response = et.message
+            response = et
             logger.error("Time Out: {}".format(response))
         except socket.error as ee:
-            response = ee.message
+            response = ee
             logger.error("Socket Error: {}".format(response))
         except Exception as e:
-            response = e.message
+            response = e
             logger.error("General Error: {}".format(response))
 
         logger.info("Response: {}".format(response))
@@ -174,13 +174,13 @@ class BrewPiConnector:
             sock.close()
 
         except socket.timeout as et:
-            response = et.message
+            response = et
             logger.error("Time Out: {}".format(response))
         except socket.error as ee:
-            response = ee.message
+            response = ee
             logger.error("Socket Error: {}".format(response))
         except Exception as e:
-            response = e.message
+            response = e
             logger.error("General Error: {}".format(response))
 
         logger.info("Response: {}".format(response))
