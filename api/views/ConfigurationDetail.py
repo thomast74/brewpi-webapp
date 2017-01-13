@@ -125,6 +125,11 @@ class ConfigurationDetail(View):
     @staticmethod
     def delete_configuration(device_id, config_id, force=False, really_delete=False, by_pass_brewpi=False):
 
+        logger.info("Received delete configuration {}/{} request. (Force={};Really Delete={})".format(device_id,
+                                                                                                      config_id,
+                                                                                                      force,
+                                                                                                      really_delete))
+
         brewpi = get_object_or_404(BrewPi, device_id=device_id)
         configuration = get_object_or_404(Configuration, pk=config_id)
 
@@ -132,6 +137,7 @@ class ConfigurationDetail(View):
         response = ""
 
         if not configuration.archived and not by_pass_brewpi:
+            logger.info("Delete configuration '{}' from BrewPi {}".format(configuration.name, brewpi.device_id))
             tries = 0
             while tries < 3:
                 success, response = BrewPiConnector.delete_configuration(brewpi, configuration)
@@ -144,9 +150,11 @@ class ConfigurationDetail(View):
             Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
             if really_delete:
                 configuration.delete()
+                logger.info("Configuraiton '{}' really deleted".format(configuration.name))
             else:
                 configuration.archived = True
                 configuration.save()
+                logger.info("Configuraiton '{}' archived".format(configuration.name))
 
         return success, response
 
