@@ -1,5 +1,4 @@
 import logging
-import sys
 import time
 
 from django.views.generic import View
@@ -64,6 +63,7 @@ class ConfigurationList(View):
             configuration.save()
             ConfigurationDetail.store_phase(configuration, config_dic.get("phase"))
 
+            logger.debug("Send configuration '{}' to BrewPi {}".format(configuration.name, brewpi.device_id))
             tries = 0
             success = False
             while tries < 3:
@@ -74,10 +74,16 @@ class ConfigurationList(View):
                 tries += 1
 
             if success:
+                logger.info("Successfully send configuration '{}' to BrewPi {}".format(configuration.name,
+                                                                                       brewpi.device_id))
                 return ApiResponse.message('"ConfigId":"{}"'.format(configuration.pk))
             else:
+                logger.error("Could NOT send configuration '{}' to BrewPi {}; delete configuration"
+                            .format(configuration.name, brewpi.device_id))
                 ConfigurationDetail.delete_configuration(device_id, configuration.pk, True, True, True)
                 return ApiResponse.bad_request("BrewPi could not be updated [{}]".format(response))
-        except:
-            ConfigurationDetail.delete_configuration(device_id, configuration.pk)
-            return ApiResponse.bad_request(sys.exc_info()[1])
+
+        except Exception as e:
+            logger.error("Error during creating configuration: {}", e)
+            ConfigurationDetail.delete_configuration(device_id, configuration.pk, True, True, True)
+            return ApiResponse.bad_request(e)
