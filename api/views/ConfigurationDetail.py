@@ -150,11 +150,11 @@ class ConfigurationDetail(View):
             Device.objects.filter(configuration=configuration).update(configuration=None, function=0)
             if really_delete:
                 configuration.delete()
-                logger.info("Configuraiton '{}' really deleted".format(configuration.name))
+                logger.info("Configuration '{}' really deleted".format(configuration.name))
             else:
                 configuration.archived = True
                 configuration.save()
-                logger.info("Configuraiton '{}' archived".format(configuration.name))
+                logger.info("Configuration '{}' archived".format(configuration.name))
 
         return success, response
 
